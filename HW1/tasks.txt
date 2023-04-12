@@ -1,0 +1,19 @@
+jobs class
+fields:
+job id
+process id
+time entered
+name
+stopped/not stopped
+
+identify process id by job id and vice versa
+
+signals
+
+list/vector from stl
+
+makefile
+valgrind
+change enviorment to c++
+
+check instructions for hw
