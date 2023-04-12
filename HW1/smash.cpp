@@ -8,10 +8,14 @@ main file. This file contains the main function of smash
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <iostream>
 #include "commands.h"
 #include "signals.h"
+#include "jobs.h"
 #define MAX_LINE_SIZE 80
 #define MAXARGS 20
+
+j
 
 char* L_Fg_Cmd;
 void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
@@ -33,6 +37,8 @@ int main(int argc, char* argv[])
 	//NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
 	//set your signal handlers here
 	/* add your code here */
+	sList* Jobs = new sList();
+
 
 	/************************************/
 
