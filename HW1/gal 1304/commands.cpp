@@ -14,7 +14,7 @@ int ExeCmd(void* jobs, char* lineSize, char* cmdString)
 	char pwd[MAX_LINE_SIZE];
 	char* delimiters = " \t\n";
 	int i = 0, num_arg = 0;
-	bool illegal_cmd = FALSE; // illegal command
+	bool illegal_cmd = false; // illegal command
 	cmd = strtok(lineSize, delimiters);
 	if (cmd == NULL)
 		return 0;
