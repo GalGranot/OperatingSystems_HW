@@ -11,9 +11,9 @@
 #include <string.h>
 #include <signal.h>
 #include <iostream>
+#include <string>
 #include "commands.h"
 #include "signals.h"
-#include <string>
 
 using namespace std;
 
