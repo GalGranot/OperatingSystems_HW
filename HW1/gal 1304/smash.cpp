@@ -24,7 +24,7 @@ string L_Fg_Cmd;
 //               should we add it here instead?
 
 //FIXME daniel: is that an array of chars, or a c string?
-char lineSize[MAX_LINE_SIZE];
+char CommandLine[MAX_LINE_SIZE];
 
 //**************************************************************************************
 // function name: main
@@ -57,16 +57,16 @@ int main(int argc, char* argv[])
     {
         cout << "smash > ";
         getline(cin, cmdString);
-        strcpy(lineSize, cmdString.c_str());
+        strcpy(CommandLine, cmdString.c_str());
         // perform a complicated Command
-        if (!ExeComp(lineSize)) continue;
+        if (!ExeComp(CommandLine)) continue;
         // background command    
-        if (!BgCmd(lineSize, jobs)) continue;
+        if (!BgCmd(CommandLine, jobs)) continue;
         // built in commands
-        ExeCmd(jobs, lineSize, cmdString);
+        ExeCmd(jobs, CommandLine, cmdString);
 
         /* initialize for next line read*/
-        lineSize[0] = '\0';
+        CommandLine[0] = '\0';
         cmdString = "";
     }
 

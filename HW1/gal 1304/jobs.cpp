@@ -32,11 +32,11 @@ private:
 
 	void printJob(time_t presentTime)
 	{
-		time_t timeDiff = difftime(startTime, presentTime)
-		cout << "[%s] %s : %d %d", jobID, commandName, processID, timeDiff; //check s-format for time_t
-		if (isStopped)
-			cout << "(stopped)";
-		cout << "\n";
+		time_t timeDiff = difftime(startTime, presentTime);
+		if (!isStopped)
+			cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << endl; 
+		else
+			cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << " (stopped)" << endl; 
 	}
 };
 

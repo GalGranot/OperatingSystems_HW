@@ -1,21 +1,36 @@
 //		commands.c
 //********************************************
 #include "commands.h"
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h> 
+#include <iostream>
+#include <string>
+#include <signal.h>
+#include "signals.h"
+#include "jobs.h"
+
+using namespace std;
+
+const int MAX_ARG = 20;
+const int MAX_LINE_SIZE = 80;
+
 //********************************************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands
 // Parameters: pointer to jobs, command string
 // Returns: 0 - success,1 - failure
 //**************************************************************************************
-int ExeCmd(void* jobs, char* lineSize, char* cmdString)
+int ExeCmd(sList* jobs, char* CommandLine, char* cmdString)
 {
 	char* cmd;
 	char* args[MAX_ARG];
 	char pwd[MAX_LINE_SIZE];
+	char prev_pwd[MAX_LINE_SIZE] ; // previous PWD, in use in CD command 
 	char* delimiters = " \t\n";
 	int i = 0, num_arg = 0;
 	bool illegal_cmd = false; // illegal command
-	cmd = strtok(lineSize, delimiters);
+	cmd = strtok(CommandLine, delimiters);
 	if (cmd == NULL)
 		return 0;
 	args[0] = cmd;
@@ -33,13 +48,24 @@ int ExeCmd(void* jobs, char* lineSize, char* cmdString)
 	/*************************************************/
 	if (!strcmp(cmd, "cd")) //implement
 	{
-
+		if (rgs[2] != NULL) cout << "too many arguments";
+		else if (args[1] == "-")
+			if (prev_pwd == NULL) cout << "OLDPWD not set";
+			else {
+				prev_pwd = getcwd();
+				chdir(prev_pwd) 
+			}
+		else {
+			prev_pwd = getcwd();
+			chdir(arg[1]) 
+		}
 	}
 
 	/*************************************************/
 	else if (!strcmp(cmd, "pwd")) //implement
 	{
-
+		pwd = getcwd();
+		cout << pwd;
 	}
 
 	/*************************************************/
@@ -51,12 +77,24 @@ int ExeCmd(void* jobs, char* lineSize, char* cmdString)
 
 	else if (!strcmp(cmd, "jobs")) //implement
 	{
-
+		auto it = jobList.begin();
+		time_t present_time = time(); // use same timing for all jobs
+		while (!it)
+		{
+			if (kill(it->processID, 0) == 0) // check if job is still running by sending a signal 0
+			{
+				it->printJob(present_time);
+				advance(it, 1);
+			}
+			else jobList.erase(it); //delete this job from list 
+		}
 	}
+
 	/*************************************************/
 	else if (!strcmp(cmd, "showpid")) //implement
 	{
-
+		pid_t Pid = getpid();
+		cout << "smash pid is " << Pid << endl;
 	}
 	/*************************************************/
 	else if (!strcmp(cmd, "fg")) //implement
@@ -93,7 +131,7 @@ int ExeCmd(void* jobs, char* lineSize, char* cmdString)
 	}
 	if (illegal_cmd == TRUE)
 	{
-		printf("smash error: > \"%s\"\n", cmdString);
+		cout << "smash error: > " << cmdString << endl;
 		return 1;
 	}
 	return 0;
@@ -139,11 +177,11 @@ void ExeExternal(char* args[MAX_ARG], char* cmdString)
 // Parameters: command string
 // Returns: 0- if complicated -1- if not
 //**************************************************************************************
-int ExeComp(char* lineSize)
+int ExeComp(char* CommandLine)
 {
 	char ExtCmd[MAX_LINE_SIZE + 2];
 	char* args[MAX_ARG];
-	if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
+	if ((strstr(CommandLine, "|")) || (strstr(CommandLine, "<")) || (strstr(CommandLine, ">")) || (strstr(CommandLine, "*")) || (strstr(CommandLine, "?")) || (strstr(CommandLine, ">>")) || (strstr(CommandLine, "|&")))
 	{
 		// Add your code here (execute a complicated command)
 
@@ -159,15 +197,15 @@ int ExeComp(char* lineSize)
 // Parameters: command string, pointer to jobs
 // Returns: 0- BG command -1- if not
 //**************************************************************************************
-int BgCmd(char* lineSize, void* jobs)
+int BgCmd(char* CommandLine, sList* jobs)
 {
 
 	char* Command;
 	char* delimiters = " \t\n";
 	char* args[MAX_ARG];
-	if (lineSize[strlen(lineSize) - 2] == '&')
+	if (CommandLine[strlen(CommandLine) - 2] == '&')
 	{
-		lineSize[strlen(lineSize) - 2] = '\0';
+		CommandLine[strlen(CommandLine) - 2] = '\0';
 		// Add your code here (execute a in the background)
 
 		/*

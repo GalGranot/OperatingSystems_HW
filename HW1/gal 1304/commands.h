@@ -14,9 +14,9 @@
 #define MAX_ARG 20
 //gal: put this as comment (probably because it's a default c file)
 //typedef enum { FALSE , TRUE } bool;
-int ExeComp(char* lineSize);
-int BgCmd(char* lineSize, void* jobs);
-int ExeCmd(void* jobs, char* lineSize, char* cmdString);
+int ExeComp(char* CommandLine);
+int BgCmd(char* CommandLine, sList* jobs);
+int ExeCmd(sList* jobs, char* CommandLine, char* cmdString);
 void ExeExternal(char *args[MAX_ARG], char* cmdString);
 #endif
 
