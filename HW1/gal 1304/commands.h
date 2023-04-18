@@ -10,13 +10,14 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <iostream>
+#include "jobs.h"
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
 //gal: put this as comment (probably because it's a default c file)
 //typedef enum { FALSE , TRUE } bool;
-int ExeComp(char* CommandLine);
-int BgCmd(char* CommandLine, sList* jobs);
-int ExeCmd(sList* jobs, char* CommandLine, char* cmdString);
+int ExeComp(char *CommandLine);
+int BgCmd(char *CommandLine, sList* jobs);
+int ExeCmd(sList *jobs, char* CommandLine, char* cmdString);
 void ExeExternal(char *args[MAX_ARG], char* cmdString);
 #endif
 

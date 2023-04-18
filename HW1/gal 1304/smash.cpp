@@ -13,8 +13,8 @@ main file. This file contains the main function of smash
 
 using namespace std;
 
-const int MAX_LINE_SIZE = 80;
-const int MAXARGS = 20;
+#define MAX_LINE_SIZE 80
+#define MAX_ARG 20
 
 string L_Fg_Cmd;
 

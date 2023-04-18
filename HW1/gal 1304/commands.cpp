@@ -12,9 +12,6 @@
 
 using namespace std;
 
-const int MAX_ARG = 20;
-const int MAX_LINE_SIZE = 80;
-
 //********************************************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands

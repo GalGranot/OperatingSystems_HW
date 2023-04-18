@@ -11,6 +11,8 @@
 #include "signals.h"
 #include "jobs.h"
 
+#define MAX_LINE_SIZE 80
+#define MAX_ARG 20
 
 #endif
 
