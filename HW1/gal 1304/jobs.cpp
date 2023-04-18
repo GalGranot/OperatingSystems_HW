@@ -14,6 +14,7 @@
 #include <string>
 #include "commands.h"
 #include "signals.h"
+#include "jobs.h"
 
 using namespace std;
 
