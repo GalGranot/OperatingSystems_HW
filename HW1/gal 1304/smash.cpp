@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 
         // background command    
 
-        if (!BgCmd(CommandLine, Jobs)) continue;
+        if (!BgCmd(CommandLine, Jobs, cmdString)) continue;
 
         // built in commands
 

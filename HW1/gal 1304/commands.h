@@ -25,7 +25,7 @@ class sList;
 //gal: put this as comment (probably because it's a default c file)
 //typedef enum { FALSE , TRUE } bool;
 int ExeComp(string CommandLine);
-int BgCmd(string CommandLine, sList* Jobs);
+int BgCmd(string CommandLine, sList* Jobs, string cmdString);
 int ExeCmd(sList *Jobs, string CommandLine, string cmdString);
 void ExeExternal(char* args[MAX_ARG], string cmdString);
 #endif
