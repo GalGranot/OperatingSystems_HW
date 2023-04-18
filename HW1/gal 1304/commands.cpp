@@ -52,8 +52,9 @@ int ExeCmd(sList* jobs, char* CommandLine, char* cmdString)
 		else if (args[1] == "-")
 			if (prev_pwd == NULL) cout << "OLDPWD not set";
 			else {
-				prev_pwd = getcwd();
-				chdir(prev_pwd) 
+				pwd = getcwd();    // first save current dir, than change to prev one
+				chdir(prev_pwd)
+				prev_pwd = pwd
 			}
 		else {
 			prev_pwd = getcwd();
@@ -77,7 +78,7 @@ int ExeCmd(sList* jobs, char* CommandLine, char* cmdString)
 
 	else if (!strcmp(cmd, "jobs")) //implement
 	{
-		auto it = jobList.begin();
+		auto it = jobs.begin();
 		time_t present_time = time(); // use same timing for all jobs
 		while (!it)
 		{
@@ -86,7 +87,7 @@ int ExeCmd(sList* jobs, char* CommandLine, char* cmdString)
 				it->printJob(present_time);
 				advance(it, 1);
 			}
-			else jobList.erase(it); //delete this job from list 
+			else jobs.erase(it); //delete this job from list 
 		}
 	}
 
@@ -208,11 +209,23 @@ int BgCmd(char* CommandLine, sList* jobs)
 		CommandLine[strlen(CommandLine) - 2] = '\0';
 		// Add your code here (execute a in the background)
 
-		/*
-		your code
-		*/
-
+		//int is_dad = fork();
+		//if (is_dad == 0) {  // execute sun
+		//	if (built_in command) //  exc command
+		//	{ }
+		//	else {
+		//		exec()  // no wait!!
+		//	}
+		//}
+		//else		//int is_dad = fork();
+		//if (is_dad == 0) {  // execute sun
+		//	if (built_in command) //  exc command
+		//	{ }
+		//	else {
+		//		exec()  // no wait!!
+		//	}
+		//}
+		//else
 	}
 	return -1;
 }
-
