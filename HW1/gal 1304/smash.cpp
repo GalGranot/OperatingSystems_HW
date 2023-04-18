@@ -24,7 +24,7 @@ string L_Fg_Cmd;
 //               should we add it here instead?
 
 //FIXME daniel: is that an array of chars, or a c string?
-char CommandLine[MAX_LINE_SIZE];
+string CommandLine;
 
 //**************************************************************************************
 // function name: main
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
         ExeCmd(jobs, CommandLine, cmdString);
 
         /* initialize for next line read*/
-        CommandLine[0] = '\0';
+        CommandLine = "";
         cmdString = "";
     }
 

@@ -18,13 +18,13 @@ using namespace std;
 // Parameters: pointer to jobs, command string
 // Returns: 0 - success,1 - failure
 //**************************************************************************************
-int ExeCmd(sList* jobs, char* CommandLine, char* cmdString)
+int ExeCmd(sList* jobs, string CommandLine, string cmdString)
 {
-	char* cmd;
-	char* args[MAX_ARG];
-	char pwd[MAX_LINE_SIZE];
-	char prev_pwd[MAX_LINE_SIZE] ; // previous PWD, in use in CD command 
-	char* delimiters = " \t\n";
+	string cmd;
+	string args[MAX_ARG];
+	string pwd;
+	string prev_pwd ; // previous PWD, in use in CD command 
+	string delimiters = " \t\n";
 	int i = 0, num_arg = 0;
 	bool illegal_cmd = false; // illegal command
 	cmd = strtok(CommandLine, delimiters);
@@ -140,7 +140,7 @@ int ExeCmd(sList* jobs, char* CommandLine, char* cmdString)
 // Parameters: external command arguments, external command string
 // Returns: void
 //**************************************************************************************
-void ExeExternal(char* args[MAX_ARG], char* cmdString)
+void ExeExternal(string args[MAX_ARG], string cmdString)
 {
 	int pID;
 	switch (pID = fork())
@@ -175,11 +175,13 @@ void ExeExternal(char* args[MAX_ARG], char* cmdString)
 // Parameters: command string
 // Returns: 0- if complicated -1- if not
 //**************************************************************************************
-int ExeComp(char* CommandLine)
+int ExeComp(string CommandLine)
 {
-	char ExtCmd[MAX_LINE_SIZE + 2];
-	char* args[MAX_ARG];
-	if ((strstr(CommandLine, "|")) || (strstr(CommandLine, "<")) || (strstr(CommandLine, ">")) || (strstr(CommandLine, "*")) || (strstr(CommandLine, "?")) || (strstr(CommandLine, ">>")) || (strstr(CommandLine, "|&")))
+	// char ExtCmd[MAX_LINE_SIZE + 2]; // FIXME 
+	string args[MAX_ARG];
+	char* c_CommandLine = CommandLine.data();
+
+	if ((strstr(c_CommandLine, "|")) || (strstr(c_CommandLine, "<")) || (strstr(c_CommandLine, ">")) || (strstr(c_CommandLine, "*")) || (strstr(c_CommandLine, "?")) || (strstr(c_CommandLine, ">>")) || (strstr(c_CommandLine, "|&")))
 	{
 		// Add your code here (execute a complicated command)
 
@@ -195,12 +197,12 @@ int ExeComp(char* CommandLine)
 // Parameters: command string, pointer to jobs
 // Returns: 0- BG command -1- if not
 //**************************************************************************************
-int BgCmd(char* CommandLine, sList* jobs)
+int BgCmd(string CommandLine, sList* jobs)
 {
 
-	char* Command;
-	char* delimiters = " \t\n";
-	char* args[MAX_ARG];
+	string Command;
+	string delimiters = " \t\n";
+	string args[MAX_ARG];
 	if (CommandLine[strlen(CommandLine) - 2] == '&')
 	{
 		CommandLine[strlen(CommandLine) - 2] = '\0';
