@@ -21,7 +21,7 @@ using namespace std;
 class Job
 {
 public:
-	Job(int processID, int jobID, string commandName, time_t startTime)
+	Job(int processID,  string commandName, time_t startTime)
 	: processID(processID), jobID(jobID), commandName(commandName), startTime(startTime){}
 
 private:
@@ -47,25 +47,26 @@ private:
 	int nextJobID = 0;
 	list<Job> jobList;
 
+	// delete from list finished jobs, and set next empty biggest JobID for new Job
 	int insertJob(Job* myJob)
 	{
 		auto it = jobList.begin();
-		if (!it)
+		if (!it) {
+			myJob->jobID = 1;
 			jobList.push_back(myJob);
+		}
 		else while(!it)
 		{
 			it = (Job)*it;
-			if (myJob->jobID > it->jobID || it->jobID == (Job)*jobList.end->jobID)
-			{
+			if (kill(it->processID, 0) == 0) { // check if job is still running by sending a signal 0
+				nextJobID = it->jobID; 
 				advance(it, 1);
-				continue;
 			}
 			else
-			{
-				jobList.insert(it, myJob);
-				nextJobID++;
-			}
+				erase(it);
 		}
+		myJob->jobID = nextJobID + 1;
+		jobList.push_back(myJob);
 	}
 
 	Job* getJobByProcessID(int ID)
@@ -94,3 +95,18 @@ private:
 		return NULL; //didn't find ID
 	}
 };
+
+
+
+
+/*
+			if (myJob->jobID > it->jobID || it->jobID == (Job)*jobList.end->jobID)
+			{
+				advance(it, 1);
+				continue;
+			}
+			else
+			{
+				jobList.insert(it, myJob);
+				nextJobID++;
+*/

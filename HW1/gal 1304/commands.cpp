@@ -204,10 +204,7 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 				setpgrp();
 				time_t startTime = time(NULL);
 				int pid = getpid();
-				//FIXME daniel: need to impliment the following: 
-				//Jobs->delete_done();  
-				//jobID = Jobs->get_new_id();
-				Job* job = new Job(pid, jobID, cmdString, startTime)
+				Job* job = new Job(pid, cmdString, startTime)
 				ExeCmd(Jobs, CommandLine, cmdString);
 				exit(1);
 			default:
