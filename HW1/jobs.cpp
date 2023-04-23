@@ -14,109 +14,92 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <time.h>
 
 //local includes
-#include "commands.h"
-#include "signals.h"
 #include "jobs.h"
+
 
 using namespace std;
 
-class Job
+void Job::Job(int processID, string commandName, time_t startTime)
+	: processID(processID), jobID(jobID), commandName(commandName), startTime(startTime) {};
+
+void Job::printJob(time_t presentTime)
 {
-public:
-	Job(int processID,  string commandName, time_t startTime)
-	: processID(processID), jobID(jobID), commandName(commandName), startTime(startTime){}
+	time_t timeDiff = difftime(startTime, presentTime);
+	if (!isStopped)
+		cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << endl;
+	else
+		cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << " (stopped)" << endl;
+}
 
-private:
-	string commandName;
-	int jobID;
-	int processID;
-	bool isStopped = 0;
-	time_t startTime;
-
-	void printJob(time_t presentTime)
-	{
-		time_t timeDiff = difftime(startTime, presentTime);
-		if (!isStopped)
-			cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << endl; 
-		else
-			cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << " (stopped)" << endl; 
-	}
-};
-
-class sList
+bool sList::insertJob(Job* myJob)
 {
-private:
-	int nextJobID = 0;
-	list<Job> jobList;
-
-	// delete from list finished jobs, and set next empty biggest JobID for new Job
-	int insertJob(Job* myJob)
+	std::list<Job>::iterator it = this->begin();
+	if (!it)
 	{
-		auto it = jobList.begin();
-		if (!it) {
-			myJob->jobID = 1;
-			jobList.push_back(myJob);
-		}
-		else while(!it)
+		myJob->jobID = 1;
+		this->push_back(myJob);
+		return true;
+	}
+	while (it)
+	{
+		it = (Job*)it; //FIXME gal - not sure if cast is necessary, or it's done automatically by std::list
+		if (kill(it->processID, 0) == 0) //current process is alive
 		{
-			it = (Job)*it;
-			if (kill(it->processID, 0) == 0) { // check if job is still running by sending a signal 0
-				nextJobID = it->jobID; 
-				advance(it, 1);
-			}
-			else
-				erase(it);
-		}
-		myJob->jobID = nextJobID + 1;
-		jobList.push_back(myJob);
-	}
-
-	Job* getJobByProcessID(int ID)
-	{
-		auto it = jobList.begin();
-		while (!it)
-		{
-			it = (Job)*it;
-			if (ID == it->processID)
-				return it;
-			else advance(it, 1);
-		}
-		return NULL; //didn't find ID
-	}
-
-	Job* getJobByJobID(int ID)
-	{
-		auto it = jobList.begin();
-		while (!it)
-		{
-			it = (Job)*it;
-			if (ID == it->jobID)
-				return it;
-			else advance(it, 1);
-		}
-		return NULL; //didn't find ID
-	}
-	//gal code
-	bool jobsCompare(const Job* job1, const Job* job2)
-	{
-		return job1->processID < job2->processID;
-	}
-	//endof gal code
-
-	void sortByID()
-	{
-		this->sort(jobsCompare);
-	}
-
-	void printJobsList(time_t presentTime)
-	{
-		std::list<Job>::iterator it = this->jobList.begin();
-		while (!it)
-		{
-			it->printJob(presentTime);
+			nextJobID = it->jobID;
 			it++;
 		}
+		else
+			it = this->erase(it); //this line both deletes current element and returns ptr to next element
 	}
-};
+	myJob->jobID = ++nextJobID;
+	this->push_back(myJob);
+}
+
+Job* sList::getJobByProcessID(int ID)
+{
+	std::list<Job>::iterator it = this->begin();
+	while (!it)
+	{
+		it = (Job)*it; //FIXME gal - unsure if this is necessary
+		if (ID == it->processID)
+			return it;
+		else it++;
+	}
+	return NULL; //didn't find ID
+}
+
+Job* sList::getJobByJobID(int ID)
+{
+	std::list<Job>::iterator it = jobList.begin();
+	while (!it)
+	{
+		it = (Job)*it; //FIXME gal - unsure if this is necessary
+		if (ID == it->jobID)
+			return it;
+		else it++;
+	}
+	return NULL; //didn't find ID
+}
+
+bool sList::jobsCompare(const Job* job1, const Job* job2)
+{
+	return job1->processID < job2->processID;
+}
+
+void sList::sortByID()
+{
+	this->sort(jobsCompare);
+}
+
+void sList::printJobsList(time_t presentTime)
+{
+	std::list<Job>::iterator it = this->jobList.begin();
+	while (!it)
+	{
+		it->printJob(presentTime);
+		it++;
+	}
+}

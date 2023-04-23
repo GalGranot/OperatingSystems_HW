@@ -3,17 +3,19 @@
 
 //defines, global vars, namespaces
 
-#include "jobs.h"
-#include "commands.h"
+//public includes
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h> 
 #include <iostream>
 #include <string>
-#include <signal.h>
-#include "signals.h"
 #include <time.h>
 #include <fstream>
+
+//local includes
+#include "commands.h"
+#include "jobs.h"
+#include "signals.h"
 
 using std::cout;
 using std::endl;
@@ -55,9 +57,6 @@ bool cmpFiles(string filename1, string filename2)
 	}
 }
 
-
-
-
 //********************************************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands
@@ -98,7 +97,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 		//gal code
 		if (args[2] != NULL) //got an argument after the directory
 			cout << "Too many arguments\n"; //FIXME gal - do we need line drops?
-		else if (strcmp(args[1]), "-" == 0) //trying to go to old directory
+		else if (strcmp(args[1], "-") == 0) //trying to go to old directory
 		{
 			if (!prev_PWD)
 				cout << "OLDPWD not set";
@@ -286,7 +285,6 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 	if (CommandLine[CommandLine.length() - 2] == '&')
 	{
 		CommandLine[CommandLine.length() - 2] = '\0';
-		// Add your code here (execute a in the background)
 		int pID;
 			switch (pID = fork())
 			{
