@@ -1,99 +1,224 @@
 //		commands.c
 //********************************************
+
+//defines, global vars, namespaces
+
+#include "jobs.h"
 #include "commands.h"
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h> 
+#include <iostream>
+#include <string>
+#include <signal.h>
+#include "signals.h"
+#include <time.h>
+#include <fstream>
+
+using std::cout;
+using std::endl;
+using std::string;
+
+//********************************************
+//general use functions
+//********************************************
+
+//returns true if different, false if identical
+bool cmpFiles(string filename1, string filename2)
+{
+	std::ifstream file1(filename1);
+	std::ifstream file2(filename2);
+	if (!file1.is_open() || file2.is_open())
+	{
+		cout << "Failed to open" << endl;
+		return true;; //actually error
+	}
+	char c1, c2;
+	while (file1.get(c1) && file2.get(c2))
+	{
+		if (c1 != c2)
+		{
+			file1.close(); file2.close();
+			return true;
+		}
+	}
+	//reached eof of one file, check if eof of other file too
+	if (file1.eof() && file2.eof())
+	{
+		file1.close(); file2.close();
+		return false;
+	}
+	else
+	{
+		file1.close(); file2.close();
+		return true;
+	}
+}
+
+
+
+
 //********************************************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands
-// Parameters: pointer to jobs, command string
+// Parameters: pointer to Jobs, command string
 // Returns: 0 - success,1 - failure
 //**************************************************************************************
-int ExeCmd(void* jobs, char* lineSize, char* cmdString)
+
+int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 {
-	char* cmd;
 	char* args[MAX_ARG];
-	char pwd[MAX_LINE_SIZE];
-	char* delimiters = " \t\n";
+	char* pwd;
+	char* prev_pwd; // previous PWD, in use in CD command 
+	const char* delimiters = " \t\n";
 	int i = 0, num_arg = 0;
-	bool illegal_cmd = FALSE; // illegal command
-	cmd = strtok(lineSize, delimiters);
-	if (cmd == NULL)
+	bool illegal_cmd = false; // illegal command
+
+	char* c_CommandLine; //get c representation of string for c functions
+	strcpy(c_CommandLine, CommandLine.data());
+	string cmd(strtok(c_CommandLine, delimiters));
+
+	if (cmd.empty())
 		return 0;
-	args[0] = cmd;
-	for (i = 1; i < MAX_ARG; i++)
+	strcpy(args[0], cmd.data());
+
+	//copy 
+	for (i = 1; i < MAX_ARG; i++) //FIXME - maybe this shouldn't run until maxarg, instead run until reaching null?
 	{
 		args[i] = strtok(NULL, delimiters);
-		if (args[i] != NULL)
+		if (args[i] == NULL) //FIXME - this should be args[i] != null?
 			num_arg++;
-
 	}
 	/*************************************************/
-	// Built in Commands PLEASE NOTE NOT ALL REQUIRED
-	// ARE IN THIS CHAIN OF IF COMMANDS. PLEASE ADD
-	// MORE IF STATEMENTS AS REQUIRED
+	//command line commands
 	/*************************************************/
-	if (!strcmp(cmd, "cd")) //implement
+	if (cmd == "cd")
 	{
 
-	}
+		//gal code
+		if (args[2] != NULL) //got an argument after the directory
+			cout << "Too many arguments\n"; //FIXME gal - do we need line drops?
+		else if (strcmp(args[1]), "-" == 0) //trying to go to old directory
+		{
+			if (!prev_PWD)
+				cout << "OLDPWD not set";
+			else //change oldpwd to current, go to oldpwd
+			{
+				getcwd(pwd, sizeof(char*));
+				chdir(prev_pwd);
+				prev_pwd = pwd;
+			}
+		}
+		else //go to new dir
+		{
+			getcwd(prev_pwd, sizeof(char*));
+			chdir(args[1]);
+		}
+		//endof gal code
 
+		if (args[2] == NULL) cout << "too many arguments";
+		else if (strcmp(args[1], "-") == 0)
+			if (prev_pwd == NULL) cout << "OLDPWD not set";
+			else {
+				getcwd(pwd, sizeof(char*));    // first save current dir, than change to prev one
+				chdir(prev_pwd);
+				prev_pwd = pwd;
+			}
+		else {
+			getcwd(prev_pwd, sizeof(char*));
+			chdir(args[1]);
+		}
+	}
 	/*************************************************/
-	else if (!strcmp(cmd, "pwd")) //implement
+	else if (cmd == "pwd")
 	{
+		//gal code
+		cout << getcwd(pwd, sizeof(char*));
+		//endof gal code
 
+		getcwd(pwd, sizeof(char*)); //FIXME gal: why do you need to update pwd here?
+		cout << pwd;
 	}
 
-	/*************************************************/
-	//else if (!strcmp(cmd, "mkdir")) //don't implement
-	//{
- //		
-	//}
 	///*************************************************/
-
-	else if (!strcmp(cmd, "jobs")) //implement
+	else if (cmd == "jobs")
 	{
+		//auto it = Jobs->begin(); //FIXME gal: read online using auto isn't safe and we should use the whole declaration instead
+		std::list<Job>::iterator it = Jobs->begin();
+		time_t presentTime = time(NULL); // use same timing for all jobs
+		
+		//FIXME gal: we are not printing the jobs in order, need to:
+		//1. check which jobs are still running
+		//2. kill the ones who aren't
+		//3. order the remaining ones
+		//4. print them
 
+		//gal code
+		while (!it)
+		{
+			if (!kill(it->processID, 0) == 0) //job is dead and should be deleted
+				it = Jobs->erase(it); //this line both deletes current element and returns ptr to next element
+			it++;
+		} //list now holds only alive jobs
+		Jobs->sortByID; 
+		Jobs->printJobsList(presentTime);
+		//endof gal code
+
+		while (it != Jobs->end())
+		{
+			if (kill(it->processID, 0) == 0) // check if job is still running by sending a signal 0
+			{
+				it->printJob(presentTime);
+				it++;
+			}
+			else Jobs->erase(it); //delete this job from list 
+		}
 	}
 	/*************************************************/
-	else if (!strcmp(cmd, "showpid")) //implement
+	else if (cmd == "showpid")
 	{
+		pid_t Pid = getpid(); //FIXME gal - do we need to set this?
+		//gal code
+		cout << "smash pid is" << getpid() << endl; //FIXME gal - do we need new lines?
+		//endof gal code
 
+		cout << "smash pid is " << Pid << endl;
 	}
 	/*************************************************/
-	else if (!strcmp(cmd, "fg")) //implement
+	else if (cmd == "fg") //implement
 	{
-
 	}
 	/*************************************************/
-	else if (!strcmp(cmd, "bg")) //implement
+	else if (cmd == "bg") //implement
 	{
-
 	}
 	/*************************************************/
-	else if (!strcmp(cmd, "quit")) //implement
+	else if (cmd == "quit") //implement
 	{
-
 	}
 	/*************************************************/
-	else if (!strcmp(cmd, "kill")) //implement
+	else if (cmd == "kill") //implement
 	{
-
 	}
 	/*************************************************/
-	else if (!strcmp(cmd, "diff")) //implement
+	else if (cmd == "diff")
 	{
-
+		if (args[3] != NULL) //FIXME gal - args[1] and args[2] are the file names? so args[3] should be null?
+			cout << "too many arguments" << endl; //FIXME gal - do we need new lines?
+		else
+		{
+			cout << cmpFiles(args[1], args[2]) << endl; //FIXME gal - new line
+		}
 	}
 	/*************************************************/
-
-
 	else // external command
 	{
 		ExeExternal(args, cmdString);
 		return 0;
 	}
-	if (illegal_cmd == TRUE)
+	if (illegal_cmd == true)
 	{
-		printf("smash error: > \"%s\"\n", cmdString);
+		cout << "smash error: > " << cmdString << endl;
 		return 1;
 	}
 	return 0;
@@ -104,34 +229,27 @@ int ExeCmd(void* jobs, char* lineSize, char* cmdString)
 // Parameters: external command arguments, external command string
 // Returns: void
 //**************************************************************************************
-void ExeExternal(char* args[MAX_ARG], char* cmdString)
+void ExeExternal(char* args[MAX_ARG], string cmdString)
 {
 	int pID;
+	int stat
 	switch (pID = fork())
 	{
 	case -1:
-		// Add your code here (error)
-
-		/*
-		your code
-		*/
+		perror(“smash error : fork failed”);
 	case 0:
 		// Child Process
 		setpgrp();
-
-		// Add your code here (execute an external command)
-
-		/*
-		your code
-		*/
-
+		char* c_cmdString;
+		strcpy(c_cmdString, cmdString.data());
+		execv(c_cmdString, args);
+		exit(1);
 	default:
-		// Add your code here
-		
-		/*
-		your code
-		*/
-	}
+		 // parent 
+		waitpid(pID);
+		//waitpid(pID, &stat, WUNTRACED); FIXME daniel: should we continue also when process has stopeed, but not finished? 
+		// FIXME daniel: should we add status check and send perror if neede? 
+		}
 }
 //**************************************************************************************
 // function name: ExeComp
@@ -139,14 +257,15 @@ void ExeExternal(char* args[MAX_ARG], char* cmdString)
 // Parameters: command string
 // Returns: 0- if complicated -1- if not
 //**************************************************************************************
-int ExeComp(char* lineSize)
+int ExeComp(string CommandLine)
 {
-	char ExtCmd[MAX_LINE_SIZE + 2];
-	char* args[MAX_ARG];
-	if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
+	// char ExtCmd[MAX_LINE_SIZE + 2]; // FIXME 
+	string args[MAX_ARG];
+	char* c_CommandLine;
+	strcpy(c_CommandLine, CommandLine.data());
+	if ((strstr(c_CommandLine, "|")) || (strstr(c_CommandLine, "<")) || (strstr(c_CommandLine, ">")) || (strstr(c_CommandLine, "*")) || (strstr(c_CommandLine, "?")) || (strstr(c_CommandLine, ">>")) || (strstr(c_CommandLine, "|&")))
 	{
 		// Add your code here (execute a complicated command)
-
 		/*
 		your code
 		*/
@@ -159,22 +278,31 @@ int ExeComp(char* lineSize)
 // Parameters: command string, pointer to jobs
 // Returns: 0- BG command -1- if not
 //**************************************************************************************
-int BgCmd(char* lineSize, void* jobs)
+int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 {
-
-	char* Command;
-	char* delimiters = " \t\n";
-	char* args[MAX_ARG];
-	if (lineSize[strlen(lineSize) - 2] == '&')
+	string Command;
+	string delimiters = " \t\n";
+	string args[MAX_ARG];
+	if (CommandLine[CommandLine.length() - 2] == '&')
 	{
-		lineSize[strlen(lineSize) - 2] = '\0';
+		CommandLine[CommandLine.length() - 2] = '\0';
 		// Add your code here (execute a in the background)
-
-		/*
-		your code
-		*/
-
+		int pID;
+			switch (pID = fork())
+			{
+			case -1:
+				perror(“smash error : fork failed”);
+			case 0:
+				// Child Process
+				setpgrp();
+				time_t startTime = time(NULL);
+				int pid = getpid();
+				Job* job = new Job(pid, cmdString, startTime)
+				ExeCmd(Jobs, CommandLine, cmdString);
+				exit(1);
+			default:
+				// parent 
+			}
 	}
 	return -1;
 }
-

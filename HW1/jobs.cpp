@@ -11,16 +11,18 @@
 #include <string.h>
 #include <signal.h>
 #include <iostream>
+#include <string>
 #include "commands.h"
 #include "signals.h"
-#include <string>
+#include "jobs.h"
+#include <algorithm>
 
 using namespace std;
 
 class Job
 {
 public:
-	Job(int processID, int jobID, string commandName, time_t startTime)
+	Job(int processID,  string commandName, time_t startTime)
 	: processID(processID), jobID(jobID), commandName(commandName), startTime(startTime){}
 
 private:
@@ -32,11 +34,11 @@ private:
 
 	void printJob(time_t presentTime)
 	{
-		time_t timeDiff = difftime(startTime, presentTime)
-		cout << "[%s] %s : %d %d", jobID, commandName, processID, timeDiff; //check s-format for time_t
-		if (isStopped)
-			cout << "(stopped)";
-		cout << "\n";
+		time_t timeDiff = difftime(startTime, presentTime);
+		if (!isStopped)
+			cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << endl; 
+		else
+			cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << " (stopped)" << endl; 
 	}
 };
 
@@ -46,25 +48,26 @@ private:
 	int nextJobID = 0;
 	list<Job> jobList;
 
+	// delete from list finished jobs, and set next empty biggest JobID for new Job
 	int insertJob(Job* myJob)
 	{
 		auto it = jobList.begin();
-		if (!it)
+		if (!it) {
+			myJob->jobID = 1;
 			jobList.push_back(myJob);
+		}
 		else while(!it)
 		{
 			it = (Job)*it;
-			if (myJob->jobID > it->jobID || it->jobID == (Job)*jobList.end->jobID)
-			{
+			if (kill(it->processID, 0) == 0) { // check if job is still running by sending a signal 0
+				nextJobID = it->jobID; 
 				advance(it, 1);
-				continue;
 			}
 			else
-			{
-				jobList.insert(it, myJob);
-				nextJobID++;
-			}
+				erase(it);
 		}
+		myJob->jobID = nextJobID + 1;
+		jobList.push_back(myJob);
 	}
 
 	Job* getJobByProcessID(int ID)
@@ -91,5 +94,26 @@ private:
 			else advance(it, 1);
 		}
 		return NULL; //didn't find ID
+	}
+	//gal code
+	bool jobsCompare(const Job* job1, const Job* job2)
+	{
+		return job1->processID < job2->processID;
+	}
+	//endof gal code
+
+	void sortByID()
+	{
+		this->sort(jobsCompare);
+	}
+
+	void printJobsList(time_t presentTime)
+	{
+		std::list<Job>::iterator it = this->jobList.begin();
+		while (!it)
+		{
+			it->printJob(presentTime);
+			it++;
+		}
 	}
 };
