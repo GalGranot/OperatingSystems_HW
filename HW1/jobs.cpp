@@ -1,6 +1,7 @@
 /*	jobs.c
 *******************************************************************/
 
+//public includes
 #include <iostream>
 #include <list>
 #include <sys/types.h>
@@ -12,10 +13,12 @@
 #include <signal.h>
 #include <iostream>
 #include <string>
+#include <algorithm>
+
+//local includes
 #include "commands.h"
 #include "signals.h"
 #include "jobs.h"
-#include <algorithm>
 
 using namespace std;
 

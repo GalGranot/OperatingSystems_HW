@@ -1,12 +1,15 @@
 /* smash.cpp
 main file. This file contains the main function of smash
 *******************************************************************/
+
+//public includes
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h> 
 #include <iostream>
 #include <string>
-#include <signal.h>
+
+//local includes
 #include "jobs.h"
 #include "commands.h"
 #include "signals.h"
