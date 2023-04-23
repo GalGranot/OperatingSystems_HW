@@ -1,6 +1,9 @@
 #ifndef _COMMANDS_H
 #define _COMMANDS_H
 
+#include <string.h>
+#include "jobs.h"
+
 
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20

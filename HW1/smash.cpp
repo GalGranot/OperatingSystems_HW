@@ -8,6 +8,7 @@ main file. This file contains the main function of smash
 #include <unistd.h> 
 #include <iostream>
 #include <string>
+#include <string.h>
 
 //local includes
 #include "jobs.h"
@@ -18,6 +19,7 @@ main file. This file contains the main function of smash
 // defines, global vars, usings
 //**************************************************************************************
 using std::cout;
+using std::cin;
 using std::endl;
 using std::string;
 
@@ -71,3 +73,4 @@ int main(int argc, char* argv[])
     }
     //our additions
     delete Jobs;
+}
