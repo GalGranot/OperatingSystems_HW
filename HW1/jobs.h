@@ -5,18 +5,21 @@
 #define MAX_ARG 20
 
 #include <list>
-#include <string.h>
+#include <string>
+
+using std::string;
+string var;
 
 class Job
 {
 public:
 	Job(int processID, string commandName, time_t startTime);
 private:
-	string commandName;
-	int jobID;
 	int processID;
-	bool isStopped = 0;
+	int jobID;
+	string commandName;
 	time_t startTime;
+	bool isStopped = 0;
 	void printJob(time_t presentTime);
 };
 class sList

@@ -19,11 +19,12 @@
 //local includes
 #include "jobs.h"
 
+using std::string;
+using std::cout;
+using std::endl;
 
-using namespace std;
-
-void Job::Job(int processID, string commandName, time_t startTime)
-	: processID(processID), jobID(jobID), commandName(commandName), startTime(startTime) {};
+Job::Job(int processID, string commandName, time_t startTime)
+	: processID(processID), jobID(jobID), commandName(commandName), startTime(startTime) {}
 
 void Job::printJob(time_t presentTime)
 {
@@ -36,7 +37,7 @@ void Job::printJob(time_t presentTime)
 
 bool sList::insertJob(Job* myJob)
 {
-	std::list<Job>::iterator it = this->begin();
+	std::list<Job>::iterator it = this->jobList.begin();
 	if (!it)
 	{
 		myJob->jobID = 1;
