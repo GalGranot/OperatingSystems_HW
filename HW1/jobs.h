@@ -17,7 +17,6 @@ private:
 	int processID;
 	bool isStopped = 0;
 	time_t startTime;
-
 	void printJob(time_t presentTime);
 };
 class sList
