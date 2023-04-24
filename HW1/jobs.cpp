@@ -23,8 +23,12 @@ using std::string;
 using std::cout;
 using std::endl;
 
-Job::Job(int processID, string commandName, time_t startTime)
-	: processID(processID), jobID(jobID), commandName(commandName), startTime(startTime) {}
+Job::Job(int processID, int jobID, string commandName, time_t startTime)
+	: jobID(jobID), processID(processID), commandName(commandName), startTime(startTime) {}
+
+int Job::getJobID() {return this->jobID;}
+int Job::getProcessID() {return this->processID;}
+
 
 void Job::printJob(time_t presentTime)
 {
@@ -37,36 +41,39 @@ void Job::printJob(time_t presentTime)
 
 bool sList::insertJob(Job* myJob)
 {
-	std::list<Job>::iterator it = this->jobList.begin();
-	if (!it)
+	if (this->jobList.empty())
 	{
 		myJob->jobID = 1;
-		this->push_back(myJob);
+		this->jobList.push_back(*myJob);
 		return true;
 	}
-	while (it)
+	std::list<Job>::iterator it = this->jobList.begin();
+	if(it == this->jobList.end())
+		return false;
+	while (it != this->jobList.end())
 	{
-		it = (Job*)it; //FIXME gal - not sure if cast is necessary, or it's done automatically by std::list
-		if (kill(it->processID, 0) == 0) //current process is alive
+		//it = (Job*)it; //FIXME gal - not sure if cast is necessary, or it's done automatically by std::list
+		if (kill(it->getProcessID(), 0) == 0) //current process is alive
 		{
-			nextJobID = it->jobID;
+			nextJobID = it->getJobID();
 			it++;
 		}
 		else
-			it = this->erase(it); //this line both deletes current element and returns ptr to next element
+			it = this->jobList.erase(it); //this line both deletes current element and returns ptr to next element
 	}
 	myJob->jobID = ++nextJobID;
-	this->push_back(myJob);
+	this->jobList.push_back(*myJob);
+	return true;
 }
 
 Job* sList::getJobByProcessID(int ID)
 {
-	std::list<Job>::iterator it = this->begin();
-	while (!it)
+	std::list<Job>::iterator it = this->jobList.begin();
+	while (it != this->jobList.end())
 	{
-		it = (Job)*it; //FIXME gal - unsure if this is necessary
-		if (ID == it->processID)
-			return it;
+		//it = (Job)*it; //FIXME gal - unsure if this is necessary
+		if (ID == it->getProcessID())
+			return &(*it);
 		else it++;
 	}
 	return NULL; //didn't find ID
@@ -75,30 +82,33 @@ Job* sList::getJobByProcessID(int ID)
 Job* sList::getJobByJobID(int ID)
 {
 	std::list<Job>::iterator it = jobList.begin();
-	while (!it)
+	while (it != this->jobList.end())
 	{
-		it = (Job)*it; //FIXME gal - unsure if this is necessary
+		//it = (Job)*it; //FIXME gal - unsure if this is necessary
 		if (ID == it->jobID)
-			return it;
+			return &(*it);
 		else it++;
 	}
 	return NULL; //didn't find ID
 }
 
-bool sList::jobsCompare(const Job* job1, const Job* job2)
+bool sList::jobsCompare(Job* job1, Job* job2)
 {
-	return job1->processID < job2->processID;
+	return job1->getProcessID() < job2->getProcessID();
 }
 
+//FIXME gal - this function is problematic for no apparent reason,
+// something about passing the function ptr to the sort function,
+//will check later
 void sList::sortByID()
 {
-	this->sort(jobsCompare);
+//	this->jobList.sort(&sList::jobsCompare);
 }
 
 void sList::printJobsList(time_t presentTime)
 {
 	std::list<Job>::iterator it = this->jobList.begin();
-	while (!it)
+	while (it != this->jobList.end())
 	{
 		it->printJob(presentTime);
 		it++;
