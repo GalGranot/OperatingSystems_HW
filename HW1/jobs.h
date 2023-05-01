@@ -27,7 +27,6 @@ private:
 class sList
 {
 private:
-	int nextJobID = 0;
 	std::list<Job> jobList;
 	//return true on success, false on failure
 	bool insertJob(Job* myJob);
@@ -36,7 +35,7 @@ public:
 	Job* getJobByProcessID(int ID);
 	Job* getJobByJobID(int ID);
 	bool jobsCompare(Job* job1, Job* job2);
-	void sortByID();
+	//void sortByID();
 	void printJobsList(time_t presentTime);
 };
 

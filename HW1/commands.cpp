@@ -30,7 +30,7 @@ bool cmpFiles(string filename1, string filename2)
 {
 	std::ifstream file1(filename1);
 	std::ifstream file2(filename2);
-	if (!file1.is_open() || file2.is_open())
+	if (!file1.is_open() || !file2.is_open())
 	{
 		cout << "Failed to open" << endl;
 		return true;; //actually error
@@ -93,10 +93,8 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	if (cmd == "cd")
 	{
-
-		//gal code
 		if (args[2] != NULL) //got an argument after the directory
-			cout << "Too many arguments\n"; //FIXME gal - do we need line drops?
+			cout << "Too many arguments" << endl; 
 		else if (strcmp(args[1], "-") == 0) //trying to go to old directory
 		{
 			if (!prev_PWD)
@@ -113,54 +111,35 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 			getcwd(prev_pwd, sizeof(char*));
 			chdir(args[1]);
 		}
-		//endof gal code
 
-		if (args[2] == NULL) cout << "too many arguments";
-		else if (strcmp(args[1], "-") == 0)
-			if (prev_pwd == NULL) cout << "OLDPWD not set";
-			else {
-				getcwd(pwd, sizeof(char*));    // first save current dir, than change to prev one
-				chdir(prev_pwd);
-				prev_pwd = pwd;
-			}
-		else {
-			getcwd(prev_pwd, sizeof(char*));
-			chdir(args[1]);
-		}
+
 	}
 	/*************************************************/
 	else if (cmd == "pwd")
 	{
-		//gal code
 		cout << getcwd(pwd, sizeof(char*));
-		//endof gal code
 
-		getcwd(pwd, sizeof(char*)); //FIXME gal: why do you need to update pwd here?
-		cout << pwd;
 	}
 
 	///*************************************************/
 	else if (cmd == "jobs")
 	{
-		//auto it = Jobs->begin(); //FIXME gal: read online using auto isn't safe and we should use the whole declaration instead
 		std::list<Job>::iterator it = Jobs->begin();
 		time_t presentTime = time(NULL); // use same timing for all jobs
 		
-		//FIXME gal: we are not printing the jobs in order, need to:
 		//1. check which jobs are still running
 		//2. kill the ones who aren't
 		//3. order the remaining ones
 		//4. print them
 
 		//gal code
-		while (!it)
-		{
-			if (!kill(it->processID, 0) == 0) //job is dead and should be deleted
-				it = Jobs->erase(it); //this line both deletes current element and returns ptr to next element
-			it++;
-		} //list now holds only alive jobs
-		Jobs->sortByID; 
-		Jobs->printJobsList(presentTime);
+	//	while (!it)
+	//	{
+		//	if (!kill(it->processID, 0) == 0) //job is dead and should be deleted
+		//		it = Jobs->erase(it); //this line both deletes current element and returns ptr to next element
+		//	it++;
+		//} //list now holds only alive jobs
+		//Jobs->printJobsList(presentTime);
 		//endof gal code
 
 		while (it != Jobs->end())
@@ -176,12 +155,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "showpid")
 	{
-		pid_t Pid = getpid(); //FIXME gal - do we need to set this?
-		//gal code
-		cout << "smash pid is" << getpid() << endl; //FIXME gal - do we need new lines?
-		//endof gal code
-
-		cout << "smash pid is " << Pid << endl;
+		cout << "smash pid is" << getpid() << endl; 
 	}
 	/*************************************************/
 	else if (cmd == "fg") //implement
@@ -198,15 +172,27 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "kill") //implement
 	{
+		if (args[3] != NULL || args[2] == NULL || args[1] == NULL || strcmp(args[1][0], "-") )
+			cout << "smash error: kill: invalid arguments" << endl;
+		else {
+			Job* temp_job = sList::getJobByJobID(std::atoi(args[2]));  //returns null if job not exist
+			if (temp_job == NULL)    
+				cout << "smash error : kill: job - id " << args[2] << " does not exist" << endl;
+			else {
+				int signum = std::stoi(args[1] + 1);
+				kill(temp_job->processID, signum);
+				out << "signal number " << signum << " was sent to pid " << args[2] <<endl;
+			}
+		}
 	}
 	/*************************************************/
 	else if (cmd == "diff")
 	{
-		if (args[3] != NULL) //FIXME gal - args[1] and args[2] are the file names? so args[3] should be null?
-			cout << "too many arguments" << endl; //FIXME gal - do we need new lines?
+		if (args[3] != NULL || args[2] == NULL || args[1] == NULL)
+			cout << "smash error: diff: invalid arguments" << endl; 
 		else
 		{
-			cout << cmpFiles(args[1], args[2]) << endl; //FIXME gal - new line
+			cout << cmpFiles(args[1], args[2]) << endl; 
 		}
 	}
 	/*************************************************/
@@ -295,7 +281,8 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 				setpgrp();
 				time_t startTime = time(NULL);
 				int pid = getpid();
-				Job* job = new Job(pid, cmdString, startTime)
+				Job* job = new Job(pid, cmdString, startTime);
+					//FIXME daniel: insert job 
 				ExeCmd(Jobs, CommandLine, cmdString);
 				exit(1);
 			default:

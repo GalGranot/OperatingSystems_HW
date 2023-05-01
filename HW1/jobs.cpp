@@ -41,6 +41,8 @@ void Job::printJob(time_t presentTime)
 
 bool sList::insertJob(Job* myJob)
 {
+	int nextJobID = 0;
+
 	if (this->jobList.empty())
 	{
 		myJob->jobID = 1;
@@ -52,7 +54,7 @@ bool sList::insertJob(Job* myJob)
 		return false;
 	while (it != this->jobList.end())
 	{
-		//it = (Job*)it; //FIXME gal - not sure if cast is necessary, or it's done automatically by std::list
+		
 		if (kill(it->getProcessID(), 0) == 0) //current process is alive
 		{
 			nextJobID = it->getJobID();
@@ -71,7 +73,7 @@ Job* sList::getJobByProcessID(int ID)
 	std::list<Job>::iterator it = this->jobList.begin();
 	while (it != this->jobList.end())
 	{
-		//it = (Job)*it; //FIXME gal - unsure if this is necessary
+		
 		if (ID == it->getProcessID())
 			return &(*it);
 		else it++;
@@ -84,7 +86,7 @@ Job* sList::getJobByJobID(int ID)
 	std::list<Job>::iterator it = jobList.begin();
 	while (it != this->jobList.end())
 	{
-		//it = (Job)*it; //FIXME gal - unsure if this is necessary
+		
 		if (ID == it->jobID)
 			return &(*it);
 		else it++;
@@ -100,10 +102,10 @@ bool sList::jobsCompare(Job* job1, Job* job2)
 //FIXME gal - this function is problematic for no apparent reason,
 // something about passing the function ptr to the sort function,
 //will check later
-void sList::sortByID()
-{
+//void sList::sortByID()
+//{
 //	this->jobList.sort(&sList::jobsCompare);
-}
+//}
 
 void sList::printJobsList(time_t presentTime)
 {
