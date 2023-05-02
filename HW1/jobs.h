@@ -13,16 +13,17 @@ string var;
 class Job
 {
 public:
-	Job(int processID, int jobID, string commandName, time_t startTime);
+	Job(int processID, string commandName, time_t startTime);
 	int getJobID();
 	int getProcessID();
 	int jobID;
 	void printJob(time_t presentTime);
+	bool isStopped = 0;
 private:
-	int processID;
+	int jobID;
 	string commandName;
 	time_t startTime;
-	bool isStopped = 0;
+
 };
 class sList
 {
@@ -32,11 +33,13 @@ private:
 	bool insertJob(Job* myJob);
 
 public:
+	Job* biggest_stopped();
 	Job* getJobByProcessID(int ID);
 	Job* getJobByJobID(int ID);
 	bool jobsCompare(Job* job1, Job* job2);
 	//void sortByID();
 	void printJobsList(time_t presentTime);
+	void kill_list();
 };
 
 #endif

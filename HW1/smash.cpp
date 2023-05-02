@@ -25,6 +25,7 @@ using std::string;
 
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
+#define QUIT 99
 string L_Fg_Cmd;
 char CommandLine[MAX_LINE_SIZE];
 
@@ -61,12 +62,11 @@ int main(int argc, char* argv[])
         cout << "smash > ";
         getline(cin, cmdString);
         strcpy(CommandLine, cmdString.c_str());
-        // perform a complicated Command
-        if (!ExeComp(CommandLine)) continue;
         // background command    
         if (!BgCmd(CommandLine, Jobs, cmdString)) continue;
         // built in commands
-        ExeCmd(Jobs, CommandLine, cmdString);
+        if (ExeCmd(Jobs, CommandLine, cmdString) == QUIT )
+            return 0;
         /* initialize for next line read*/
         CommandLine[0] = '\0';
         cmdString = "";

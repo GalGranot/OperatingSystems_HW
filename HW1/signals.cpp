@@ -7,3 +7,4 @@
    Synopsis: handle the Control-C */
 #include "signals.h"
 
+// TODO for gal : when stopping job, add the command line to the fiels job->commandName

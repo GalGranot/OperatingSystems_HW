@@ -17,6 +17,8 @@
 #include "jobs.h"
 #include "signals.h"
 
+#define QUIT 99
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -164,10 +166,40 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "bg") //implement
 	{
+		int job_id = args[1];
+		if (job_id) {
+			Job* job = Jobs->getJobByJobID(job_id);
+			if (args[2] != NULL)
+				cout << "smash error : bg: invalid arguments" << endl;
+			else if (job == NULL)
+				cout << "smash error : bg: job - id " << job_id << "does not exist" << endl;
+			else if (job->isStopped == 0)
+				cout << "smash error : bg: job - id " << job_id << "is already running in the background" << endl;
+			else {
+				cout << job->commandName << endl;
+				kill(job->getProcessID, SIGCONT);
+				job->isStopped = 0;
+			}
+		}
+		else {
+			Job* job = Jobs->biggest_stopped();
+			if (job == NULL)
+				cout << "smash error : bg:there are no stopped jobs to resume" << endl;
+			else {
+				cout << job->commandName << endl;
+				kill(job->getProcessID, SIGCONT);
+				job->isStopped = 0;
+			}
+		}
 	}
 	/*************************************************/
 	else if (cmd == "quit") //implement
 	{
+		int pid = getpid();
+		if (!strcmp(args[1], "kill"))  //  kill argument 
+			Jobs->kill_list();
+		return QUIT;
+
 	}
 	/*************************************************/
 	else if (cmd == "kill") //implement
@@ -236,27 +268,7 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 		// FIXME daniel: should we add status check and send perror if neede? 
 		}
 }
-//**************************************************************************************
-// function name: ExeComp
-// Description: executes complicated command
-// Parameters: command string
-// Returns: 0- if complicated -1- if not
-//**************************************************************************************
-int ExeComp(string CommandLine)
-{
-	// char ExtCmd[MAX_LINE_SIZE + 2]; // FIXME 
-	string args[MAX_ARG];
-	char* c_CommandLine;
-	strcpy(c_CommandLine, CommandLine.data());
-	if ((strstr(c_CommandLine, "|")) || (strstr(c_CommandLine, "<")) || (strstr(c_CommandLine, ">")) || (strstr(c_CommandLine, "*")) || (strstr(c_CommandLine, "?")) || (strstr(c_CommandLine, ">>")) || (strstr(c_CommandLine, "|&")))
-	{
-		// Add your code here (execute a complicated command)
-		/*
-		your code
-		*/
-	}
-	return -1;
-}
+
 //**************************************************************************************
 // function name: BgCmd
 // Description: if command is in background, insert the command to jobs
@@ -288,6 +300,7 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 			default:
 				// parent 
 			}
+			return 0;
 	}
 	return -1;
 }
