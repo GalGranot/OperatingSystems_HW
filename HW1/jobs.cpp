@@ -139,6 +139,17 @@ void sList::kill_list()
 	}
 }
 
+void sList::remove_job(int pid)
+{
+	std::list<Job>::iterator it = this->jobList.begin();
+	while (it != this->jobList.end()) {
+		if (it->getProcessID() == pid) {
+			it = this->jobList.erase(it);
+			return;
+		}
+	}
+}
+
 Job* sList::biggest_stopped()
 {while (it != this->jobList.end())
 	int biggest_jobid = 0;

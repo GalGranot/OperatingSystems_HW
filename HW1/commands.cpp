@@ -11,6 +11,7 @@
 #include <string>
 #include <time.h>
 #include <fstream>
+#include <signal.h>
 
 //local includes
 #include "commands.h"
@@ -34,8 +35,8 @@ bool cmpFiles(string filename1, string filename2)
 	std::ifstream file2(filename2);
 	if (!file1.is_open() || !file2.is_open())
 	{
-		cout << "Failed to open" << endl;
-		return true;; //actually error
+		 cout << "Failed to open" << endl; //FIXME daniel: why do we have it? no demand for that
+		return true; //actually error
 	}
 	char c1, c2;
 	while (file1.get(c1) && file2.get(c2))
@@ -75,9 +76,10 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	int i = 0, num_arg = 0;
 	bool illegal_cmd = false; // illegal command
 
-	char* c_CommandLine; //get c representation of string for c functions
+	char* c_CommandLine = new char[MAX_LINE_SIZE + 1]; //get c representation of string for c functions
 	strcpy(c_CommandLine, CommandLine.data());
 	string cmd(strtok(c_CommandLine, delimiters));
+	delete[] c_CommandLine;
 
 	if (cmd.empty())
 		return 0;
@@ -99,11 +101,11 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 			cout << "Too many arguments" << endl; 
 		else if (strcmp(args[1], "-") == 0) //trying to go to old directory
 		{
-			if (!prev_PWD)
+			if (!prev_pwd)
 				cout << "OLDPWD not set";
 			else //change oldpwd to current, go to oldpwd
 			{
-				getcwd(pwd, sizeof(char*));
+				getcwd(pwd, MAX_LINE_SIZE); //FIXME daniel: can it be longer then MAX_LINE_SIZE?
 				chdir(prev_pwd);
 				prev_pwd = pwd;
 			}
@@ -162,6 +164,34 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "fg") //implement
 	{
+		int status;
+		if (args[2]!= NULL)
+			cout << "smash error: fg: invalid arguments"<< endl;
+		else if (args[1] == NULL) {
+			Job* job = Jobs->jobList.end();
+			int pid = job->getProcessID();
+			if (job == NULL)
+				cout << "smash error: fg: jobs list is empty" << endl;
+			else {
+				cout << job->commandName << ": " << pid << endl;
+				kill(pid, SIGCONT);
+				waitpid(pid, &status, 0);
+				Jobs->remove_job(pid);
+			}
+		}
+		else {
+			Job* job = Jobs->getJobByJobID(args[1]);
+			int pid = job->getProcessID();
+			int jobid = job->getJobID();
+			if (job == NULL)
+				cout << "smash error: fg: job-id " << jobid << " does not exist" << endl;
+			else {
+				cout << job->commandName << ": " << pid << endl;
+				kill(pid, SIGCONT);
+				waitpid(pid, &status, 0);
+				Jobs->remove_job(pid);
+			}
+		}
 	}
 	/*************************************************/
 	else if (cmd == "bg") //implement
@@ -176,7 +206,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 			else if (job->isStopped == 0)
 				cout << "smash error : bg: job - id " << job_id << "is already running in the background" << endl;
 			else {
-				cout << job->commandName << endl;
+				cout << job->commandName << ": " << job->getProcessID() << endl;
 				kill(job->getProcessID, SIGCONT);
 				job->isStopped = 0;
 			}
@@ -186,7 +216,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 			if (job == NULL)
 				cout << "smash error : bg:there are no stopped jobs to resume" << endl;
 			else {
-				cout << job->commandName << endl;
+				cout << job->commandName << ": " << job->getProcessID() << endl;
 				kill(job->getProcessID, SIGCONT);
 				job->isStopped = 0;
 			}
@@ -199,6 +229,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 		if (!strcmp(args[1], "kill"))  //  kill argument 
 			Jobs->kill_list();
 		return QUIT;
+		//FIXME daniel: should we also delete here all allocated memory ? 
 
 	}
 	/*************************************************/
@@ -248,25 +279,32 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 //**************************************************************************************
 void ExeExternal(char* args[MAX_ARG], string cmdString)
 {
-	int pID;
-	int stat
-	switch (pID = fork())
-	{
-	case -1:
-		perror(“smash error : fork failed”);
-	case 0:
-		// Child Process
-		setpgrp();
-		char* c_cmdString;
-		strcpy(c_cmdString, cmdString.data());
-		execv(c_cmdString, args);
-		exit(1);
-	default:
-		 // parent 
-		waitpid(pID);
-		//waitpid(pID, &stat, WUNTRACED); FIXME daniel: should we continue also when process has stopeed, but not finished? 
-		// FIXME daniel: should we add status check and send perror if neede? 
+	//int pID;
+	//int status;
+	//switch (pID = fork())
+	//{
+	//case -1:
+	//	perror(“smash error : fork failed”);
+	//case 0:
+	//{
+	//	// Child Process
+	//	setpgrp();
+		char* c_cmdString = new char[MAX_LINE_SIZE + 1];
+		strcpy(c_cmdString, cmdString.c_str());
+		if (execv(c_cmdString, args) < 0) {
+			perror("smash error : execv failed");
+			exit(1);
 		}
+		delete[] c_cmdString;
+		exit(0);
+		//waitpid(pID, &status, 0);
+		// FIXME daniel: should we continue also when process has stopeed, but not finished? 
+	//}
+	//default:
+	//{
+	//	// parent 
+	//}
+	//}
 }
 
 //**************************************************************************************
@@ -287,18 +325,19 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 			switch (pID = fork())
 			{
 			case -1:
-				perror(“smash error : fork failed”);
+				perror("smash error : fork failed");
 			case 0:
 				// Child Process
 				setpgrp();
 				time_t startTime = time(NULL);
 				int pid = getpid();
 				Job* job = new Job(pid, cmdString, startTime);
-					//FIXME daniel: insert job 
+				Jobs->insertJob(job);
 				ExeCmd(Jobs, CommandLine, cmdString);
-				exit(1);
+				exit(0);
 			default:
 				// parent 
+				break;
 			}
 			return 0;
 	}

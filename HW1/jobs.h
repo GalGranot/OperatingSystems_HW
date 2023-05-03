@@ -19,9 +19,9 @@ public:
 	int jobID;
 	void printJob(time_t presentTime);
 	bool isStopped = 0;
+	string commandName;
 private:
 	int jobID;
-	string commandName;
 	time_t startTime;
 
 };
@@ -40,6 +40,7 @@ public:
 	//void sortByID();
 	void printJobsList(time_t presentTime);
 	void kill_list();
+	void remove_job(int pid);
 };
 
 #endif
