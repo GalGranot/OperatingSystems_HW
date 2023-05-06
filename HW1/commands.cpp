@@ -106,7 +106,6 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 		num_arg++;
 		tok = strtok(NULL, delimiters);
 	}
-	cout << "current command is " << cmd << endl;
 
 
 	/*************************************************/
@@ -298,7 +297,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 void ExeExternal(char* args[MAX_ARG], string cmdString)
 {
 	int pID;
-	//int status;
+	int status;
 	switch (pID = fork())
 	{
 	case -1:
@@ -315,12 +314,12 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 		}
 		delete[] c_cmdString;
 		exit(0);
-		//waitpid(pID, &status, 0);
 		// FIXME daniel: should we continue also when process has stopeed, but not finished? 
 	}
 	default:
 	{
 		// parent 
+		waitpid(pID, &status, 0);
 	}
 	}
 }
