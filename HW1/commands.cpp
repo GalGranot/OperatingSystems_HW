@@ -70,29 +70,41 @@ bool cmpFiles(string filename1, string filename2)
 
 int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 {
-	char* args[MAX_ARG];
+	//var declaration
 	char* pwd = NULL;
 	char* prev_pwd = NULL; // previous PWD, in use in CD command 
 	const char* delimiters = " \t\n";
-	int i = 0, num_arg = 0;
+	int num_arg = 0;
 	bool illegal_cmd = false; // illegal command
 
-	char* c_CommandLine = new char[MAX_LINE_SIZE + 1]; //get c representation of string for c functions
-	strcpy(c_CommandLine, CommandLine.data());
-	string cmd(strtok(c_CommandLine, delimiters));
-	delete[] c_CommandLine;
+//argument parsing
+	//cout << "commandline is " << CommandLine << endl << "cmdstring is " << cmdString << endl; //rmv
+	char* args[MAX_ARG];
+	char* cmdStringCopy = new char[MAX_LINE_SIZE + 1];
+	strcpy(cmdStringCopy, cmdString.c_str());
+	char* tok = strtok(cmdStringCopy, delimiters);
+	string cmd(tok);
+	args[0] = new char[MAX_LINE_SIZE + 1];
+	strcpy(args[0], cmd.c_str());
+
+
+
+	for (int i = 1; i < MAX_ARG; i++)
+	{
+		args[i] = new char[MAX_LINE_SIZE + 1];
+		args[i] = strtok(NULL, delimiters);
+	
+		if (args[i] != NULL)
+			num_arg++; 
+	}
 
 	if (cmd.empty())
 		return 0;
-	strcpy(args[0], cmd.data());
 
-	//copy 
-	for (i = 1; i < MAX_ARG; i++) //FIXME - maybe this shouldn't run until maxarg, instead run until reaching null?
-	{
-		args[i] = strtok(NULL, delimiters);
-		if (args[i] == NULL) //FIXME - this should be args[i] != null?
-			num_arg++;
-	}
+
+
+
+
 	/*************************************************/
 	//command line commands
 	/*************************************************/
@@ -102,10 +114,12 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 			cout << "Too many arguments" << endl; 
 		else if (strcmp(args[1], "-") == 0) //trying to go to old directory
 		{
+			cout << "DB1" << endl;
 			if (!prev_pwd)
 				cout << "OLDPWD not set";
 			else //change oldpwd to current, go to oldpwd
 			{
+				cout << "DB2" << endl;
 				getcwd(pwd, MAX_LINE_SIZE); //FIXME daniel: can it be longer then MAX_LINE_SIZE?
 				chdir(prev_pwd);
 				prev_pwd = pwd;
@@ -122,7 +136,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "pwd")
 	{
-		cout << getcwd(pwd, sizeof(char*)) <<endl;
+		cout << getcwd(pwd, MAX_LINE_SIZE) <<endl;
 
 	}
 
@@ -168,12 +182,14 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 		int status;
 		if (args[2]!= NULL)
 			cout << "smash error: fg: invalid arguments"<< endl;
-		else if (args[1] == NULL) {
-			Job* job = &(*Jobs->jobList.end());
-			int pid = job->getProcessID();
-			if (job == NULL)
+		else if (args[1] == NULL) { // got no argument for 'fg'
+			if (Jobs->jobList.empty())
 				cout << "smash error: fg: jobs list is empty" << endl;
-			else {
+			else
+			{
+				std::list<Job>::iterator it = std::prev(Jobs->jobList.end());
+				Job* job = &(*it);
+				int pid = job->getProcessID();
 				cout << job->commandName << ": " << pid << endl;
 				kill(pid, SIGCONT);
 				waitpid(pid, &status, 0);
@@ -279,19 +295,19 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 //**************************************************************************************
 void ExeExternal(char* args[MAX_ARG], string cmdString)
 {
-	//int pID;
+	int pID;
 	//int status;
-	//switch (pID = fork())
-	//{
-	//case -1:
-	//	perror(�smash error : fork failed�);
-	//case 0:
-	//{
-	//	// Child Process
-	//	setpgrp();
+	switch (pID = fork())
+	{
+	case -1:
+		perror("smash error : fork failed");
+	case 0:
+	{
+		// Child Process
+		setpgrp();
 		char* c_cmdString = new char[MAX_LINE_SIZE + 1];
 		strcpy(c_cmdString, cmdString.c_str());
-		if (execv(c_cmdString, args) < 0) {
+		if (execv(args[0], args) < 0) {
 			perror("smash error : execv failed");
 			exit(1);
 		}
@@ -299,12 +315,12 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 		exit(0);
 		//waitpid(pID, &status, 0);
 		// FIXME daniel: should we continue also when process has stopeed, but not finished? 
-	//}
-	//default:
-	//{
-	//	// parent 
-	//}
-	//}
+	}
+	default:
+	{
+		// parent 
+	}
+	}
 }
 
 //**************************************************************************************
@@ -318,9 +334,9 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 	string Command;
 	string delimiters = " \t\n";
 	string args[MAX_ARG];
-	if (CommandLine[CommandLine.length() - 2] == '&')
+	if (CommandLine[CommandLine.length() - 1] == '&')
 	{
-		CommandLine[CommandLine.length() - 2] = '\0';
+		CommandLine[CommandLine.length() - 1] = '\0';
 		int pID;
 			switch (pID = fork())
 			{
