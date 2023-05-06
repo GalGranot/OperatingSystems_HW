@@ -3,6 +3,7 @@
 
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
+#define JOB_DOESNT_EXIST -1
 
 #include <list>
 #include <string>

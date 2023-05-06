@@ -27,39 +27,24 @@ using std::string;
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
 #define QUIT 99
+
 string L_Fg_Cmd;
 char CommandLine[MAX_LINE_SIZE];
+Job fgJob; //global foreground job
 
-
-//void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
-// FIXME daniel: we added the jobs already in the main function. 
-//               should we add it here instead?
-//              gal - i think it's not necessary, i'll try and delete this after compilation
-//FIXME daniel: is that an array of chars, or a c string? gal - this is a array of chars instead of a ptr to an array, dont see why it's necessary here
 
 //**************************************************************************************
-// function name: main
-// Description: main function of smash. get command from user and calls command functions
+// main function
 //**************************************************************************************
 int main(int argc, char* argv[])
 {
     string cmdString;
     sList* Jobs = new sList;
-
-    //signal declaretions
-    //NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
-    /* add your code here */
-    /************************************/
-    //NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
-    //set your signal handlers here
-    /* add your code here */
-    /************************************/
-    /************************************/
-    // Init globals 
-
     L_Fg_Cmd = "";
-    //signal(SIGINT, ctrlCHandler);
-    //signal(SIGTSTP, ctrlZHandler);
+    signal(SIGINT, ctrlCHandler);
+    signal(SIGTSTP, ctrlZHandler);
+    fgJob.jobID = JOB_DOESNT_EXIST;
+    
     while (1)
     {
         cout << "smash > ";

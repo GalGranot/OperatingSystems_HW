@@ -66,7 +66,7 @@ bool cmpFiles(string filename1, string filename2)
 	}
 }
 
-//****************
+//******************************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands
 // Parameters: pointer to Jobs, command string
