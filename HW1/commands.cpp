@@ -109,7 +109,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	cout << "current command is " << cmd << endl;
 
 
-		/*************************************************/
+	/*************************************************/
 	//command line commands
 	/*************************************************/
 	if (cmd == "cd")
@@ -134,8 +134,6 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 			getcwd(prev_pwd, sizeof(char*));
 			chdir(args[1]);
 		}
-
-
 	}
 	/*************************************************/
 	else if (cmd == "pwd")
