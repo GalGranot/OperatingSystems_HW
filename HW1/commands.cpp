@@ -339,6 +339,7 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 	if (CommandLine[CommandLine.length() - 1] == '&')
 	{
 		CommandLine[CommandLine.length() - 1] = '\0';
+		cmdString[cmdString.length() - 1] = '\0';
 		int pID;
 			switch (pID = fork())
 			{
