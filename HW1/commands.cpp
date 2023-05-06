@@ -1,5 +1,5 @@
 //		commands.c
-//********************************************
+//****************
 
 //defines, global vars, namespaces
 
@@ -25,9 +25,9 @@ using std::cout;
 using std::endl;
 using std::string;
 
-//********************************************
+//****************
 //general use functions
-//********************************************
+//****************
 
 //returns true if different, false if identical
 bool cmpFiles(string filename1, string filename2)
@@ -36,20 +36,25 @@ bool cmpFiles(string filename1, string filename2)
 	std::ifstream file2(filename2);
 	if (!file1.is_open() || !file2.is_open())
 	{
-		 cout << "Failed to open" << endl; //FIXME daniel: why do we have it? no demand for that
+		//cout << "Failed to open" << endl;
 		return true; //actually error
 	}
 	char c1, c2;
+	int c1Num = 0; int c2Num = 0;
 	while (file1.get(c1) && file2.get(c2))
 	{
+		c1Num++; c2Num++;
+		if (file1.eof() || file2.eof())
+			break;
 		if (c1 != c2)
 		{
 			file1.close(); file2.close();
 			return true;
 		}
 	}
+
 	//reached eof of one file, check if eof of other file too
-	if (file1.eof() && file2.eof())
+	if (c1Num == c2Num)
 	{
 		file1.close(); file2.close();
 		return false;
@@ -61,12 +66,12 @@ bool cmpFiles(string filename1, string filename2)
 	}
 }
 
-//********************************************
+//****************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands
 // Parameters: pointer to Jobs, command string
 // Returns: 0 - success,1 - failure
-//**************************************************************************************
+//******************************
 
 int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 {
@@ -77,35 +82,34 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	int num_arg = 0;
 	bool illegal_cmd = false; // illegal command
 
-//argument parsing
+	//argument parsing
 	//cout << "commandline is " << CommandLine << endl << "cmdstring is " << cmdString << endl; //rmv
-	char* args[MAX_ARG];
+	char* args[MAX_ARG] = { NULL };
 	char* cmdStringCopy = new char[MAX_LINE_SIZE + 1];
 	strcpy(cmdStringCopy, cmdString.c_str());
 	char* tok = strtok(cmdStringCopy, delimiters);
 	string cmd(tok);
-	args[0] = new char[MAX_LINE_SIZE + 1];
-	strcpy(args[0], cmd.c_str());
-
-
-
-	for (int i = 1; i < MAX_ARG; i++)
-	{
-		args[i] = new char[MAX_LINE_SIZE + 1];
-		args[i] = strtok(NULL, delimiters);
-	
-		if (args[i] != NULL)
-			num_arg++; 
-	}
-
 	if (cmd.empty())
 		return 0;
 
+	args[0] = new char[cmd.size() + 1];
+	strcpy(args[0], cmd.c_str());
+	int i = 1;
+	tok = strtok(NULL, delimiters);
+	while (tok != NULL)
+	{
+		if (num_arg > MAX_ARG)
+			cout << "Too many arguments" << endl;
+		args[i] = new char[strlen(tok) + 1];
+		strcpy(args[i], tok);
+		i++;
+		num_arg++;
+		tok = strtok(NULL, delimiters);
+	}
+	cout << "current command is " << cmd << endl;
 
 
-
-
-	/*************************************************/
+		/*************************************************/
 	//command line commands
 	/*************************************************/
 	if (cmd == "cd")
