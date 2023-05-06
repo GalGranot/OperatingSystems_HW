@@ -27,7 +27,7 @@ using std::string;
 
 
 //FIXME gal - the ctrlc and ctrlz are sent to the smash parent process, how should we catch it to address the current smash child process?
-void ctrlCHandler()
+void ctrlCHandler(int sigNum)
 {
 	cout << "smash: caught ctrl-C" << endl;
 	if(//process is running in foreground)
@@ -40,7 +40,7 @@ void ctrlCHandler()
 
 }
 
-void ctrlZHandler()
+void ctrlZHandler(int sigNum)
 {
 	cout << "smash: caught ctrl-z" << endl;
 	if(//process is running in foreground)

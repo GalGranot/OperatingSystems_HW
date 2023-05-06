@@ -16,12 +16,12 @@ public:
 	Job(int processID, string commandName, time_t startTime);
 	int getJobID();
 	int getProcessID();
-	int jobID;
+	int jobID; //FIXME gal - two jobsIDS
 	void printJob(time_t presentTime);
 	bool isStopped = 0;
 	string commandName;
 private:
-	int jobID;
+	int jobID; //FIXME gal - two jobsIDS
 	time_t startTime;
 
 };
