@@ -24,6 +24,8 @@ using std::cout;
 using std::endl;
 using std::string;
 
+//global vars
+
 //********************************************
 //general use functions
 //********************************************
@@ -35,7 +37,7 @@ bool cmpFiles(string filename1, string filename2)
 	std::ifstream file2(filename2);
 	if (!file1.is_open() || !file2.is_open())
 	{
-		 cout << "Failed to open" << endl; //FIXME daniel: why do we have it? no demand for that
+		 //cout << "Failed to open" << endl; //FIXME daniel: why do we have it? no demand for that //gal: added for debugging, we can remove it
 		return true; //actually error
 	}
 	char c1, c2;
@@ -166,13 +168,15 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	{
 		int status;
 		if (args[2]!= NULL)
-			cout << "smash error: fg: invalid arguments"<< endl;
-		else if (args[1] == NULL) {
+			cout << "smash error: fg: invalid arguments" << endl;
+		else if (args[1] == NULL)
+		{
 			Job* job = Jobs->jobList.end();
 			int pid = job->getProcessID();
 			if (job == NULL)
 				cout << "smash error: fg: jobs list is empty" << endl;
-			else {
+			else
+			{
 				cout << job->commandName << ": " << pid << endl;
 				kill(pid, SIGCONT);
 				waitpid(pid, &status, 0);
@@ -185,7 +189,8 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 			int jobid = job->getJobID();
 			if (job == NULL)
 				cout << "smash error: fg: job-id " << jobid << " does not exist" << endl;
-			else {
+			else
+			{
 				cout << job->commandName << ": " << pid << endl;
 				kill(pid, SIGCONT);
 				waitpid(pid, &status, 0);
@@ -237,14 +242,16 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	{
 		if (args[3] != NULL || args[2] == NULL || args[1] == NULL || strcmp(args[1][0], "-") )
 			cout << "smash error: kill: invalid arguments" << endl;
-		else {
+		else
+		{
 			Job* temp_job = sList::getJobByJobID(std::atoi(args[2]));  //returns null if job not exist
 			if (temp_job == NULL)    
 				cout << "smash error : kill: job - id " << args[2] << " does not exist" << endl;
-			else {
+			else
+			{
 				int signum = std::stoi(args[1] + 1);
 				kill(temp_job->processID, signum);
-				out << "signal number " << signum << " was sent to pid " << args[2] <<endl;
+				out << "signal number " << signum << " was sent to pid " << args[2] << endl;
 			}
 		}
 	}
@@ -343,3 +350,4 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 	}
 	return -1;
 }
+

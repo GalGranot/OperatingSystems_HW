@@ -9,6 +9,7 @@ main file. This file contains the main function of smash
 #include <iostream>
 #include <string>
 #include <string.h>
+#include <signal.h>
 
 //local includes
 #include "jobs.h"
@@ -57,6 +58,9 @@ int main(int argc, char* argv[])
     // Init globals 
 
     L_Fg_Cmd = "";
+    signal(SIGINT, ctrlCHandler);
+    signal(SIGTSTP, ctrlZHandler);
+
     while (1)
     {
         cout << "smash > ";
@@ -65,7 +69,7 @@ int main(int argc, char* argv[])
         // background command    
         if (!BgCmd(CommandLine, Jobs, cmdString)) continue;
         // built in commands
-        if (ExeCmd(Jobs, CommandLine, cmdString) == QUIT )
+        if (ExeCmd(Jobs, CommandLine, cmdString) == QUIT)
             return 0;
         /* initialize for next line read*/
         CommandLine[0] = '\0';
