@@ -30,8 +30,6 @@ using std::string;
 string L_Fg_Cmd;
 char CommandLine[MAX_LINE_SIZE];
 
-Job fgJob;
-
 
 //void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
 // FIXME daniel: we added the jobs already in the main function. 
@@ -60,9 +58,8 @@ int main(int argc, char* argv[])
     // Init globals 
 
     L_Fg_Cmd = "";
-    signal(SIGINT, ctrlCHandler);
-    signal(SIGTSTP, ctrlZHandler);
-
+    //signal(SIGINT, ctrlCHandler);
+    //signal(SIGTSTP, ctrlZHandler);
     while (1)
     {
         cout << "smash > ";

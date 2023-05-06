@@ -9,6 +9,7 @@
 #include <unistd.h> 
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <time.h>
 #include <fstream>
 #include <signal.h>
@@ -24,8 +25,6 @@ using std::cout;
 using std::endl;
 using std::string;
 
-//global vars
-
 //********************************************
 //general use functions
 //********************************************
@@ -37,7 +36,7 @@ bool cmpFiles(string filename1, string filename2)
 	std::ifstream file2(filename2);
 	if (!file1.is_open() || !file2.is_open())
 	{
-		 //cout << "Failed to open" << endl; //FIXME daniel: why do we have it? no demand for that //gal: added for debugging, we can remove it
+		 cout << "Failed to open" << endl; //FIXME daniel: why do we have it? no demand for that
 		return true; //actually error
 	}
 	char c1, c2;
@@ -72,8 +71,8 @@ bool cmpFiles(string filename1, string filename2)
 int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 {
 	char* args[MAX_ARG];
-	char* pwd;
-	char* prev_pwd; // previous PWD, in use in CD command 
+	char* pwd = NULL;
+	char* prev_pwd = NULL; // previous PWD, in use in CD command 
 	const char* delimiters = " \t\n";
 	int i = 0, num_arg = 0;
 	bool illegal_cmd = false; // illegal command
@@ -123,14 +122,14 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "pwd")
 	{
-		cout << getcwd(pwd, sizeof(char*));
+		cout << getcwd(pwd, sizeof(char*)) <<endl;
 
 	}
 
 	///*************************************************/
 	else if (cmd == "jobs")
 	{
-		std::list<Job>::iterator it = Jobs->begin();
+		std::list<Job>::iterator it = Jobs->jobList.begin();
 		time_t presentTime = time(NULL); // use same timing for all jobs
 		
 		//1. check which jobs are still running
@@ -148,35 +147,33 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 		//Jobs->printJobsList(presentTime);
 		//endof gal code
 
-		while (it != Jobs->end())
+		while (it != Jobs->jobList.end())
 		{
 			if (kill(it->processID, 0) == 0) // check if job is still running by sending a signal 0
 			{
 				it->printJob(presentTime);
 				it++;
 			}
-			else Jobs->erase(it); //delete this job from list 
+			else Jobs->jobList.erase(it); //delete this job from list 
 		}
 	}
 	/*************************************************/
 	else if (cmd == "showpid")
 	{
-		cout << "smash pid is" << getpid() << endl; 
+		cout << "smash pid is " << getpid() << endl; 
 	}
 	/*************************************************/
 	else if (cmd == "fg") //implement
 	{
 		int status;
 		if (args[2]!= NULL)
-			cout << "smash error: fg: invalid arguments" << endl;
-		else if (args[1] == NULL)
-		{
-			Job* job = Jobs->jobList.end();
+			cout << "smash error: fg: invalid arguments"<< endl;
+		else if (args[1] == NULL) {
+			Job* job = &(*Jobs->jobList.end());
 			int pid = job->getProcessID();
 			if (job == NULL)
 				cout << "smash error: fg: jobs list is empty" << endl;
-			else
-			{
+			else {
 				cout << job->commandName << ": " << pid << endl;
 				kill(pid, SIGCONT);
 				waitpid(pid, &status, 0);
@@ -184,13 +181,12 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 			}
 		}
 		else {
-			Job* job = Jobs->getJobByJobID(args[1]);
+			Job* job = Jobs->getJobByJobID(std::stoi(args[1]));
 			int pid = job->getProcessID();
 			int jobid = job->getJobID();
 			if (job == NULL)
 				cout << "smash error: fg: job-id " << jobid << " does not exist" << endl;
-			else
-			{
+			else {
 				cout << job->commandName << ": " << pid << endl;
 				kill(pid, SIGCONT);
 				waitpid(pid, &status, 0);
@@ -201,7 +197,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "bg") //implement
 	{
-		int job_id = args[1];
+		int job_id = std::stoi(args[1]);
 		if (job_id) {
 			Job* job = Jobs->getJobByJobID(job_id);
 			if (args[2] != NULL)
@@ -212,7 +208,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 				cout << "smash error : bg: job - id " << job_id << "is already running in the background" << endl;
 			else {
 				cout << job->commandName << ": " << job->getProcessID() << endl;
-				kill(job->getProcessID, SIGCONT);
+				kill(job->getProcessID(), SIGCONT);
 				job->isStopped = 0;
 			}
 		}
@@ -222,7 +218,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 				cout << "smash error : bg:there are no stopped jobs to resume" << endl;
 			else {
 				cout << job->commandName << ": " << job->getProcessID() << endl;
-				kill(job->getProcessID, SIGCONT);
+				kill(job->getProcessID(), SIGCONT);
 				job->isStopped = 0;
 			}
 		}
@@ -230,7 +226,6 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "quit") //implement
 	{
-		int pid = getpid();
 		if (!strcmp(args[1], "kill"))  //  kill argument 
 			Jobs->kill_list();
 		return QUIT;
@@ -240,18 +235,16 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "kill") //implement
 	{
-		if (args[3] != NULL || args[2] == NULL || args[1] == NULL || strcmp(args[1][0], "-") )
+		if (args[3] != NULL || args[2] == NULL || args[1] == NULL || (args[1][0] != '-' ) )
 			cout << "smash error: kill: invalid arguments" << endl;
-		else
-		{
-			Job* temp_job = sList::getJobByJobID(std::atoi(args[2]));  //returns null if job not exist
+		else {
+			Job* temp_job = Jobs->getJobByJobID(std::atoi(args[2]));  //returns null if job not exist
 			if (temp_job == NULL)    
 				cout << "smash error : kill: job - id " << args[2] << " does not exist" << endl;
-			else
-			{
+			else {
 				int signum = std::stoi(args[1] + 1);
 				kill(temp_job->processID, signum);
-				out << "signal number " << signum << " was sent to pid " << args[2] << endl;
+				cout << "signal number " << signum << " was sent to pid " << args[2] <<endl;
 			}
 		}
 	}
@@ -291,7 +284,7 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 	//switch (pID = fork())
 	//{
 	//case -1:
-	//	perror(“smash error : fork failed”);
+	//	perror(ï¿½smash error : fork failedï¿½);
 	//case 0:
 	//{
 	//	// Child Process
@@ -335,6 +328,7 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 				perror("smash error : fork failed");
 			case 0:
 				// Child Process
+			{
 				setpgrp();
 				time_t startTime = time(NULL);
 				int pid = getpid();
@@ -342,7 +336,8 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 				Jobs->insertJob(job);
 				ExeCmd(Jobs, CommandLine, cmdString);
 				exit(0);
-			default:
+			}
+			default :
 				// parent 
 				break;
 			}
@@ -350,4 +345,3 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 	}
 	return -1;
 }
-
