@@ -126,9 +126,7 @@ int ExeCmd( string CommandLine, string cmdString)
 			{
 				getcwd(pwd, MAX_LINE_SIZE); //FIXME daniel: can it be longer then MAX_LINE_SIZE?
 				chdir(prev_pwd);
-				cout << "DB2 " << prev_pwd << "   " << pwd << endl;
 				strcpy(prev_pwd, pwd);
-				cout << "DB3 " << prev_pwd << "   " << pwd << endl;
 			}
 		}
 		else //go to new dir
