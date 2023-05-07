@@ -20,10 +20,14 @@
 #include "signals.h"
 
 #define QUIT 99
+#define RUN 0
+#define SIGSTOP 19 
 
 using std::cout;
 using std::endl;
 using std::string;
+
+char prev_pwd[MAX_LINE_SIZE] ; // previous PWD, in use in CD command 
 
 //****************
 //general use functions
@@ -73,11 +77,10 @@ bool cmpFiles(string filename1, string filename2)
 // Returns: 0 - success,1 - failure
 //******************************
 
-int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
+int ExeCmd( string CommandLine, string cmdString)
 {
 	//var declaration
-	char* pwd = NULL;
-	char* prev_pwd = NULL; // previous PWD, in use in CD command 
+	char pwd[MAX_LINE_SIZE] ;
 	const char* delimiters = " \t\n";
 	int num_arg = 0;
 	bool illegal_cmd = false; // illegal command
@@ -117,21 +120,22 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 			cout << "Too many arguments" << endl; 
 		else if (strcmp(args[1], "-") == 0) //trying to go to old directory
 		{
-			cout << "DB1" << endl;
-			if (!prev_pwd)
-				cout << "OLDPWD not set";
+			if (!(*prev_pwd))
+				cout << "OLDPWD not set" << endl;
 			else //change oldpwd to current, go to oldpwd
 			{
-				cout << "DB2" << endl;
 				getcwd(pwd, MAX_LINE_SIZE); //FIXME daniel: can it be longer then MAX_LINE_SIZE?
 				chdir(prev_pwd);
-				prev_pwd = pwd;
+				cout << "DB2 " << prev_pwd << "   " << pwd << endl;
+				strcpy(prev_pwd, pwd);
+				cout << "DB3 " << prev_pwd << "   " << pwd << endl;
 			}
 		}
 		else //go to new dir
 		{
-			getcwd(prev_pwd, sizeof(char*));
+			getcwd(prev_pwd, MAX_LINE_SIZE);
 			chdir(args[1]);
+			//cout << prev_pwd << endl;
 		}
 	}
 	/*************************************************/
@@ -144,6 +148,7 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	///*************************************************/
 	else if (cmd == "jobs")
 	{
+		int status;
 		std::list<Job>::iterator it = Jobs->jobList.begin();
 		time_t presentTime = time(NULL); // use same timing for all jobs
 		
@@ -152,24 +157,17 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 		//3. order the remaining ones
 		//4. print them
 
-		//gal code
-	//	while (!it)
-	//	{
-		//	if (!kill(it->processID, 0) == 0) //job is dead and should be deleted
-		//		it = Jobs->erase(it); //this line both deletes current element and returns ptr to next element
-		//	it++;
-		//} //list now holds only alive jobs
-		//Jobs->printJobsList(presentTime);
-		//endof gal code
-
 		while (it != Jobs->jobList.end())
 		{
-			if (kill(it->processID, 0) == 0) // check if job is still running by sending a signal 0
+
+			if (waitpid(it->processID, &status, WNOHANG) == RUN) // check if job is still running by sending a signal 0
 			{
 				it->printJob(presentTime);
 				it++;
 			}
-			else Jobs->jobList.erase(it); //delete this job from list 
+			else {
+				it = Jobs->jobList.erase(it); //delete this job from list 
+			}
 		}
 	}
 	/*************************************************/
@@ -214,15 +212,16 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "bg") //implement
 	{
-		int job_id = std::stoi(args[1]);
-		if (job_id) {
+		
+		if (args[1] != NULL) {
+			int job_id = std::stoi(args[1]);
 			Job* job = Jobs->getJobByJobID(job_id);
 			if (args[2] != NULL)
 				cout << "smash error : bg: invalid arguments" << endl;
 			else if (job == NULL)
-				cout << "smash error : bg: job - id " << job_id << "does not exist" << endl;
+				cout << "smash error : bg: job - id " << job_id << " does not exist" << endl;
 			else if (job->isStopped == 0)
-				cout << "smash error : bg: job - id " << job_id << "is already running in the background" << endl;
+				cout << "smash error : bg: job - id " << job_id << " is already running in the background" << endl;
 			else {
 				cout << job->commandName << ": " << job->getProcessID() << endl;
 				kill(job->getProcessID(), SIGCONT);
@@ -243,8 +242,10 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 	/*************************************************/
 	else if (cmd == "quit") //implement
 	{
-		if (!strcmp(args[1], "kill"))  //  kill argument 
-			Jobs->kill_list();
+		if (args[1] != NULL) {
+			if (!strcmp(args[1], "kill"))  //  kill argument 
+				Jobs->kill_list();
+		}
 		return QUIT;
 		//FIXME daniel: should we also delete here all allocated memory ? 
 
@@ -262,6 +263,8 @@ int ExeCmd(sList* Jobs, string CommandLine, string cmdString)
 				int signum = std::stoi(args[1] + 1);
 				kill(temp_job->processID, signum);
 				cout << "signal number " << signum << " was sent to pid " << args[2] <<endl;
+				if (signum == SIGSTOP)
+					Jobs->getJobByJobID(std::atoi(args[2]))->isStopped = 1;
 			}
 		}
 	}
@@ -298,6 +301,7 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 {
 	int pID;
 	int status;
+	//cout << "external " << endl;
 	switch (pID = fork())
 	{
 	case -1:
@@ -308,11 +312,12 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 		setpgrp();
 		char* c_cmdString = new char[MAX_LINE_SIZE + 1];
 		strcpy(c_cmdString, cmdString.c_str());
+		delete[] c_cmdString;
 		if (execv(args[0], args) < 0) {
 			perror("smash error : execv failed");
 			exit(1);
 		}
-		delete[] c_cmdString;
+		cout << " exit extern" << endl;
 		exit(0);
 		// FIXME daniel: should we continue also when process has stopeed, but not finished? 
 	}
@@ -320,8 +325,10 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 	{
 		// parent 
 		waitpid(pID, &status, 0);
+		break;
 	}
 	}
+	return;
 }
 
 //**************************************************************************************
@@ -330,14 +337,13 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 // Parameters: command string, pointer to jobs
 // Returns: 0- BG command -1- if not
 //**************************************************************************************
-int BgCmd(string CommandLine, sList* Jobs, string cmdString)
+int BgCmd(string CommandLine,  string cmdString)
 {
 	string Command;
 	string delimiters = " \t\n";
 	string args[MAX_ARG];
-	if (CommandLine[CommandLine.length() - 1] == '&')
+	if (cmdString[cmdString.length() - 1] == '&')
 	{
-		CommandLine[CommandLine.length() - 1] = '\0';
 		cmdString[cmdString.length() - 1] = '\0';
 		int pID;
 			switch (pID = fork())
@@ -348,15 +354,14 @@ int BgCmd(string CommandLine, sList* Jobs, string cmdString)
 				// Child Process
 			{
 				setpgrp();
-				time_t startTime = time(NULL);
-				int pid = getpid();
-				Job* job = new Job(pid, cmdString, startTime);
-				Jobs->insertJob(job);
-				ExeCmd(Jobs, CommandLine, cmdString);
+				ExeCmd( CommandLine, cmdString);
 				exit(0);
 			}
 			default :
-				// parent 
+				// parent
+				time_t startTime = time(NULL);
+				Job job(pID, CommandLine, startTime);
+				Jobs->insertJob(job);
 				break;
 			}
 			return 0;

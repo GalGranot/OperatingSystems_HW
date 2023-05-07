@@ -23,6 +23,9 @@ using std::string;
 using std::cout;
 using std::endl;
 
+#define RUN 0
+
+
 Job::Job(int processID, string commandName, time_t startTime)
 	{  this->processID=processID;  this->commandName=commandName;  this->startTime=startTime; }
 
@@ -33,30 +36,34 @@ int Job::getProcessID() {return this->processID;}
 
 void Job::printJob(time_t presentTime)
 {
-	time_t timeDiff = difftime(startTime, presentTime);
+	time_t timeDiff = difftime(presentTime, startTime);
 	if (!isStopped)
-		cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << endl;
+		cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << " secs" <<endl;
 	else
-		cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << " (stopped)" << endl;
+		cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << " secs" << " (stopped)" << endl;
 }
-
-bool sList::insertJob(Job* myJob)
+sList::sList()
+{
+	jobList = std::list<Job>();
+}
+bool sList::insertJob(Job myJob)
 {
 	int nextJobID = 0;
+	int status;
 
 	if (this->jobList.empty())
 	{
-		myJob->jobID = 1;
-		this->jobList.push_back(*myJob);
+		//cout << "insert0 " << endl;
+		myJob.jobID = 1;
+		this->jobList.push_back(myJob);
 		return true;
 	}
 	std::list<Job>::iterator it = this->jobList.begin();
-	if(it == this->jobList.end())
-		return false;
 	while (it != this->jobList.end())
 	{
 		
-		if (kill(it->getProcessID(), 0) == 0) //current process is alive
+		//if (kill(it->getProcessID(), 0) == 0)
+		if (waitpid((*it).getProcessID(), &status, WNOHANG)== RUN)//current process is alive
 		{
 			nextJobID = it->getJobID();
 			it++;
@@ -64,8 +71,8 @@ bool sList::insertJob(Job* myJob)
 		else
 			it = this->jobList.erase(it); //this line both deletes current element and returns ptr to next element
 	}
-	myJob->jobID = ++nextJobID;
-	this->jobList.push_back(*myJob);
+	myJob.jobID = ++nextJobID;
+	this->jobList.push_back(myJob);
 	return true;
 }
 
@@ -120,7 +127,9 @@ void sList::printJobsList(time_t presentTime)
 
 void sList::kill_list()
 {
-	int timeout = 5;
+	int status;
+	cout <<" smash pid " << getpid() << endl;
+	int timeout = 5; 
 	int pid;
 	std::list<Job>::iterator it = this->jobList.begin();
 	while (it != this->jobList.end())
@@ -128,13 +137,13 @@ void sList::kill_list()
 		pid = it->getProcessID();
 		kill(pid, SIGTERM);
 		sleep(timeout);
-		if (kill(pid, 0) == 0) //current process is alive
+		if (waitpid(pid, &status, WNOHANG) == RUN) //current process is alive
 		{
 			kill(pid, SIGKILL);
-			std::cout << it->commandName << "� Sending SIGTERM� (5 sec passed) Sending SIGKILL� Done." << endl;
+			std::cout << it->commandName << " - Sending SIGTERM... (5 sec passed) Sending SIGKILL... Done." << endl;
 		}
-		else 
-			std::cout << it->commandName << "� Sending SIGTERM... Done." << endl;
+		else
+			std::cout << it->commandName << " - Sending SIGTERM... Done." << endl;
 		it++;
 	}
 }
@@ -154,14 +163,19 @@ Job* sList::biggest_stopped()
 {
 	int biggest_jobid = 0;
 	std::list<Job>::iterator it = this->jobList.begin();
-	Job* job = &(*it);
-	while (it != this->jobList.end()) {
-		if (it->isStopped) {
-			if (it->jobID > biggest_jobid) {
-				biggest_jobid = it->jobID;
-				job = &(*it);
+	if (this->jobList.empty()) 
+		return NULL;
+	else {
+		Job* job = &(*it);
+		while (it != this->jobList.end()) {
+			if (it->isStopped) {
+				if (it->jobID > biggest_jobid) {
+					biggest_jobid = it->jobID;
+					job = &(*it);
+				}
 			}
+			it++;
 		}
+		return job;
 	}
-	return job;
 }

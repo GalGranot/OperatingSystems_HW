@@ -30,6 +30,7 @@ using std::string;
 string L_Fg_Cmd;
 char CommandLine[MAX_LINE_SIZE];
 
+sList* Jobs;
 
 //void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
 // FIXME daniel: we added the jobs already in the main function. 
@@ -43,19 +44,20 @@ char CommandLine[MAX_LINE_SIZE];
 //**************************************************************************************
 int main(int argc, char* argv[])
 {
-    string cmdString;
-    sList* Jobs = new sList;
 
     //signal declaretions
     //NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
     /* add your code here */
     /************************************/
-    //NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
     //set your signal handlers here
     /* add your code here */
     /************************************/
     /************************************/
     // Init globals 
+    string cmdString;
+    Jobs = new sList();
+
+    //sList* Jobs = new sList();
 
     L_Fg_Cmd = "";
     //signal(SIGINT, ctrlCHandler);
@@ -66,9 +68,9 @@ int main(int argc, char* argv[])
         getline(cin, cmdString);
         strcpy(CommandLine, cmdString.c_str());
         // background command    
-        if (!BgCmd(CommandLine, Jobs, cmdString)) continue;
+        if (!BgCmd(CommandLine, cmdString)) continue;
         // built in commands
-        if (ExeCmd(Jobs, CommandLine, cmdString) == QUIT)
+        if (ExeCmd(CommandLine, cmdString) == QUIT) 
             return 0;
         /* initialize for next line read*/
         CommandLine[0] = '\0';

@@ -21,19 +21,18 @@ public:
 	string commandName;
 	int jobID;
 	int processID;
+	time_t startTime;
 private:
 
-	time_t startTime;
 
 };
 class sList
 {
 private:
-	//std::list<Job> jobList;
-	//return true on success, false on failure
 
 
 public:
+	sList();
 	std::list<Job> jobList;
 	Job* biggest_stopped();
 	Job* getJobByProcessID(int ID);
@@ -43,7 +42,8 @@ public:
 	void printJobsList(time_t presentTime);
 	void kill_list();
 	void remove_job(int pid);
-	bool insertJob(Job* myJob);
+	bool insertJob(Job myJob);
+	//return true on success, false on failure
 };
 
 #endif
