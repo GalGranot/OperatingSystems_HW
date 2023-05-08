@@ -22,6 +22,10 @@
 #define QUIT 99
 #define RUN 0
 #define SIGSTOP 19 
+#define FG_NO_JOB -1
+#define SUCCESS 0
+#define FAIL -1
+
 
 using std::cout;
 using std::endl;
@@ -72,6 +76,19 @@ bool cmpFiles(string filename1, string filename2)
 void delete_args(char* args[MAX_ARG]) {
 	for (int i = 0; i < MAX_ARG; i++)
 		delete[] args[i];
+}
+
+int copyJob(Job* source, Job* dest)
+{
+	if (source == NULL || dest == NULL)
+		return FAIL;
+
+	dest->commandName = source->commandName;
+	dest->jobID = source->jobID;
+	dest->processID = source->processID;
+	dest->startTime = source->startTime;
+
+	return SUCCESS;
 }
 
 //****************
@@ -199,6 +216,9 @@ int ExeCmd( string CommandLine, string cmdString)
 					perror("smash error: kill failed");
 				if (waitpid(pid, &status, 0) == -1)
 					perror("smash error: waitpid failed");
+
+				if (copyJob(job, &fgJob) == FAIL)
+					perror("smash error: fg move failed");
 				Jobs->remove_job(pid);
 			}
 		}

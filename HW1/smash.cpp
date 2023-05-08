@@ -27,10 +27,12 @@ using std::string;
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
 #define QUIT 99
+#define FG_NO_JOB -1
 string L_Fg_Cmd;
 char CommandLine[MAX_LINE_SIZE];
 
 sList* Jobs;
+Job fgJob(FG_NO_JOB, " ", (time_t)0);
 
 //void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
 // FIXME daniel: we added the jobs already in the main function. 
@@ -56,6 +58,10 @@ int main(int argc, char* argv[])
     // Init globals 
     string cmdString;
     Jobs = new sList();
+    fgJob.jobID = FG_NO_JOB;
+
+    signal(SIGINT, ctrlCHandler);
+    signal(SIGTSTP, ctrlZHandler);
 
     //sList* Jobs = new sList();
 
@@ -78,4 +84,6 @@ int main(int argc, char* argv[])
     }
     //our additions
     delete Jobs;
+
+    return 0;
 }

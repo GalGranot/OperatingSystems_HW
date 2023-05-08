@@ -9,6 +9,7 @@
 
 using std::string;
 extern sList* Jobs;
+extern Job fgJob;
 
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20

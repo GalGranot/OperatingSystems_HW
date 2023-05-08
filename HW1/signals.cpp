@@ -1,10 +1,4 @@
-// signals.c
-// contains signal handler funtions
-// contains the function/s that set the signal handlers
 
-/*******************************************/
-/* Name: handler_cntlc
-   Synopsis: handle the Control-C */
 //public includes
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -25,29 +19,48 @@ using std::cout;
 using std::endl;
 using std::string;
 
+#define FG_NO_JOB -1
+#define KILL_FAIL -1
 
-//FIXME gal - the ctrlc and ctrlz are sent to the smash parent process, how should we catch it to address the current smash child process?
-void ctrlCHandler()
+
+void ctrlCHandler(int sigNum)
 {
-	cout << "smash: caught ctrl-C" << endl;
-//	if(//process is running in foreground)
-//		{
-//			//FIXME gal - how do i get a process from foreground? it's not saved anywhere
-//			kill(processID, SIGKILL); //FIXME gal - we need to make sure this goes to the next command immediately, maybe by flags?
-//			cout << "smash: process " << processID << " was killed" << endl;
-//		}
-//	else return;
+	cout << endl << "smash: caught ctrl-c" << endl;
 
+	if (fgJob.jobID == FG_NO_JOB)
+	{
+		cout << "smash: ";
+		return;
+	}
+	fgJob.jobID = FG_NO_JOB;
+
+	if (kill(fgJob.processID, SIGKILL) == KILL_FAIL)
+		perror("smash error: kill failed");
+	else
+		cout << "smash: process " << fgJob.processID << " was killed" << endl;
+	return;
 }
 
-void ctrlZHandler()
+void ctrlZHandler(int sigNum)
 {
-//	cout << "smash: caught ctrl-z" << endl;
-//	if(//process is running in foreground)
-//		{
-//			kill(processID< SIGTSTOP);
-//			cout << "smash: process " << processID << " was stopped" << endl;
-//		}
-}
+	cout << endl << "smash: caught ctrl-z" << endl;
+	if (fgJob.jobID == FG_NO_JOB)
+	{
+		cout << "smash: ";
+		return;
+	}
 
-// TODO for gal : when stopping job, add the command line to the fiels job->commandName
+	//update job to be inserted into job list
+	fgJob.isStopped = true;
+	time_t currentTime; time(&currentTime);
+	fgJob.startTime = currentTime;
+	Jobs->jobList.push_back(fgJob);
+
+	//kill job
+	fgJob.jobID = FG_NO_JOB;
+	if (kill(fgJob.processID, SIGKILL) == KILL_FAIL)
+		perror("smash error: kill failed");
+	else
+		cout << "smash: process " << fgJob.processID << " was killed" << endl;
+	return;
+}
