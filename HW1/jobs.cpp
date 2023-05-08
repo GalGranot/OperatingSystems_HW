@@ -42,15 +42,16 @@ void Job::printJob(time_t presentTime)
 	else
 		cout << "[" << jobID << "] " << commandName << ": " << processID << " " << timeDiff << " secs" << " (stopped)" << endl;
 }
+
 sList::sList()
 {
 	jobList = std::list<Job>();
 }
+
 bool sList::insertJob(Job myJob)
 {
 	int nextJobID = 0;
 	int status;
-
 	if (this->jobList.empty())
 	{
 		//cout << "insert0 " << endl;
@@ -60,15 +61,17 @@ bool sList::insertJob(Job myJob)
 	}
 	std::list<Job>::iterator it = this->jobList.begin();
 	while (it != this->jobList.end())
-	{
-		
+	{		
 		//if (kill(it->getProcessID(), 0) == 0)
-		if (waitpid((*it).getProcessID(), &status, WNOHANG)== RUN)//current process is alive
+		int wait_stat = waitpid((*it).getProcessID(), &status, WNOHANG);
+		if (wait_stat == RUN)//current process is alive
 		{
-			nextJobID = it->getJobID();
-			it++;
+		nextJobID = it->getJobID();
+		it++;
 		}
-		else
+		else if (wait_stat == -1)
+			perror("smash error: waitpid failed");
+		else 
 			it = this->jobList.erase(it); //this line both deletes current element and returns ptr to next element
 	}
 	myJob.jobID = ++nextJobID;
@@ -80,8 +83,7 @@ Job* sList::getJobByProcessID(int ID)
 {
 	std::list<Job>::iterator it = this->jobList.begin();
 	while (it != this->jobList.end())
-	{
-		
+	{		
 		if (ID == it->getProcessID())
 			return &(*it);
 		else it++;
@@ -128,20 +130,25 @@ void sList::printJobsList(time_t presentTime)
 void sList::kill_list()
 {
 	int status;
-	cout <<" smash pid " << getpid() << endl;
 	int timeout = 5; 
 	int pid;
 	std::list<Job>::iterator it = this->jobList.begin();
 	while (it != this->jobList.end())
 	{
+		int wait_stat;
 		pid = it->getProcessID();
-		kill(pid, SIGTERM);
+		if (kill(pid, SIGTERM) == -1)
+			perror("smash error: kill failed");
 		sleep(timeout);
-		if (waitpid(pid, &status, WNOHANG) == RUN) //current process is alive
+		wait_stat = waitpid(pid, &status, WNOHANG);
+		if (wait_stat == RUN) //current process is alive
 		{
-			kill(pid, SIGKILL);
+			if (kill(pid, SIGKILL) == -1)
+				perror("smash error: kill failed");
 			std::cout << it->commandName << " - Sending SIGTERM... (5 sec passed) Sending SIGKILL... Done." << endl;
 		}
+		else if (wait_stat == -1)
+			perror("smash error: waitpid failed");
 		else
 			std::cout << it->commandName << " - Sending SIGTERM... Done." << endl;
 		it++;

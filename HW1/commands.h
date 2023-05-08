@@ -18,6 +18,7 @@ bool cmpFiles(string filename1, string filename2);
 int BgCmd(string CommandLine,  string cmdString);
 int ExeCmd( string CommandLine, string cmdString);
 void ExeExternal(char* args[MAX_ARG], string cmdString);
+void delete_args(char* args[MAX_ARG]);
 
 #endif
 

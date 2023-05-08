@@ -69,6 +69,10 @@ bool cmpFiles(string filename1, string filename2)
 		return true;
 	}
 }
+void delete_args(char* args[MAX_ARG]) {
+	for (int i = 0; i < MAX_ARG; i++)
+		delete[] args[i];
+}
 
 //****************
 // function name: ExeCmd
@@ -94,7 +98,7 @@ int ExeCmd( string CommandLine, string cmdString)
 	string cmd(tok);
 	if (cmd.empty())
 		return 0;
-
+	
 	args[0] = new char[cmd.size() + 1];
 	strcpy(args[0], cmd.c_str());
 	int i = 1;
@@ -102,13 +106,14 @@ int ExeCmd( string CommandLine, string cmdString)
 	while (tok != NULL)
 	{
 		if (num_arg > MAX_ARG)
-			cout << "Too many arguments" << endl;
+			cout << "Too many arguments" << endl; //FIXME
 		args[i] = new char[strlen(tok) + 1];
 		strcpy(args[i], tok);
 		i++;
 		num_arg++;
 		tok = strtok(NULL, delimiters);
 	}
+	delete[] cmdStringCopy;
 
 
 	/*************************************************/
@@ -117,11 +122,11 @@ int ExeCmd( string CommandLine, string cmdString)
 	if (cmd == "cd")
 	{
 		if (args[2] != NULL) //got an argument after the directory
-			cout << "Too many arguments" << endl; 
+			cout << "smash error: cd:" << "Too many arguments" << endl;
 		else if (strcmp(args[1], "-") == 0) //trying to go to old directory
 		{
 			if (!(*prev_pwd))
-				cout << "OLDPWD not set" << endl;
+				cout << "smash error: cd:" << "OLDPWD not set" << endl;
 			else //change oldpwd to current, go to oldpwd
 			{
 				getcwd(pwd, MAX_LINE_SIZE); //FIXME daniel: can it be longer then MAX_LINE_SIZE?
@@ -157,12 +162,14 @@ int ExeCmd( string CommandLine, string cmdString)
 
 		while (it != Jobs->jobList.end())
 		{
-
-			if (waitpid(it->processID, &status, WNOHANG) == RUN) // check if job is still running by sending a signal 0
+			int wait_stat = waitpid(it->processID, &status, WNOHANG);
+			if (wait_stat == RUN) // check if job is still running by sending a signal 0
 			{
 				it->printJob(presentTime);
 				it++;
 			}
+			else if (wait_stat == -1)
+				perror("smash error: waitpid failed");
 			else {
 				it = Jobs->jobList.erase(it); //delete this job from list 
 			}
@@ -188,21 +195,25 @@ int ExeCmd( string CommandLine, string cmdString)
 				Job* job = &(*it);
 				int pid = job->getProcessID();
 				cout << job->commandName << ": " << pid << endl;
-				kill(pid, SIGCONT);
-				waitpid(pid, &status, 0);
+				if (kill(pid, SIGCONT) == -1)
+					perror("smash error: kill failed");
+				if (waitpid(pid, &status, 0) == -1)
+					perror("smash error: waitpid failed");
 				Jobs->remove_job(pid);
 			}
 		}
 		else {
 			Job* job = Jobs->getJobByJobID(std::stoi(args[1]));
-			int pid = job->getProcessID();
-			int jobid = job->getJobID();
 			if (job == NULL)
-				cout << "smash error: fg: job-id " << jobid << " does not exist" << endl;
+				cout << "smash error: fg: job-id " << args[1] << " does not exist" << endl;
 			else {
+				int pid = job->getProcessID();
+				//int jobid = job->getJobID();
 				cout << job->commandName << ": " << pid << endl;
-				kill(pid, SIGCONT);
-				waitpid(pid, &status, 0);
+				if (kill(pid, SIGCONT) == -1)
+					perror("smash error: kill failed");
+				if (waitpid(pid, &status, 0) == -1)
+					perror("smash error: waitpid failed"); 
 				Jobs->remove_job(pid);
 			}
 		}
@@ -215,24 +226,26 @@ int ExeCmd( string CommandLine, string cmdString)
 			int job_id = std::stoi(args[1]);
 			Job* job = Jobs->getJobByJobID(job_id);
 			if (args[2] != NULL)
-				cout << "smash error : bg: invalid arguments" << endl;
+				cout << "smash error: bg: invalid arguments" << endl;
 			else if (job == NULL)
-				cout << "smash error : bg: job - id " << job_id << " does not exist" << endl;
+				cout << "smash error: bg: job - id " << job_id << " does not exist" << endl;
 			else if (job->isStopped == 0)
-				cout << "smash error : bg: job - id " << job_id << " is already running in the background" << endl;
+				cout << "smash error: bg: job - id " << job_id << " is already running in the background" << endl;
 			else {
 				cout << job->commandName << ": " << job->getProcessID() << endl;
-				kill(job->getProcessID(), SIGCONT);
+				if (kill(job->getProcessID(), SIGCONT) == -1)
+					perror("smash error: kill failed");
 				job->isStopped = 0;
 			}
 		}
 		else {
 			Job* job = Jobs->biggest_stopped();
 			if (job == NULL)
-				cout << "smash error : bg:there are no stopped jobs to resume" << endl;
+				cout << "smash error: bg: there are no stopped jobs to resume" << endl;
 			else {
 				cout << job->commandName << ": " << job->getProcessID() << endl;
-				kill(job->getProcessID(), SIGCONT);
+				if (kill(job->getProcessID(), SIGCONT) == -1)
+					perror("smash error: kill failed");
 				job->isStopped = 0;
 			}
 		}
@@ -244,6 +257,7 @@ int ExeCmd( string CommandLine, string cmdString)
 			if (!strcmp(args[1], "kill"))  //  kill argument 
 				Jobs->kill_list();
 		}
+		delete_args(args);
 		return QUIT;
 		//FIXME daniel: should we also delete here all allocated memory ? 
 
@@ -256,10 +270,11 @@ int ExeCmd( string CommandLine, string cmdString)
 		else {
 			Job* temp_job = Jobs->getJobByJobID(std::atoi(args[2]));  //returns null if job not exist
 			if (temp_job == NULL)    
-				cout << "smash error : kill: job - id " << args[2] << " does not exist" << endl;
+				cout << "smash error: kill: job - id " << args[2] << " does not exist" << endl;
 			else {
 				int signum = std::stoi(args[1] + 1);
-				kill(temp_job->processID, signum);
+				if (kill(temp_job->processID, signum) == -1)
+					perror("smash error: kill failed");
 				cout << "signal number " << signum << " was sent to pid " << args[2] <<endl;
 				if (signum == SIGSTOP)
 					Jobs->getJobByJobID(std::atoi(args[2]))->isStopped = 1;
@@ -280,13 +295,16 @@ int ExeCmd( string CommandLine, string cmdString)
 	else // external command
 	{
 		ExeExternal(args, cmdString);
+		delete_args(args);
 		return 0;
 	}
 	if (illegal_cmd == true)
 	{
-		cout << "smash error: > " << cmdString << endl;
+		cout << "smash error:" << cmdString << endl;
+		delete_args(args);
 		return 1;
 	}
+	delete_args(args);
 	return 0;
 }
 //**************************************************************************************
@@ -303,16 +321,16 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 	switch (pID = fork())
 	{
 	case -1:
-		perror("smash error : fork failed");
+		perror("smash error: fork failed");
 	case 0:
 	{
 		// Child Process
 		setpgrp();
-		char* c_cmdString = new char[MAX_LINE_SIZE + 1];
-		strcpy(c_cmdString, cmdString.c_str());
-		delete[] c_cmdString;
+		//char* c_cmdString = new char[MAX_LINE_SIZE + 1];
+		//strcpy(c_cmdString, cmdString.c_str());
+		//delete[] c_cmdString;
 		if (execv(args[0], args) < 0) {
-			perror("smash error : execv failed");
+			perror("smash error: execv failed");
 			exit(1);
 		}
 		cout << " exit extern" << endl;
@@ -322,7 +340,8 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 	default:
 	{
 		// parent 
-		waitpid(pID, &status, 0);
+		if (waitpid(pID, &status, 0) == -1)
+			perror("smash error: waitpid failed"); 
 		break;
 	}
 	}
@@ -347,7 +366,7 @@ int BgCmd(string CommandLine,  string cmdString)
 			switch (pID = fork())
 			{
 			case -1:
-				perror("smash error : fork failed");
+				perror("smash error: fork failed");
 			case 0:
 				// Child Process
 			{
@@ -364,5 +383,7 @@ int BgCmd(string CommandLine,  string cmdString)
 			}
 			return 0;
 	}
-	return -1;
+	return 1;
 }
+
+//FIXME ADD deletes!!!!
