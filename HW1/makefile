@@ -20,4 +20,4 @@ signals.o: signals.cpp signals.h
 	$(CXX) $(CXXFLAGS) -c signals.cpp -o signals.o
 
 clean:
-	$(RM) $(EXE) *.o *.exe
+	@$(RM) $(EXE) *.o *.exe
