@@ -29,7 +29,7 @@ void ctrlCHandler(int sigNum)
 
 	if (fgJob.jobID == FG_NO_JOB)
 	{
-		cout << "smash: ";
+		//cout << "smash >";
 		return;
 	}
 	fgJob.jobID = FG_NO_JOB;
@@ -38,6 +38,8 @@ void ctrlCHandler(int sigNum)
 		perror("smash error: kill failed");
 	else
 		cout << "smash: process " << fgJob.processID << " was killed" << endl;
+	cout << "here";
+	fflush(stdout);
 	return;
 }
 
@@ -62,5 +64,6 @@ void ctrlZHandler(int sigNum)
 		perror("smash error: kill failed");
 	else
 		cout << "smash: process " << fgJob.processID << " was killed" << endl;
+	fflush(stdout);
 	return;
 }

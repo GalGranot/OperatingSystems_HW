@@ -66,8 +66,8 @@ int main(int argc, char* argv[])
     //sList* Jobs = new sList();
 
     L_Fg_Cmd = "";
-    //signal(SIGINT, ctrlCHandler);
-    //signal(SIGTSTP, ctrlZHandler);
+    signal(SIGINT, ctrlCHandler);
+    signal(SIGTSTP, ctrlZHandler);
     while (1)
     {
         cout << "smash > ";

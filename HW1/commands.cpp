@@ -30,6 +30,7 @@
 using std::cout;
 using std::endl;
 using std::string;
+bool isBG = false;
 
 char prev_pwd[MAX_LINE_SIZE] ; // previous PWD, in use in CD command 
 
@@ -120,11 +121,14 @@ int ExeCmd( string CommandLine, string cmdString)
 	strcpy(args[0], cmd.c_str());
 	int i = 1;
 	tok = strtok(NULL, delimiters);
+	char ampersand = '&';
 	while (tok != NULL)
 	{
 		if (num_arg > MAX_ARG)
 			cout << "Too many arguments" << endl; //FIXME
 		args[i] = new char[strlen(tok) + 1];
+		if(*args[i] == ampersand)
+			isBG = true;
 		strcpy(args[i], tok);
 		i++;
 		num_arg++;
@@ -399,11 +403,10 @@ int BgCmd(string CommandLine,  string cmdString)
 				time_t startTime = time(NULL);
 				Job job(pID, CommandLine, startTime);
 				Jobs->insertJob(job);
+
 				break;
 			}
 			return 0;
 	}
 	return 1;
 }
-
-//FIXME ADD deletes!!!!
