@@ -32,7 +32,7 @@ string L_Fg_Cmd;
 char CommandLine[MAX_LINE_SIZE];
 
 sList* Jobs;
-Job fgJob(FG_NO_JOB, " ", (time_t)0);
+Job* fgJob;
 
 //void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
 // FIXME daniel: we added the jobs already in the main function. 
@@ -58,18 +58,16 @@ int main(int argc, char* argv[])
     // Init globals 
     string cmdString;
     Jobs = new sList();
-    fgJob.jobID = FG_NO_JOB;
+    fgJob = new Job(-1, " ", time(NULL));
+    fgJob->jobID = FG_NO_JOB;
 
     signal(SIGINT, ctrlCHandler);
-    signal(SIGTSTP, ctrlZHandler);
-
-    //sList* Jobs = new sList();
+    signal(SIGTSTOP, ctrlZHandler);
 
     L_Fg_Cmd = "";
-    signal(SIGINT, ctrlCHandler);
-    signal(SIGTSTP, ctrlZHandler);
     while (1)
     {
+        fgJob->jobID = FG_NO_JOB;
         cout << "smash > ";
         getline(cin, cmdString);
         strcpy(CommandLine, cmdString.c_str());
@@ -84,6 +82,7 @@ int main(int argc, char* argv[])
     }
     //our additions
     delete Jobs;
+    delete fgJob;
 
     return 0;
 }

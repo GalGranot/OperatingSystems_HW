@@ -8,7 +8,7 @@ EXE=smash.exe
 RM=rm -f
 
 smash.exe: $(OBJS)
-	$(CXXLINK) $(OBJS) -o smash.EXE
+	$(CXXLINK) $(OBJS) -o smash
 
 commands.o: commands.cpp commands.h jobs.h
 	$(CXX) $(CXXFLAGS) -c commands.cpp -o commands.o

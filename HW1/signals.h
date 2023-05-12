@@ -4,7 +4,8 @@
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
 
-extern Job fgJob;
+extern Job* fgJob;
+extern sList* Jobs;
 
 void ctrlCHandler(int sigNum);
 void ctrlZHandler(int sigNum);

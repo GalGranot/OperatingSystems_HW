@@ -34,6 +34,7 @@ bool isBG = false;
 
 char prev_pwd[MAX_LINE_SIZE] ; // previous PWD, in use in CD command 
 
+
 //****************
 //general use functions
 //****************
@@ -99,7 +100,7 @@ int copyJob(Job* source, Job* dest)
 // Returns: 0 - success,1 - failure
 //******************************
 
-int ExeCmd( string CommandLine, string cmdString)
+int ExeCmd(string CommandLine, string cmdString)
 {
 	//var declaration
 	char pwd[MAX_LINE_SIZE] ;
@@ -135,6 +136,9 @@ int ExeCmd( string CommandLine, string cmdString)
 		tok = strtok(NULL, delimiters);
 	}
 	delete[] cmdStringCopy;
+
+	fgJob->commandName = args[0];
+	fgJob->processID = getpid();
 
 
 	/*************************************************/
@@ -221,16 +225,21 @@ int ExeCmd( string CommandLine, string cmdString)
 				if (waitpid(pid, &status, 0) == -1)
 					perror("smash error: waitpid failed");
 
-				if (copyJob(job, &fgJob) == FAIL)
+				if (copyJob(job, fgJob) == FAIL) //this copies to fgJob
 					perror("smash error: fg move failed");
 				Jobs->remove_job(pid);
 			}
 		}
-		else {
+		else
+		{
 			Job* job = Jobs->getJobByJobID(std::stoi(args[1]));
 			if (job == NULL)
 				cout << "smash error: fg: job-id " << args[1] << " does not exist" << endl;
-			else {
+			else
+			{
+				if (copyJob(job, fgJob) == FAIL) //this copies to fgJob
+					perror("smash error: fg move failed");
+
 				int pid = job->getProcessID();
 				//int jobid = job->getJobID();
 				cout << job->commandName << ": " << pid << endl;
@@ -395,7 +404,7 @@ int BgCmd(string CommandLine,  string cmdString)
 				// Child Process
 			{
 				setpgrp();
-				ExeCmd( CommandLine, cmdString);
+				ExeCmd(CommandLine, cmdString);
 				exit(0);
 			}
 			default :

@@ -26,44 +26,45 @@ using std::string;
 void ctrlCHandler(int sigNum)
 {
 	cout << endl << "smash: caught ctrl-c" << endl;
-
-	if (fgJob.jobID == FG_NO_JOB)
+	if (fgJob->jobID == FG_NO_JOB)
 	{
-		//cout << "smash >";
+		cout << "smash >";
 		return;
 	}
-	fgJob.jobID = FG_NO_JOB;
+	fgJob->jobID = FG_NO_JOB;
 
-	if (kill(fgJob.processID, SIGKILL) == KILL_FAIL)
+	if (kill(fgJob->processID, SIGKILL) == KILL_FAIL)
+	{
 		perror("smash error: kill failed");
+		cout << "kill failed" << endl;
+	}
 	else
-		cout << "smash: process " << fgJob.processID << " was killed" << endl;
-	cout << "here";
+		cout << "smash: process " << fgJob->processID << " was killed" << endl;
 	fflush(stdout);
 	return;
 }
 
 void ctrlZHandler(int sigNum)
-{
-	cout << endl << "smash: caught ctrl-z" << endl;
-	if (fgJob.jobID == FG_NO_JOB)
+{	cout << endl << "smash: caught ctrl-z" << endl;
+
+	if (fgJob->jobID == FG_NO_JOB)
 	{
-		cout << "smash: ";
+		cout << "smash >";
 		return;
 	}
 
 	//update job to be inserted into job list
-	fgJob.isStopped = true;
+	fgJob->isStopped = true;
 	time_t currentTime; time(&currentTime);
-	fgJob.startTime = currentTime;
-	Jobs->jobList.push_back(fgJob);
+	fgJob->startTime = currentTime;
+	Jobs->insertJob(*fgJob);
 
-	//kill job
-	fgJob.jobID = FG_NO_JOB;
-	if (kill(fgJob.processID, SIGKILL) == KILL_FAIL)
-		perror("smash error: kill failed");
+	//stop job
+	fgJob->jobID = FG_NO_JOB;
+	if (kill(fgJob->processID, SIGSTOP) == KILL_FAIL)
+		perror("smash error: stop failed");
 	else
-		cout << "smash: process " << fgJob.processID << " was killed" << endl;
+		cout << "smash: process " << fgJob->processID << " was stopped" << endl;
 	fflush(stdout);
 	return;
 }
