@@ -61,18 +61,23 @@ void ctrlZHandler(int sigNum)
 
 	//stop job
 	//fgJob->jobID = FG_NO_JOB;
-	else if (kill(fgJob->processID, SIGTSTP) == KILL_FAIL)
+	else if (kill(fgJob->processID, SIGSTOP) == KILL_FAIL)
 		perror("smash error: stop failed");
 	else {
 		cout << "smash: process " << fgJob->processID << " was stopped" << endl;
-		//update job to be inserted into job list
+		////update job to be inserted into job list
+
 		time(&(fgJob->startTime));
 		fgJob->isStopped = true;
 		Jobs->insertJob(*fgJob);
-		fgJob->printJob(0);
-		Jobs->getJobByProcessID(fgJob->processID)->printJob(0);
-	}
 
+		//fgJob->printJob(0);
+		//Jobs->getJobByProcessID(fgJob->processID)->printJob(0);
+		//setpgid(fgJob->processID, fgJob->processID);
+		//raise(SIGSTOP);
+	}
+	//signal(SIGSTOP, SIG_IGN);
+	continueWaiting = false;
 	fflush(stdout);
 	return;
 }

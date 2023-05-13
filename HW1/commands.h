@@ -11,6 +11,7 @@ using std::string;
 extern sList* Jobs;
 extern Job* fgJob;
 extern int wait_line;
+extern bool continueWaiting ;
 
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20

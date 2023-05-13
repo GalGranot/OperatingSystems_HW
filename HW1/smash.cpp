@@ -34,6 +34,7 @@ char CommandLine[MAX_LINE_SIZE];
 sList* Jobs;
 Job* fgJob;
 int wait_line;
+bool continueWaiting;
 
 //void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
 // FIXME daniel: we added the jobs already in the main function. 
@@ -62,6 +63,8 @@ int main(int argc, char* argv[])
     fgJob = new Job(-1, " ", time(NULL));
     //fgJob->jobID = FG_NO_JOB;
     wait_line = 0;
+    continueWaiting= true;
+
 
     signal(SIGINT, ctrlCHandler);
     signal(SIGTSTP, ctrlZHandler);

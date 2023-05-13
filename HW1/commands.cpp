@@ -33,6 +33,7 @@ using std::endl;
 using std::string;
 bool isBG = false;
 
+
 char prev_pwd[MAX_LINE_SIZE] ; // previous PWD, in use in CD command 
 
 
@@ -351,6 +352,7 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 {
 	int pID;
 	int status;
+	continueWaiting = true;
 	//cout << "external " << endl;
 	switch (pID = fork())
 	{
@@ -372,16 +374,29 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 		// FIXME daniel: should we continue also when process has stopeed, but not finished? 
 	}
 	default:
-	{
-		// parent 
+		// Parent 
 		fgJob->processID = pID;
-		if (waitpid(pID, &status, 0) == -1)
-			perror("smash error: waitpid failed"); 
+
+		// Wait for the child process to finish or receive a SIGTSTP signal
+		while (continueWaiting && waitpid(pID, &status, WNOHANG) != -1)
+		{
+			if (WIFSTOPPED(status))
+			{
+				// Child process has been stopped by SIGTSTP
+				continueWaiting = true;
+				break;
+			}
+		}
+
+		if (continueWaiting)
+		{
+			if (waitpid(pID, &status, 0) == -1)
+				perror("smash error: waitpid failed");
+		}
 		break;
 	}
-	}
-	return;
 }
+
 
 //**************************************************************************************
 // function name: BgCmd
