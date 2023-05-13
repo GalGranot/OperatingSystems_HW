@@ -6,6 +6,7 @@
 
 extern Job* fgJob;
 extern sList* Jobs;
+extern int wait_line;
 
 void ctrlCHandler(int sigNum);
 void ctrlZHandler(int sigNum);

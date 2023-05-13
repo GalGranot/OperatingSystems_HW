@@ -14,6 +14,7 @@
 #include <fstream>
 #include <signal.h>
 
+
 //local includes
 #include "commands.h"
 #include "jobs.h"
@@ -21,7 +22,7 @@
 
 #define QUIT 99
 #define RUN 0
-#define SIGSTOP 19 
+//#define SIGSTOP 19 
 #define FG_NO_JOB -1
 #define SUCCESS 0
 #define FAIL -1
@@ -306,10 +307,10 @@ int ExeCmd(string CommandLine, string cmdString)
 				cout << "smash error: kill: job - id " << args[2] << " does not exist" << endl;
 			else {
 				int signum = std::stoi(args[1] + 1);
-				if (kill(temp_job->processID, signum) == -1)
+				if (kill(Jobs->getJobByJobID(std::atoi(args[2]))->processID, signum) == -1)
 					perror("smash error: kill failed");
 				cout << "signal number " << signum << " was sent to pid " << args[2] <<endl;
-				if (signum == SIGSTOP)
+				if (signum == SIGTSTP)
 					Jobs->getJobByJobID(std::atoi(args[2]))->isStopped = 1;
 			}
 		}
@@ -373,6 +374,7 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 	default:
 	{
 		// parent 
+		fgJob->processID = pID;
 		if (waitpid(pID, &status, 0) == -1)
 			perror("smash error: waitpid failed"); 
 		break;

@@ -33,6 +33,7 @@ char CommandLine[MAX_LINE_SIZE];
 
 sList* Jobs;
 Job* fgJob;
+int wait_line;
 
 //void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
 // FIXME daniel: we added the jobs already in the main function. 
@@ -59,17 +60,20 @@ int main(int argc, char* argv[])
     string cmdString;
     Jobs = new sList();
     fgJob = new Job(-1, " ", time(NULL));
-    fgJob->jobID = FG_NO_JOB;
+    //fgJob->jobID = FG_NO_JOB;
+    wait_line = 0;
 
     signal(SIGINT, ctrlCHandler);
-    signal(SIGTSTOP, ctrlZHandler);
+    signal(SIGTSTP, ctrlZHandler);
 
     L_Fg_Cmd = "";
     while (1)
     {
-        fgJob->jobID = FG_NO_JOB;
+        //fgJob->jobID = FG_NO_JOB;
         cout << "smash > ";
+        wait_line = 1;
         getline(cin, cmdString);
+        wait_line = 0;
         strcpy(CommandLine, cmdString.c_str());
         // background command    
         if (!BgCmd(CommandLine, cmdString)) continue;
