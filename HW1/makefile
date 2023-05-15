@@ -4,7 +4,7 @@ CXX=g++
 CXXFLAGS=-std=c++11 -Wall -Werror -pedantic -errors -DNDEBUG
 CXXLINK=$(CXX)
 OBJS=smash.o signals.o jobs.o commands.o
-EXE=smash.exe
+EXE=smash
 RM=rm -f
 
 smash.exe: $(OBJS)

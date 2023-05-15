@@ -27,12 +27,6 @@ using std::string;
 void ctrlCHandler(int sigNum)
 {
 	cout << endl << "smash: caught ctrl-c" << endl;
-	//if (fgjob->jobid == fg_no_job)
-	//{
-	//	cout << "smash >";
-	//	return;
-	//}
-	//fgjob->jobid = fg_no_job;
 	if (wait_line) {
 		cout << "smash >";
 		fflush(stdout);
@@ -70,13 +64,7 @@ void ctrlZHandler(int sigNum)
 		time(&(fgJob->startTime));
 		fgJob->isStopped = true;
 		Jobs->insertJob(*fgJob);
-
-		//fgJob->printJob(0);
-		//Jobs->getJobByProcessID(fgJob->processID)->printJob(0);
-		//setpgid(fgJob->processID, fgJob->processID);
-		//raise(SIGSTOP);
 	}
-	//signal(SIGSTOP, SIG_IGN);
 	continueWaiting = false;
 	fflush(stdout);
 	return;

@@ -36,28 +36,12 @@ Job* fgJob;
 int wait_line;
 bool continueWaiting;
 
-//void* jobs = NULL; //This represents the list of jobs. Please change to a preferred type (e.g array of char*)
-// FIXME daniel: we added the jobs already in the main function. 
-//               should we add it here instead?
-//              gal - i think it's not necessary, i'll try and delete this after compilation
-//FIXME daniel: is that an array of chars, or a c string? gal - this is a array of chars instead of a ptr to an array, dont see why it's necessary here
-
 //**************************************************************************************
 // function name: main
 // Description: main function of smash. get command from user and calls command functions
 //**************************************************************************************
 int main(int argc, char* argv[])
 {
-
-    //signal declaretions
-    //NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
-    /* add your code here */
-    /************************************/
-    //set your signal handlers here
-    /* add your code here */
-    /************************************/
-    /************************************/
-    // Init globals 
     string cmdString;
     Jobs = new sList();
     fgJob = new Job(-1, " ", time(NULL));

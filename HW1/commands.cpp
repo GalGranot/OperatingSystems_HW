@@ -1,4 +1,4 @@
-//		commands.c
+//commands.cpp
 //****************
 
 //defines, global vars, namespaces
@@ -32,8 +32,6 @@ using std::cout;
 using std::endl;
 using std::string;
 bool isBG = false;
-
-
 char prev_pwd[MAX_LINE_SIZE] ; // previous PWD, in use in CD command 
 
 
@@ -48,7 +46,7 @@ bool cmpFiles(string filename1, string filename2)
 	std::ifstream file2(filename2);
 	if (!file1.is_open() || !file2.is_open())
 	{
-		//cout << "Failed to open" << endl;
+		perror("failed to open files");
 		return true; //actually error
 	}
 	char c1, c2;
@@ -77,11 +75,14 @@ bool cmpFiles(string filename1, string filename2)
 		return true;
 	}
 }
+
+//deletes the locally allocated args
 void delete_args(char* args[MAX_ARG]) {
 	for (int i = 0; i < MAX_ARG; i++)
 		delete[] args[i];
 }
 
+//copys one job while not allocating (so we don't use ctor)
 int copyJob(Job* source, Job* dest)
 {
 	if (source == NULL || dest == NULL)
@@ -111,7 +112,6 @@ int ExeCmd(string CommandLine, string cmdString)
 	bool illegal_cmd = false; // illegal command
 
 	//argument parsing
-	//cout << "commandline is " << CommandLine << endl << "cmdstring is " << cmdString << endl; //rmv
 	char* args[MAX_ARG] = { NULL };
 	char* cmdStringCopy = new char[MAX_LINE_SIZE + 1];
 	strcpy(cmdStringCopy, cmdString.c_str());
@@ -128,7 +128,7 @@ int ExeCmd(string CommandLine, string cmdString)
 	while (tok != NULL)
 	{
 		if (num_arg > MAX_ARG)
-			cout << "Too many arguments" << endl; //FIXME
+			cout << "Too many arguments" << endl;
 		args[i] = new char[strlen(tok) + 1];
 		if(*args[i] == ampersand)
 			isBG = true;
@@ -150,13 +150,15 @@ int ExeCmd(string CommandLine, string cmdString)
 	{
 		if (args[2] != NULL) //got an argument after the directory
 			cout << "smash error: cd:" << "Too many arguments" << endl;
+		else if (args[1] == NULL)
+			cout << "smash error: cd: Not enough arguments" << endl;
 		else if (strcmp(args[1], "-") == 0) //trying to go to old directory
 		{
 			if (!(*prev_pwd))
 				cout << "smash error: cd:" << "OLDPWD not set" << endl;
 			else //change oldpwd to current, go to oldpwd
 			{
-				getcwd(pwd, MAX_LINE_SIZE); //FIXME daniel: can it be longer then MAX_LINE_SIZE?
+				getcwd(pwd, MAX_LINE_SIZE);
 				chdir(prev_pwd);
 				strcpy(prev_pwd, pwd);
 			}
@@ -165,14 +167,12 @@ int ExeCmd(string CommandLine, string cmdString)
 		{
 			getcwd(prev_pwd, MAX_LINE_SIZE);
 			chdir(args[1]);
-			//cout << prev_pwd << endl;
 		}
 	}
 	/*************************************************/
 	else if (cmd == "pwd")
 	{
 		cout << getcwd(pwd, MAX_LINE_SIZE) <<endl;
-
 	}
 
 	///*************************************************/
@@ -197,7 +197,8 @@ int ExeCmd(string CommandLine, string cmdString)
 			}
 			else if (wait_stat == -1)
 				perror("smash error: waitpid failed");
-			else {
+			else
+			{
 				it = Jobs->jobList.erase(it); //delete this job from list 
 			}
 		}
@@ -294,8 +295,6 @@ int ExeCmd(string CommandLine, string cmdString)
 		}
 		delete_args(args);
 		return QUIT;
-		//FIXME daniel: should we also delete here all allocated memory ? 
-
 	}
 	/*************************************************/
 	else if (cmd == "kill") //implement
@@ -342,6 +341,8 @@ int ExeCmd(string CommandLine, string cmdString)
 	delete_args(args);
 	return 0;
 }
+
+
 //**************************************************************************************
 // function name: ExeExternal
 // Description: executes external command
@@ -362,16 +363,12 @@ void ExeExternal(char* args[MAX_ARG], string cmdString)
 	{
 		// Child Process
 		setpgrp();
-		//char* c_cmdString = new char[MAX_LINE_SIZE + 1];
-		//strcpy(c_cmdString, cmdString.c_str());
-		//delete[] c_cmdString;
 		if (execv(args[0], args) < 0) {
 			perror("smash error: execv failed");
 			exit(1);
 		}
 		cout << " exit extern" << endl;
 		exit(0);
-		// FIXME daniel: should we continue also when process has stopeed, but not finished? 
 	}
 	default:
 		// Parent 
