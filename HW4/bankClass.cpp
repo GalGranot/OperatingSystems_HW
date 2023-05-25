@@ -13,11 +13,6 @@ int Account::getPassword() { password; }
 int Account::getBalance() { Balance; }
 void Account::addToBalance(int amount) { balance += amount; }
 
-Account::Account(Command command)
-{
-
-}
-
 //FIXME gal - this is supposed to copy the account, so pass acount by value. check if it actually does
 void Bank::addAccount(Account account) { accounts.insert(account); }
 int Bank::getBalance() { return balance; }

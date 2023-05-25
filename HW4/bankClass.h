@@ -42,7 +42,6 @@ class Bank
 private:
 	set<Account, AccountComparator> accounts;
 	int balance;
-	int nextATMID = 1;
 
 public:
 
@@ -54,7 +53,6 @@ public:
 	void addToBalance(int amount);
 	void addAccount(Account account);
 	Account* getAccountByID(int id);
-	int getNextATMID();
 
 	void printAccounts();
 	void commision();

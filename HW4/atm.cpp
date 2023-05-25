@@ -21,32 +21,60 @@ ATM::ATM(ifstream inputFile, int id)
 		perror("File failed to open");
 		return NULL;
 	}
-
 	this->input = input;
 	this->id = id;
 
 }
 
-ATM::getID() { return this->id };
+ATM::getID() { return id };
 
-ATM::handleAction(Command command)
+ATM::handleAction(Command command, Bank bank)
 {
-	switch (command.commandType)
+	if (command.commandType == O) //open command
+	{
+		if (command.account)
+		{
+			cout << "Error <ATM " << getID <<
+			">: Your transaction failed - account with same id exists" << endl;
+			return;
+		}
+
+		Account account(command);
+		bank.addAccount(account); //FIXME gal - make sure we dont need to dynamically allocate account
+		cout << "<ATM " << this->getID() << ">: New account id is " << account.getID() <<
+			" with password " << account.password << " and initial balance " <<
+			account->balance << endl;
+		//FIXME gal - print to log & to screen
+	}
+
+	else if (command.commandType == D)
+	{
+
+	}
+
+	else if (command.commandType == W)
+	{
+
+	}
+
+	else if (command.commandType == B)
+	{
+
+	}
+
+	else if (command.commandType == Q)
+	{
+
+	}
+
+	else if (command.commandType == T)
+	{
+
+	}
+
 	{
 		case O: //open account
-			if (command.account)
-			{
-				cout << "Error <ATM " << this->getID <<
-					">: Your transaction failed - account with same id exists" << endl;
-				return;
-			}
 
-			Account* account = new Account(command);
-			//FIXME gal - add account to bank
-			cout << "<ATM " << this->getID << ">: New account id is " << account->id <<
-				" with password " << account->password << " and initial balance " <<
-				account->balance << endl;
-			//FIXME gal - print to log & to screen
 			break;
 	
 		case D: //deposit in account

@@ -2,6 +2,7 @@
 
 #ifndef _ATM_H
 #define _ATM_H
+#define NO_ID -1
 
 #include <string>
 #include <fstream>
@@ -17,10 +18,10 @@ struct Command
 	Command(string line);
 	
 	commandTypes commandType;
-	Account account;
+	int sourceID;
 	int password;
 	int amount;
-	Account targetAccount;
+	int targetID = NO_ID;
 };
 
 
@@ -33,10 +34,10 @@ private:
 public:
 	
 	ATM(ifstream inputFile, int id);
-	~Atm();
+	~ATM(); //FIXME gal - close file here
 
 	int getID();
-	void handleAction(Command command);
+	void handleAction(Command command, Bank bank);
 };
 
 
