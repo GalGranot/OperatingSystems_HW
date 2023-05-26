@@ -1,28 +1,30 @@
-//bank.h
+//bankClass.h
 
-#ifndef _BANK_H
-#define _BANK_H
+#ifndef _BANKCLASS_H
+#define _BANKCLASS_H
 
 #include <iostream>
-#include <set>
+#include <map>
 #include <cstdlib>
-
-#include "atm.h"
 
 #define MIN_RATE 1
 #define MAX_RATE 5
+#define NO_ID -1
 
-using std::set;
+using std::map;
 
+class Command;
 
 class Account
 {
 private:
 	int id;
 	int password;
-	int balance;
+	int balance = 0;
 
 public:
+	Account();
+	Account(int id, int password, int balance);
 	Account(Command command); //init account from open command
 	int getID();
 	void setID(int id);
@@ -31,17 +33,11 @@ public:
 	void addToBalance(int amount);
 };
 
-struct AccountComparator
-{
-	bool operator()(Account account1, Account account2)
-		return account1.id < account2.id;
-};
-
 class Bank
 {
 private:
-	set<Account, AccountComparator> accounts;
-	int balance;
+	map<int, Account> accounts;
+	int balance = 0;
 
 public:
 
@@ -52,7 +48,7 @@ public:
 	int getBalance();
 	void addToBalance(int amount);
 	void addAccount(Account account);
-	Account* getAccountByID(int id);
+	Account& getAccountByID(int id);
 
 	void printAccounts();
 	void commision();

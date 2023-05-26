@@ -1,72 +1,89 @@
 //bank.cpp
 
-#include "bank.h"
+#include <vector>
 
-using std::cin;
+#include "bankClass.h"
+#include "atm.h"
+
 using std::cout;
 using std::endl;
-using std::set;
+using std::string;
+using std::ifstream;
+using std::vector;
 
-int Account::getID() { return id; }
-void Account::setID(int id) { this->id = id; }
-int Account::getPassword() { password; }
-int Account::getBalance() { Balance; }
-void Account::addToBalance(int amount) { balance += amount; }
+//global variables
+Bank bank;
+//vector<string> commands;
+//vector<ATM> ATMs;
 
-Account::Account(Command command)
+int main(int argc, char* argv[])
 {
+	/* Tasks for main:
+	* init bank
+	* init 1 atm (for now, later more)
+	* parse commands from log
+	* execute commands
+	* delete everything when log ends
+	*/
 
-}
+	
 
-//FIXME gal - this is supposed to copy the account, so pass acount by value. check if it actually does
-void Bank::addAccount(Account account) { accounts.insert(account); }
-int Bank::getBalance() { return balance; }
-void Bank::addToBalance(int amount) { balance += amount; }
-int Bank::getNextATMID() { return nextATMID++; }
-
-Account* Bank::getAccountByID(int id)
-{
-	Account tmpAccount;
-	tmpAccount.setID(id);
-	auto it = accounts.find(tmpAccount);
-	if(it == accounts.end())
-		return NULL;
-	return &(*it);
-}
-
-void Bank::printAccounts()
-{
-	cout << "Current Bank Status" << endl;
-	if (accounts.empty())
-		return;
-
-	//FIXME gal - this is supposed to print in order of account ids because the set
-	//is holding them ordered. make sure
-	for (auto it = accounts.begin(); i != >accounts.end(); it++)
+	/***************************************************
+	* code for later - FIXME remove comments
+	***************************************************
+	//init bank and ATMs
+	for (int i = 0; i < argc; i++)
 	{
-		Account* currAccount = &(*it);
-		cout << "Account " << currAccount->getID() << " : Balance - " <<
-		currAccount->getBalance() << " $, Account Password - " << 
-		currAccount->getPassword() << endl;
+		ifstream currFile(argv[i]);
+		ATMS[i] = ATM(currFile, i + 1); //init ATMs with 1-based indexing
 	}
+	*/
 
-	cout << "The bank has " << getBalance() << " $" << endl;
-}
+	/***************************************************
+	* endof code for later - FIXME remove comments
+	***************************************************/
 
-void Bank::commision()
-{
-	if(accounts.empty())
-		return;
 
-	int rate = ((std::rand() % MAX_RATE) + 1) / 100; //rate is 1%-5%
+	/***************************************************
+	* use this for testing the bank/atm adt - FIXME remove all of this later
+	***************************************************/
+	
+	//ifstream in(test.txt); //FIXME make sure the file is read correctly
+	//ATM atm = ATM(in, path);
+	//printf("init ATM num %d\n", atm.getID());
+	//in.close();
 
-	for (auto it = accounts.begin(); i != accounts.end(); it++)
+	Account acc(123, 1995, 1000);
+	cout << "accounts details: id " << acc.getID() << ", pass " << acc.getPassword() << ", balance " << acc.getBalance() << endl;
+	cout << "Account balance: " << bank.getBalance() << endl;
+	
+	bank.addAccount(acc);
+	bank.printAccounts();
+
+	Account& tmp = bank.getAccountByID(123);
+	tmp.addToBalance(6);
+	bank.printAccounts();
+	bank.commision();
+	bank.printAccounts();
+
+
+	/***************************************************cat 
+	* endof use this for testing the bank/atm adt - FIXME remove all of this later
+	***************************************************/
+	
+	/***************************************************
+	* code for later - FIXME remove comments
+	***************************************************/
+
+	/*
+	//close program
+	for (int i = 0; i < argc; i++)
 	{
-		Account* currAccount = &(*it);
-		int commision = rate * currAccount->getBalance;
-		currAccount->addToBalance(-commision);
-		this->addToBalance(commision);
-
-		//FIXME gal - print to log 
+		ATMs[i].inputFile.close();
 	}
+	*/
+	/***************************************************
+	* endof code for later - FIXME remove comments
+	***************************************************/
+	return 0;
 }

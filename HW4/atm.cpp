@@ -1,6 +1,6 @@
 //atm.cpp
 
-#include "atm.h";
+#include "atm.h"
 
 using std::cin;
 using std::cout;
@@ -14,22 +14,17 @@ Command::Command(string line)
 }
 
 ATM::ATM(ifstream inputFile, int id)
-{
-	ifstream input(inputFile);
-	if (!input.is_open())
-	{
-		perror("File failed to open");
-		return NULL;
-	}
+{/*
+	ifstream input(inputFile); //FIXME assumes file is open, check elsewhere
 	this->input = input;
 	this->id = id;
-
+	*/
 }
 
-ATM::getID() { return id };
+int ATM::getID() { return id; }
 
-ATM::handleAction(Command command, Bank bank)
-{
+void ATM::handleAction(Command command, Bank bank)
+{/*
 	if (command.commandType == O) //open command
 	{
 		if (command.account)
@@ -101,5 +96,5 @@ ATM::handleAction(Command command, Bank bank)
 
 		case T:
 			break;
-	}
+	}*/
 }

@@ -7,8 +7,9 @@
 #include <string>
 #include <fstream>
 
-#include "bank.h"
+#include "bankClass.h"
 
+using std::string;
 using std::ifstream;
 
 enum commandTypes{O, D, W, B, Q, T};
