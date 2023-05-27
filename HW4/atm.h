@@ -3,9 +3,12 @@
 #ifndef _ATM_H
 #define _ATM_H
 #define NO_ID -1
+#define NOT_SET -1
+#define FIELDS_NUM 5
 
 #include <string>
 #include <fstream>
+#include <vector>
 
 #include "bankClass.h"
 
@@ -14,16 +17,22 @@ using std::ifstream;
 
 enum commandTypes{O, D, W, B, Q, T};
 
-struct Command
+
+typedef struct Command
 {
 	Command(string line);
 	
 	commandTypes commandType;
 	int sourceID;
 	int password;
-	int amount;
-	int targetID = NO_ID;
-};
+	int amount = NOT_SET;
+	int targetID = NOT_SET;
+
+	void printCommand();
+
+} Command;
+
+
 
 
 class ATM

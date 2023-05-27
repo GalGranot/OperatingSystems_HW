@@ -25,14 +25,15 @@ Bank::~Bank() {} //FIXME implement this
 /// <summary>
 /// this returns a reference to the actual account! everything is modified in place!
 /// make sure to not change the id of an account here, this will break the set's ordering
+/// 
 /// </summary>
 /// <param name="id"></param>
-/// <returns></returns>
+/// <returns> an account if found, an account with id=-1=NO_ID if not found </returns>
 Account& Bank::getAccountByID(int id)
 {
 	auto it = accounts.find(id);
 	if (it != accounts.end())
-		return it->second;
+		return it->second; //FIXME - maybe we need to use references here? ie auto& it
 
 	//not found
 	Account tmp; tmp.setID(NO_ID);
@@ -45,7 +46,6 @@ void Bank::printAccounts()
 	cout << "Current Bank Status" << endl;
 	if (accounts.empty())
 		return;
-
 	//FIXME gal - this is supposed to print in order of account ids because the map
 	//is holding them ordered. make sure it does
 	for(const auto& it : accounts)
@@ -55,7 +55,6 @@ void Bank::printAccounts()
 		currAccount.getBalance() << " $, Account Password - " << 
 		currAccount.getPassword() << endl;
 	}
-
 	cout << "The bank has " << getBalance() << " $" << endl;
 }
 
@@ -65,13 +64,10 @@ void Bank::commision()
 		return;
 
 	int rate = ((std::rand() % MAX_RATE) + 1); //rate is 1%-5%
-	cout << "rate: " << rate << endl;
-
 	for (auto& it : accounts)
 	{
 		Account& currAccount = it.second;
 		int commision = rate * currAccount.getBalance() / 100;
-		printf("commisiing account %d for %d\n", currAccount.getID(), commision);
 		currAccount.addToBalance(-commision);
 		this->addToBalance(commision);
 
