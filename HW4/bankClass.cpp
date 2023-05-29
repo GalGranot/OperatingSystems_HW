@@ -43,6 +43,9 @@ Account& Bank::getAccountByID(int id)
 
 void Bank::printAccounts()
 {
+	printf("\033[2J");
+	printf("\033[1;1H");
+
 	cout << "Current Bank Status" << endl;
 	if (accounts.empty())
 		return;
@@ -73,4 +76,31 @@ void Bank::commision()
 
 		//FIXME gal - print to log 
 	}
+}
+
+
+int Account::getID() {
+	return this->id;
+}
+
+int Account::getPassword() {
+	return this->password;
+}
+
+int Account::getBalance() {
+	return this->balance;
+}
+
+void Account::setID(int id) {
+	this->id = id;
+}
+
+void Account::addToBalance(int amount) {
+	this->balance += amount;
+}
+
+Account::Account(int id, int password, int balance = 0) {
+	this->id = id;
+	this->password = password;
+	this->balance = balance;
 }

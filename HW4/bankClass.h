@@ -23,9 +23,8 @@ private:
 	int balance = 0;
 
 public:
-	Account();
-	Account(int id, int password, int balance);
-	Account(Command command); //init account from open command
+	Account(int id = 0, int password = 11111, int balance = 0); //FIXME add default values, and remove Account();
+	Account(Command command); //init account from open command  //FIXME - why not using regular way to open account
 	int getID();
 	void setID(int id);
 	int getPassword();
