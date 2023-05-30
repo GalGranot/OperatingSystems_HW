@@ -13,6 +13,8 @@
 
 using std::map;
 
+extern void writeToLogFile(const std::string& message = NULL, int id, bool error = 0, bool commissions = 0, int presentage = 0, int money = 0);
+
 class Command;
 
 class Account

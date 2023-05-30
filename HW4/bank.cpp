@@ -52,3 +52,5 @@ void writeToLogFile(const std::string& message = NULL, int id, bool error = 0, b
 	else
 		logFile << id << ": " << message << std::endl;
 }
+
+

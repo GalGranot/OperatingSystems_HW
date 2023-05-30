@@ -10,41 +10,44 @@ using std::vector;
 using std::string;
 using std::ifstream;
 
-/*FIXME daniel: implement string parsing here
-Command::Command(string line)
-{
-
-}*/
 
 
-//FIXME - this is tmp for testing, implement above
 Command::Command(string line)
 {
 	//parse strings
 	vector<string> stringParses;
+	int args_num = 0;
 	const char delimiter = ' ';
-	int i = 0;
 	int start = 0;
 	int end = line.find(delimiter);
 	while (end != -1)
 	{
-		vector[i++] = line.substr(start, end - start);
+		vector[args_num++] = line.substr(start, end - start);
 		start = end + 1;
 		end = line.find(delimiter, start);
 	}
-
 	//put parses in place
 	commandType = stringParses[0][0];
 	sourceID = stoi(stringParses[1]);
-	password = stoi(stringParses[2]);
-	if (i == FIELDS_NUM - 1) //received amount
-		amount = stoi(stringParses[3]);
-	else
-		amount = NOT_SET;
-	if (i == FIELDS_NUM)
-		targetID = stringparses[4];
-	else
-		targetID = NOT_SET;
+	if (args_num > 2)
+		password = stoi(stringParses[2]);
+	if (args_num > 3) {
+		if (commandType == T) {
+			targetID = stoi(stringParses[3]);
+			amount = stoi(stringParses[4]);    
+		}
+		else
+			amount = stoi(stringParses[3]);
+	}
+
+	//if (i == FIELDS_NUM - 1) //received amount
+	//	amount = stoi(stringParses[3]);
+	//else
+	//	amount = NOT_SET;
+	//if (i == FIELDS_NUM)
+	//	targetID = stringparses[4];
+	//else
+	//	targetID = NOT_SET;
 }
 
 //FIXME remove later, this is for debugging only
