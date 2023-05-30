@@ -13,7 +13,7 @@
 
 using std::map;
 
-extern void writeToLogFile(const std::string& message = NULL, int id, bool error = 0, bool commissions = 0, int presentage = 0, int money = 0);
+extern void writeToLogFile(int ATMid = 0, bool error = 0, bool minus = 0, Command command = NULL, int Balance = 0, bool commissions = 0, int presentage = 0);
 
 class Command;
 
