@@ -18,10 +18,6 @@ Bank bank;
 
 int main(int argc, char* argv[])
 {
-	ifstream f("media/sf_OperatingSystems_HW/HW4/test");
-	if (f.is_open);
-		cout << "open";
-	ATM atm(f, 1);
-
+	ATM atm("/media/sf_OperatingSystems_HW/HW4", 1);
 	return 0;
 }

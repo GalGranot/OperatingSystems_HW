@@ -43,7 +43,7 @@ private:
 
 public:
 	
-	ATM(ifstream inputFile, int id);
+	ATM(string filePath, int id);
 	~ATM(); //FIXME gal - close file here
 
 	int getID();

@@ -10,10 +10,16 @@ using std::map;
 int Account::getID() { return id; }
 void Account::setID(int id) { this->id = id; }
 int Account::getPassword() { return password; }
+void Account::setPassword(int password) { this->password = password; }
 int Account::getBalance() { return balance; }
 void Account::addToBalance(int amount) { balance += amount; }
 Account::Account() {} //FIXME implement this
 Account::Account(int id, int password, int balance) : id(id), password(password), balance(balance) {} //FIXME implement this
+Account::Account(Command command)
+{
+	this->setID(command.sourceID);
+	this->setPassword(command.password);
+}
 
 //FIXME gal - this is supposed to copy the account, so pass acount by value. check if it actually does
 void Bank::addAccount(Account account) { accounts[account.getID()] = account; }

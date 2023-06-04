@@ -7,13 +7,13 @@
 #include <map>
 #include <cstdlib>
 
+#include "atm.h"
+
 #define MIN_RATE 1
 #define MAX_RATE 5
 #define NO_ID -1
 
 using std::map;
-
-class Command;
 
 class Account
 {
@@ -28,6 +28,7 @@ public:
 	Account(Command command); //init account from open command
 	int getID();
 	void setID(int id);
+	void setPassword(int password);
 	int getPassword();
 	int getBalance();
 	void addToBalance(int amount);

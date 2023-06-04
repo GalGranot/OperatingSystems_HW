@@ -28,13 +28,13 @@ Command::Command(string line)
 	int end = line.find(delimiter);
 	while (end != -1)
 	{
-		vector[i++] = line.substr(start, end - start);
+		stringParses[i++] = line.substr(start, end - start);
 		start = end + 1;
 		end = line.find(delimiter, start);
 	}
 
 	//put parses in place
-	commandType = stringParses[0][0];
+	commandType = static_cast<commandTypes>(stringParses[0][0]);
 	sourceID = stoi(stringParses[1]);
 	password = stoi(stringParses[2]);
 	if (i == FIELDS_NUM - 1) //received amount
@@ -42,13 +42,13 @@ Command::Command(string line)
 	else
 		amount = NOT_SET;
 	if (i == FIELDS_NUM)
-		targetID = stringparses[4];
+		targetID = stoi(stringParses[4]);
 	else
 		targetID = NOT_SET;
 }
 
 //FIXME remove later, this is for debugging only
-Command::printCommand()
+void Command::printCommand()
 {
 	cout << "printing command\n";
 	cout << "command type: " << commandType << "\n";
@@ -60,11 +60,19 @@ Command::printCommand()
 }
 
 
-ATM::ATM(ifstream inputFile, int id)
+ATM::ATM(string filePath, int id)
 {
-	ifstream input(inputFile); //FIXME assumes file is open, check elsewhere
-	this->input = input;
+	/*if (!f.is_open)
+		//do something FIXME*/
+	//add check for correct file opening
+	input.open(filePath);
 	this->id = id;
+}
+
+ATM::~ATM()
+{
+	if (input.is_open())
+		input.close();
 }
 
 int ATM::getID() { return id; }
@@ -73,9 +81,10 @@ void ATM::handleAction(Command command, Bank bank)
 {
 	if (command.commandType == O) //open command
 	{
-		if (command.account)
+		Account currAccount = bank.getAccountByID(command.sourceID);
+		if(currAccount.getID() == NO_ID)
 		{
-			cout << "Error <ATM " << getID <<
+			cout << "Error <ATM " << getID() <<
 			">: Your transaction failed - account with same id exists" << endl;
 			return;
 		}
@@ -83,8 +92,8 @@ void ATM::handleAction(Command command, Bank bank)
 		Account account(command);
 		bank.addAccount(account); //FIXME gal - make sure we dont need to dynamically allocate account
 		cout << "<ATM " << this->getID() << ">: New account id is " << account.getID() <<
-			" with password " << account.password << " and initial balance " <<
-			account->balance << endl;
+			" with password " << account.getPassword() << " and initial balance " <<
+			account.getBalance() << endl;
 		//FIXME gal - print to log & to screen
 	}
 
