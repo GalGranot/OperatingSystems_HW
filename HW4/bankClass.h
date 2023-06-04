@@ -7,6 +7,7 @@
 #include <map>
 #include <cstdlib>
 #include <vector>
+#include <pthread.h>
 
 #define MIN_RATE 1
 #define MAX_RATE 5
@@ -38,16 +39,19 @@ private:
 	int id;
 	int password;
 	int balance = 0;
+	
 
 public:
 	Account(int id = 0, int password = 11111, int balance = 0); //FIXME add default values, and remove Account();
 	Account(Command command); //init account from open command  //FIXME - why not using regular way to open account
+	~Account();
 	int getID();
 	void setID(int id);
 	int getPassword();
 	void setPassword(int password);
 	int getBalance();
 	void addToBalance(int amount);
+	pthread_mutex_t mutex; //fixme check if needs to be private
 };
 
 class Bank

@@ -51,8 +51,6 @@ Command::Command(string line)
 		}
 		else
 			amount = stoi(stringParses[3]);
-
-		this->printCommand();
 	}
 
 	//if (i == FIELDS_NUM - 1) //received amount
@@ -70,7 +68,12 @@ Account::Account(Command command)
 	this->setID(command.sourceID);
 	this->setPassword(command.password);
 	this->balance = 0;
+	pthread_mutex_init(this->mutex);
+}
 
+Account::~Account()
+{
+	pthread_mutex_destroy(this->mutex);
 }
 
 void Command::printCommand()
@@ -81,7 +84,6 @@ void Command::printCommand()
 	cout << "password: " << password << "\n";
 	cout << "amount " << amount << "\n";
 	cout << "target id: " << targetID << "\n";
-
 }
 
 int Account::getID() { return id; }

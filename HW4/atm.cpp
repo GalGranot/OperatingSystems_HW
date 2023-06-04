@@ -75,6 +75,8 @@ void ATM::handleAction(Command command, Bank bank)
 		else if (command.password != sourceAccount.getPassword())
 			cout << "Error <ATM " << this->getID() << ">: Your transcation failed - password for account id "
 			<< sourceAccount.getPassword() << "is incorrect" << endl;
+		else if (command.amount > sourceAccount.getBalance())
+			;//cout << "Error <ATM " << this.getID() << ">: Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
 		else
 		{
 			sourceAccount.addToBalance(-command.amount); //FIXME MAKE SURE THIS IS DONE IN PLACE!
@@ -84,7 +86,6 @@ void ATM::handleAction(Command command, Bank bank)
 		}
 	}
 
-	
 	else if (command.commandType == B)
 	{
 		if (command.password != sourceAccount.getPassword())
@@ -92,50 +93,37 @@ void ATM::handleAction(Command command, Bank bank)
 		<< sourceAccount.getPassword() << "is incorrect" << endl;
 		else
 		{
-			cout << "<ATM " this.getID() << ">: Account " << command.sourceID << " balance is " << sourceAccount.getBalance() << endl;
+			//cout << "<ATM " this.getID() << ">: Account " << command.sourceID << " balance is " << sourceAccount.getBalance() << endl;
 		}
 	}
 
 	
 	else if (command.commandType == Q)
 	{
-
+		if (command.password != sourceAccount.getPassword())
+			cout << "Error <ATM " << this->getID() << ">: Your transcation failed - password for account id "
+			<< sourceAccount.getPassword() << "is incorrect" << endl;
+		//FIXME kill account
+		if (1/*killed account*/)
+			;//cout << "<ATM " << this.getID() << ">: Account " << command.sourceID << "> is now closed. Balance was " << /*FIXME getbalance*/ << endl;
 	}
-	/*
+	
 	else if (command.commandType == T)
 	{
-
+		//FIXME what should we do if one account isn't found?
+		if (command.password != sourceAccount.getPassword())
+			;//cout << "Error <ATM " << this->getID() << ">: Your transcation failed - password for account id "
+			//<< sourceAccount.getPassword() << "is incorrect" << endl;
+		else if (command.amount > sourceAccount.getBalance())
+			;//cout << "Error <ATM " << this.getID() << ">: Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+		else
+		{
+			Account targetAccount = bank.getAccountByID(command.targetID);
+			//FIXME - what if not found?
+			sourceAccount.addToBalance(-command.amount);
+			targetAccount.addToBalance(command.amount);
+			//cout << "<ATM " << this.getID() << ">: Transfer " << command.amount << " from account " << sourceAccount.getID() << " to account " targetAccount.getID() << " new account balance is " << sourceAccount.getBalance() << " new target account balance is " << targetAccount.getBalance() << endl;
+		}
 	}
 
-	{
-		case O: //open account
-
-			break;
-	
-		case D: //deposit in account
-			
-			if (command.password != command.account.password)
-			{
-				cout << "Error <ATM " << this->getID <<
-					">: Your transaction failed – password for account id " <<
-					this->getID << " is incorrect" << endl;
-				return;
-			}
-
-			command.account.balance += command.amount;
-			break;
-
-		case W: //withdraw from account
-			break;
-
-		case B: //
-			break;
-
-		case Q;
-			break;
-
-		case T:
-			break;
-			
-	}*/
 }
