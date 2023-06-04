@@ -4,6 +4,7 @@
 #define _BANKCLASS_H
 
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <cstdlib>
 #include <vector>
@@ -16,8 +17,9 @@
 
 using std::map;
 using std::string;
+using std::ofstream;
 
-//extern void writeToLogFile(int ATMid = 0, bool error = 0, bool minus = 0, Command command = NULL, int Balance = 0, bool commissions = 0, int presentage = 0);
+extern ofstream logFile;
 
 enum commandTypes { O, D, W, B, Q, T };
 
@@ -74,6 +76,15 @@ public:
 	void printAccounts();
 	void commision();
 };
+
+extern Command defaultCommand;
+
+void writeToLog(int ATMid = 0, bool error = 0, bool minus = 0,
+	Command command = defaultCommand, int Balance = 0, bool commissions = 0, 
+	int percentage = 0, int commisionID = 0, int commisionAmount = 0);
+
+void openLogFile(const string& filename);
+extern Bank bank;
 
 #endif 
 

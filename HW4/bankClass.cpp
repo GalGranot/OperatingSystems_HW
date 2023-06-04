@@ -11,13 +11,15 @@ using std::vector;
 using std::string;
 using std::ifstream;
 
+
+
 Command::Command(string line)
 {
 	//parse strings
 	vector<string> stringParses;
-	int args_num = 0;
+	int args_num;
 	const char delimiter = ' ';
-	int start = 0;
+	int start;
 	int end = line.find(delimiter);
 	while (end != (int)string::npos) //npos = no position, ie end of string
 	{
@@ -68,12 +70,12 @@ Account::Account(Command command)
 	this->setID(command.sourceID);
 	this->setPassword(command.password);
 	this->balance = 0;
-	pthread_mutex_init(this->mutex);
+	pthread_mutex_init(&this->mutex, nullptr);
 }
 
 Account::~Account()
 {
-	pthread_mutex_destroy(this->mutex);
+	pthread_mutex_destroy(&this->mutex);
 }
 
 void Command::printCommand()
@@ -163,25 +165,89 @@ void Bank::commision()
 	}
 }
 
+void writeToLog(int ATMid, bool error, bool minus, Command command,
+	int Balance, bool commissions, int percentage, int commisionID,
+	int commisionAmount)
+{
+	if (commissions)
+		logFile << "Bank:commissions of " << percentage <<
+		" % were charged, the bank gained " << commisionAmount << "$ from account "
+		<< commisionID << endl;
+	else if (bank.getAccountByID(command.sourceID).getID() == NO_ID)
+		logFile << "Error " << ATMid << ": Your transaction failed – account id "
+		<< command.sourceID << " does not exists" << endl;
+	else
+	{
+		switch (command.commandType) {
+		case O:
+			if (error)
+				logFile << "Error " << ATMid
+				<< ": Your transaction failed – account with the same id exists"
+				<< endl;
+			else
+				logFile << ATMid << ": New account id is " << command.sourceID
+				<< " with password " << command.password << " and initial balance "
+				<< command.amount << endl;
+			break;
 
+		case D:
+			if (error)
+				logFile << "Error " << ATMid
+				<< ": Your transaction failed – password for account id"
+				<< command.sourceID << "is incorrect" << endl;
+			else
+				logFile << ATMid << ": Account " << command.sourceID << " new balance is "
+				<< Balance << " after " << command.amount << " $ was deposited" << endl;
+			break;
 
-/* FIXME these methods are implemented above, why duplicate?
-int Account::getID() {
-	return this->id;
+		case W:
+			if (minus)
+				logFile << "Error " << ATMid <<
+				": Your transaction failed – account id " << command.sourceID
+				<< " balance is lower than" << command.amount << endl;
+			else if (error)
+				logFile << "Error " << ATMid
+				<< ": Your transaction failed – password for account id "
+				<< command.sourceID << " is incorrect" << endl;
+			else
+				logFile << ATMid << ": Account " << command.sourceID << " new balance is "
+				<< Balance << " after " << command.amount << " $ was withdrew" << endl;
+			break;
+
+		case B:
+			if (error)
+				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
+			else
+				logFile << ATMid << ": Account " << command.sourceID << " balance is " << Balance << endl;
+			break;
+
+		case Q:
+			if (error)
+				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
+			else
+				logFile << ATMid << ": Account " << command.sourceID << " is now closed. Balance was " << Balance << endl;
+			break;
+
+		case T:
+			if (bank.getAccountByID(command.targetID).getID() == NO_ID)
+				logFile << "Error " << ATMid << ": Your transaction failed – account id " << command.targetID << " does not exists" << endl;
+			else if (minus)
+				logFile << "Error " << ATMid << ": Your transaction failed – account id " << command.sourceID << " balance is lower than" << command.amount << endl;
+			else if (error)
+				logFile << "Error " << ATMid << ": Your transaction failed – password for account id " << command.sourceID << " is incorrect" << endl;
+			else
+				logFile << ATMid << ": Transfer " << command.amount << " from account " << command.sourceID << " to account " << command.targetID << "  new account balance is " << Balance << " new target account balance is " << Balance << endl;
+			break;     // FIXME change last balance in print
+
+		}
+	}
 }
 
-int Account::getPassword() {
-	return this->password;
-}
+// Open the log file for writing
+void openLogFile(const string& filename)
+{
+	logFile.open(filename);
+	if (!logFile.is_open())
+		std::cerr << "Error: Failed to open log file." << endl;
 
-int Account::getBalance() {
-	return this->balance;
 }
-
-void Account::setID(int id) {
-	this->id = id;
-}
-
-void Account::addToBalance(int amount) {
-	this->balance += amount;
-} */

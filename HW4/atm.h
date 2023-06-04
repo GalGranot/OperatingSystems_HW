@@ -12,9 +12,8 @@
 #include "bankClass.h"
 
 using std::string;
+using std::vector;
 using std::ifstream;
-
-//extern void writeToLogFile(int ATMid = 0, bool error = 0, bool minus = 0, Command command = NULL, int Balance = 0, bool commissions = 0, int presentage = 0);
 
 class ATM
 {
@@ -28,8 +27,10 @@ public:
 	~ATM(); //FIXME gal - close file here
 
 	int getID();
-	void handleAction(Command command, Bank bank);
+	void handleAction(Command command, Account& sourceAccount, Account& targetAccount);
+	void operateATM();
 };
 
+extern Bank bank;
 
 #endif
