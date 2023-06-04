@@ -19,15 +19,28 @@ Command::Command(string line)
 	const char delimiter = ' ';
 	int start = 0;
 	int end = line.find(delimiter);
-	while (end != -1)
+	while (end != (int)string::npos) //npos = no position, ie end of string
 	{
-		//FIXME daniel - vector should be stringParses?
-		stringParses[args_num++] = line.substr(start, end - start);
+		stringParses.push_back(line.substr(start, end - start));
+		args_num++;
 		start = end + 1;
 		end = line.find(delimiter, start);
 	}
+	if (start < (int)line.length()) //check if missed the end
+	{
+		stringParses.push_back(line.substr(start));
+		args_num++;
+	}
 	//put parses in place
-	commandType = stringParses[0][0];
+	const char cmdTyp = stringParses[0][0];
+	//FIXME gal - remove the enum, does more harm then good
+	if (cmdTyp == 'O') commandType = O;
+	else if(cmdTyp == 'D') commandType = D;
+	else if (cmdTyp == 'W') commandType = W;
+	else if (cmdTyp == 'B') commandType = B;
+	else if (cmdTyp == 'Q') commandType = Q;
+	else if (cmdTyp == 'T') commandType = T;
+
 	sourceID = stoi(stringParses[1]);
 	if (args_num > 2)
 		password = stoi(stringParses[2]);
@@ -38,6 +51,8 @@ Command::Command(string line)
 		}
 		else
 			amount = stoi(stringParses[3]);
+
+		this->printCommand();
 	}
 
 	//if (i == FIELDS_NUM - 1) //received amount
@@ -50,7 +65,15 @@ Command::Command(string line)
 	//	targetID = NOT_SET;
 }
 
-Command::printCommand()
+Account::Account(Command command)
+{
+	this->setID(command.sourceID);
+	this->setPassword(command.password);
+	this->balance = 0;
+
+}
+
+void Command::printCommand()
 {
 	cout << "printing command\n";
 	cout << "command type: " << commandType << "\n";
@@ -61,14 +84,14 @@ Command::printCommand()
 
 }
 
-
 int Account::getID() { return id; }
 void Account::setID(int id) { this->id = id; }
 int Account::getPassword() { return password; }
+void Account::setPassword(int password) { this->password = password; }
 int Account::getBalance() { return balance; }
 void Account::addToBalance(int amount) { balance += amount; }
 //Account::Account() {} //FIXME implement this - FIXME do we need this?
-Account::Account(int id, int password, int balance = 0)
+Account::Account(int id, int password, int balance)
 {
 	this->id = id;
 	this->password = password;

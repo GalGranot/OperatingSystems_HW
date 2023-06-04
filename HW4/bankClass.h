@@ -45,6 +45,7 @@ public:
 	int getID();
 	void setID(int id);
 	int getPassword();
+	void setPassword(int password);
 	int getBalance();
 	void addToBalance(int amount);
 };

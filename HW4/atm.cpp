@@ -10,11 +10,17 @@ using std::vector;
 using std::string;
 using std::ifstream;
 
-ATM::ATM(ifstream inputFile, int id)
+ATM::ATM(string path, int id)
 {
-	ifstream input(inputFile); //FIXME assumes file is open, check elsewhere
-	this->input = input;
+	this->input.open(path);
+	//FIXME check if doesn't open
 	this->id = id;
+}
+
+ATM::~ATM()
+{
+	if (input.is_open())
+		input.close();
 }
 
 int ATM::getID() { return id; }
@@ -23,9 +29,10 @@ void ATM::handleAction(Command command, Bank bank)
 {
 	if (command.commandType == O) //open command
 	{
-		if (command.account)
+		Account currAccount = bank.getAccountByID(command.sourceID);
+		if(currAccount.getID() != NO_ID)
 		{
-			cout << "Error <ATM " << getID <<
+			cout << "Error <ATM " << getID() <<
 			">: Your transaction failed - account with same id exists" << endl;
 			return;
 		}
@@ -33,8 +40,8 @@ void ATM::handleAction(Command command, Bank bank)
 		Account account(command);
 		bank.addAccount(account); //FIXME gal - make sure we dont need to dynamically allocate account
 		cout << "<ATM " << this->getID() << ">: New account id is " << account.getID() <<
-			" with password " << account.password << " and initial balance " <<
-			account->balance << endl;
+			" with password " << account.getPassword() << " and initial balance " <<
+			account.getBalance() << endl;
 		//FIXME gal - print to log & to screen
 	}
 

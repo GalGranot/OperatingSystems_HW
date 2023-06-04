@@ -14,7 +14,6 @@ using std::ifstream;
 using std::ofstream;
 using std::vector;
 
-
 //global variables
 Bank bank;
 ofstream logFile;
@@ -131,6 +130,23 @@ int main(int argc, char* argv[])
 
 	logFile.close();
 	*/
+
+	ATM atm("1", 1);
+	ifstream f;
+	f.open("/media/sf_OperatingSystems_HW/HW4/1.txt");
+	if (!f.is_open())
+	{
+		cout << "cant open file";
+		exit(0);
+	}
+	string s;
+	std::getline(f, s);
+	cout << s << endl;
+	Command command(s);
+	command.printCommand();
+	atm.handleAction(command, bank);
+	
+	f.close();
 
 
 	return 0;

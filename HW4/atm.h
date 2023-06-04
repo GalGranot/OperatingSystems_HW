@@ -19,12 +19,12 @@ using std::ifstream;
 class ATM
 {
 private:
-	ifstream input;
 	int id;
 
 public:
 	
-	ATM(ifstream inputFile, int id);
+	ifstream input; //FIXME move this to private, this is for testing - implement a getter method
+	ATM(string path, int id);
 	~ATM(); //FIXME gal - close file here
 
 	int getID();
