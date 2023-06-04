@@ -27,10 +27,11 @@ int ATM::getID() { return id; }
 
 void ATM::handleAction(Command command, Bank bank)
 {
+	Account sourceAccount = bank.getAccountByID(command.sourceID);
+
 	if (command.commandType == O) //open command
 	{
-		Account currAccount = bank.getAccountByID(command.sourceID);
-		if(currAccount.getID() != NO_ID)
+		if(sourceAccount.getID() != NO_ID)
 		{
 			cout << "Error <ATM " << getID() <<
 			">: Your transaction failed - account with same id exists" << endl;
@@ -45,27 +46,62 @@ void ATM::handleAction(Command command, Bank bank)
 		//FIXME gal - print to log & to screen
 	}
 
-	/*
+	
 	else if (command.commandType == D)
 	{
+		//FIXME - ask what we should do if account isn't found?
+		if (sourceAccount.getID() == NO_ID) //FIXME - ask what we should do if account isn't found?
+			;
 
+		else if (command.password != sourceAccount.getPassword())
+			cout << "Error <ATM " << this->getID() << ">: Your transcation failed - password for account id " 
+			<< sourceAccount.getPassword() << "is incorrect" << endl;
+		else
+		{
+			sourceAccount.addToBalance(command.amount); //FIXME MAKE SURE THIS IS DONE IN PLACE!
+			cout << "<ATM " << this->getID() << "> Account " << sourceAccount.getID() 
+			<< " new balanace is " << sourceAccount.getBalance() << " after " 
+			<< command.amount << " $ was deposited";
+		}
 	}
 
 	else if (command.commandType == W)
 	{
+		if (sourceAccount.getID() == NO_ID) //FIXME - ask what we should do if account isn't found?
+		{
 
+		}
+
+		else if (command.password != sourceAccount.getPassword())
+			cout << "Error <ATM " << this->getID() << ">: Your transcation failed - password for account id "
+			<< sourceAccount.getPassword() << "is incorrect" << endl;
+		else
+		{
+			sourceAccount.addToBalance(-command.amount); //FIXME MAKE SURE THIS IS DONE IN PLACE!
+			cout << "<ATM " << this->getID() << "> Account " << sourceAccount.getID()
+				<< " new balanace is " << sourceAccount.getBalance() << " after "
+				<< command.amount << " $ was withdrew" << endl;
+		}
 	}
 
+	
 	else if (command.commandType == B)
 	{
-
+		if (command.password != sourceAccount.getPassword())
+			cout << "Error <ATM " << this->getID() << ">: Your transcation failed - password for account id "
+		<< sourceAccount.getPassword() << "is incorrect" << endl;
+		else
+		{
+			cout << "<ATM " this.getID() << ">: Account " << command.sourceID << " balance is " << sourceAccount.getBalance() << endl;
+		}
 	}
 
+	
 	else if (command.commandType == Q)
 	{
 
 	}
-
+	/*
 	else if (command.commandType == T)
 	{
 
