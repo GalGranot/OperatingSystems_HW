@@ -21,15 +21,13 @@ using std::ofstream;
 
 extern ofstream logFile;
 
-enum commandTypes { O, D, W, B, Q, T };
-
 class Command
 {
 public:
 	Command(string line);
-	commandTypes commandType;
-	int sourceID;
-	int password;
+	char commandType;
+	int sourceID = NO_ID;
+	int password = NOT_SET;
 	int amount = NOT_SET;
 	int targetID = NOT_SET;
 	void printCommand();
@@ -44,8 +42,8 @@ private:
 	
 
 public:
-	Account(int id = 0, int password = 11111, int balance = 0); //FIXME add default values, and remove Account();
-	Account(Command command); //init account from open command  //FIXME - why not using regular way to open account
+	Account(int id = NO_ID, int password = NOT_SET, int balance = 0);
+	Account(Command command); //init account from open command
 	~Account();
 	int getID();
 	void setID(int id);
@@ -63,9 +61,8 @@ private:
 	int balance = 0;
 
 public:
-
 	Bank();
-	~Bank(); //FIXME gal - kill all accounts here
+	~Bank(); //fixme gal - kill all accounts here
 
 	//getters & setters
 	int getBalance();

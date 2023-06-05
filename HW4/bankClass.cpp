@@ -11,43 +11,37 @@ using std::vector;
 using std::string;
 using std::ifstream;
 
-
+/*=============================================================================
+* Command
+=============================================================================*/
 
 Command::Command(string line)
 {
 	//parse strings
 	vector<string> stringParses;
-	int args_num;
+	int argsNum;
 	const char delimiter = ' ';
 	int start;
 	int end = line.find(delimiter);
 	while (end != (int)string::npos) //npos = no position, ie end of string
 	{
 		stringParses.push_back(line.substr(start, end - start));
-		args_num++;
+		argsNum++;
 		start = end + 1;
 		end = line.find(delimiter, start);
 	}
 	if (start < (int)line.length()) //check if missed the end
 	{
 		stringParses.push_back(line.substr(start));
-		args_num++;
+		argsNum++;
 	}
 	//put parses in place
-	const char cmdTyp = stringParses[0][0];
-	//FIXME gal - remove the enum, does more harm then good
-	if (cmdTyp == 'O') commandType = O;
-	else if(cmdTyp == 'D') commandType = D;
-	else if (cmdTyp == 'W') commandType = W;
-	else if (cmdTyp == 'B') commandType = B;
-	else if (cmdTyp == 'Q') commandType = Q;
-	else if (cmdTyp == 'T') commandType = T;
-
+	commandType = stringParses[0][0];
 	sourceID = stoi(stringParses[1]);
-	if (args_num > 2)
+	if (argsNum > 2)
 		password = stoi(stringParses[2]);
-	if (args_num > 3) {
-		if (commandType == T) {
+	if (argsNum > 3) {
+		if (commandType == 'T') {
 			targetID = stoi(stringParses[3]);
 			amount = stoi(stringParses[4]);
 		}
@@ -65,19 +59,6 @@ Command::Command(string line)
 	//	targetID = NOT_SET;
 }
 
-Account::Account(Command command)
-{
-	this->setID(command.sourceID);
-	this->setPassword(command.password);
-	this->balance = 0;
-	pthread_mutex_init(&this->mutex, nullptr);
-}
-
-Account::~Account()
-{
-	pthread_mutex_destroy(&this->mutex);
-}
-
 void Command::printCommand()
 {
 	cout << "printing command\n";
@@ -88,13 +69,28 @@ void Command::printCommand()
 	cout << "target id: " << targetID << "\n";
 }
 
+/*=============================================================================
+* Account
+=============================================================================*/
+
+Account::Account(Command command)
+{
+	this->setID(command.sourceID);
+	this->setPassword(command.password);
+	this->balance = 0;
+	pthread_mutex_init(&this->mutex, nullptr);
+}
+Account::~Account()
+{
+	pthread_mutex_destroy(&this->mutex);
+}
+
 int Account::getID() { return id; }
 void Account::setID(int id) { this->id = id; }
 int Account::getPassword() { return password; }
 void Account::setPassword(int password) { this->password = password; }
 int Account::getBalance() { return balance; }
 void Account::addToBalance(int amount) { balance += amount; }
-//Account::Account() {} //FIXME implement this - FIXME do we need this?
 Account::Account(int id, int password, int balance)
 {
 	this->id = id;
@@ -102,13 +98,16 @@ Account::Account(int id, int password, int balance)
 	this->balance = balance;
 }
 
+/*=============================================================================
+* Bank
+=============================================================================*/
 //FIXME gal - this is supposed to copy the account, so pass acount by value. check if it actually does
+Bank::Bank() {}
+Bank::~Bank() {}
+
 void Bank::addAccount(Account account) { accounts[account.getID()] = account; }
 int Bank::getBalance() { return balance; }
 void Bank::addToBalance(int amount) { balance += amount; }
-Bank::Bank() {} //FIXME implement this
-Bank::~Bank() {} //FIXME implement this
-
 /// <summary>
 /// this returns a reference to the actual account! everything is modified in place!
 /// make sure to not change the id of an account here, this will break the map's ordering
@@ -127,7 +126,6 @@ Account& Bank::getAccountByID(int id)
 	Account& errorAccount = tmp;
 	return errorAccount;
 }
-
 void Bank::printAccounts()
 {
 	printf("\033[2J");
@@ -147,7 +145,6 @@ void Bank::printAccounts()
 	}
 	cout << "The bank has " << getBalance() << " $" << endl;
 }
-
 void Bank::commision()
 {
 	if(accounts.empty())
@@ -165,6 +162,10 @@ void Bank::commision()
 	}
 }
 
+/*=============================================================================
+* global functions
+=============================================================================*/
+
 void writeToLog(int ATMid, bool error, bool minus, Command command,
 	int Balance, bool commissions, int percentage, int commisionID,
 	int commisionAmount)
@@ -179,7 +180,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 	else
 	{
 		switch (command.commandType) {
-		case O:
+		case 'O':
 			if (error)
 				logFile << "Error " << ATMid
 				<< ": Your transaction failed – account with the same id exists"
@@ -190,7 +191,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 				<< command.amount << endl;
 			break;
 
-		case D:
+		case 'D':
 			if (error)
 				logFile << "Error " << ATMid
 				<< ": Your transaction failed – password for account id"
@@ -200,7 +201,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 				<< Balance << " after " << command.amount << " $ was deposited" << endl;
 			break;
 
-		case W:
+		case 'W':
 			if (minus)
 				logFile << "Error " << ATMid <<
 				": Your transaction failed – account id " << command.sourceID
@@ -214,21 +215,21 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 				<< Balance << " after " << command.amount << " $ was withdrew" << endl;
 			break;
 
-		case B:
+		case 'B':
 			if (error)
 				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
 			else
 				logFile << ATMid << ": Account " << command.sourceID << " balance is " << Balance << endl;
 			break;
 
-		case Q:
+		case 'Q':
 			if (error)
 				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
 			else
 				logFile << ATMid << ": Account " << command.sourceID << " is now closed. Balance was " << Balance << endl;
 			break;
 
-		case T:
+		case 'T':
 			if (bank.getAccountByID(command.targetID).getID() == NO_ID)
 				logFile << "Error " << ATMid << ": Your transaction failed – account id " << command.targetID << " does not exists" << endl;
 			else if (minus)
