@@ -10,142 +10,172 @@ using std::vector;
 using std::string;
 using std::ifstream;
 
-
-
-Command::Command(string line)
+ATM::ATM(string path, int id)
 {
-	//parse strings
-	vector<string> stringParses;
-	int args_num = 0;
-	const char delimiter = ' ';
-	int start = 0;
-	int end = line.find(delimiter);
-	while (end != -1)
-	{
-		vector[args_num++] = line.substr(start, end - start);
-		start = end + 1;
-		end = line.find(delimiter, start);
-	}
-	//put parses in place
-	commandType = stringParses[0][0];
-	sourceID = stoi(stringParses[1]);
-	if (args_num > 2)
-		password = stoi(stringParses[2]);
-	if (args_num > 3) {
-		if (commandType == T) {
-			targetID = stoi(stringParses[3]);
-			amount = stoi(stringParses[4]);    
-		}
-		else
-			amount = stoi(stringParses[3]);
-	}
-
-	//if (i == FIELDS_NUM - 1) //received amount
-	//	amount = stoi(stringParses[3]);
-	//else
-	//	amount = NOT_SET;
-	//if (i == FIELDS_NUM)
-	//	targetID = stringparses[4];
-	//else
-	//	targetID = NOT_SET;
-}
-
-//FIXME remove later, this is for debugging only
-Command::printCommand()
-{
-	cout << "printing command\n";
-	cout << "command type: " << commandType << "\n";
-	cout << "source id: " << sourceID << "\n";
-	cout << "password: " << password << "\n";
-	cout << "amount " << amount << "\n";
-	cout << "target id: " << targetID << "\n";
-
-}
-
-
-ATM::ATM(ifstream inputFile, int id)
-{
-	ifstream input(inputFile); //FIXME assumes file is open, check elsewhere
-	this->input = input;
+	this->input.open(path);
+	//fixme check if doesn't open
 	this->id = id;
+}
+
+ATM::~ATM()
+{
+	if (input.is_open())
+		input.close();
 }
 
 int ATM::getID() { return id; }
 
-void ATM::handleAction(Command command, Bank bank)
+void ATM::handleAction(Command command, Account& sourceAccount, Account& targetAccount)
 {
-	if (command.commandType == O) //open command
+	if (command.commandType == 'O') //open command
 	{
-		if (command.account)
+		if(sourceAccount.getID() != NO_ID)
 		{
-			cout << "Error <ATM " << getID <<
-			">: Your transaction failed - account with same id exists" << endl;
+			logFile << "Error " << getID() <<
+			": Your transaction failed - account with same id exists" << endl;
 			return;
 		}
 
 		Account account(command);
-		bank.addAccount(account); //FIXME gal - make sure we dont need to dynamically allocate account
-		cout << "<ATM " << this->getID() << ">: New account id is " << account.getID() <<
-			" with password " << account.password << " and initial balance " <<
-			account->balance << endl;
-		//FIXME gal - print to log & to screen
+		bank.addAccount(account); //fixme gal - make sure we dont need to dynamically allocate account
+		//fixme gal - pretty sure no need for dynamic allocate because set copies
+		logFile << this->getID() << ": New account id is " << account.getID() <<
+			" with password " << account.getPassword() << " and initial balance " <<
+			account.getBalance() << endl;
 	}
 
-	/*
-	else if (command.commandType == D)
-	{
-
-	}
-
-	else if (command.commandType == W)
-	{
-
-	}
-
-	else if (command.commandType == B)
-	{
-
-	}
-
-	else if (command.commandType == Q)
-	{
-
-	}
-
-	else if (command.commandType == T)
-	{
-
-	}
-
-	{
-		case O: //open account
-
-			break;
 	
-		case D: //deposit in account
-			
-			if (command.password != command.account.password)
-			{
-				cout << "Error <ATM " << this->getID <<
-					">: Your transaction failed – password for account id " <<
-					this->getID << " is incorrect" << endl;
-				return;
-			}
+	else if (command.commandType == 'D')
+	{
+		if (sourceAccount.getID() == NO_ID)
+		{
+			logFile << this->getID() << ": Your transaction failed - account id " << sourceAccount.getID() << " does not exist" << endl;
+			return;
+		}
 
-			command.account.balance += command.amount;
-			break;
+		else if (command.password != sourceAccount.getPassword())
+			logFile << "Error " << this->getID() << ": Your transcation failed - password for account id " 
+			<< sourceAccount.getPassword() << "is incorrect" << endl;
+		else
+		{
+			sourceAccount.addToBalance(command.amount); //fixme MAKE SURE THIS IS DONE IN PLACE!
+			logFile << this->getID() << "> Account " << sourceAccount.getID() 
+			<< " new balanace is " << sourceAccount.getBalance() << " after " 
+			<< command.amount << " $ was deposited";
+		}
+	}
 
-		case W: //withdraw from account
-			break;
+	else if (command.commandType == 'W')
+	{
+		if (sourceAccount.getID() == NO_ID)
+		{
+			logFile << this->getID() << ": Your transaction failed - account id " << sourceAccount.getID() << " does not exist" << endl;
+			return;
+		}
 
-		case B: //
-			break;
+		else if (command.password != sourceAccount.getPassword())
+			logFile << "Error " << this->getID() << ": Your transcation failed - password for account id "
+			<< sourceAccount.getPassword() << "is incorrect" << endl;
+		else if (command.amount > sourceAccount.getBalance())
+			logFile << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+		else
+		{
+			sourceAccount.addToBalance(-command.amount); //fixme MAKE SURE THIS IS DONE IN PLACE!
+			logFile << this->getID() << "> Account " << sourceAccount.getID()
+				<< " new balanace is " << sourceAccount.getBalance() << " after "
+				<< command.amount << " $ was withdrew" << endl;
+		}
+	}
 
-		case Q;
-			break;
+	else if (command.commandType == 'B')
+	{
+		if (sourceAccount.getID() == NO_ID)
+		{
+			logFile << this->getID() << ": Your transaction failed - account id " << sourceAccount.getID() << " does not exist" << endl;
+			return;
+		}
 
-		case T:
-			break;
-			
-	}*/
+		if (command.password != sourceAccount.getPassword())
+			logFile << "Error " << this->getID() << ": Your transcation failed - password for account id "
+		<< sourceAccount.getPassword() << "is incorrect" << endl;
+		else
+		{
+			logFile << this->getID() << ": Account " << command.sourceID << " balance is " << sourceAccount.getBalance() << endl;
+		}
+	}
+
+	
+	else if (command.commandType == 'Q')
+	{
+		if (sourceAccount.getID() == NO_ID)
+		{
+			logFile << this->getID() << ": Your transaction failed - account id " << sourceAccount.getID() << " does not exist" << endl;
+			return;
+		}
+		if (command.password != sourceAccount.getPassword())
+			logFile << "Error " << this->getID() << ": Your transcation failed - password for account id "
+			<< sourceAccount.getPassword() << "is incorrect" << endl;
+		//fixme kill account
+		if (1/*killed account*/)
+			;//logFile << this->getID() << ": Account " << command.sourceID << "> is now closed. Balance was " << /*fixme getbalance*/ << endl;
+	}
+	
+	else if (command.commandType == 'T')
+	{
+		bool flag = (sourceAccount.getID() == NO_ID);
+		if (flag)
+		{
+			logFile << this->getID() << ": Your transaction failed - account id " << sourceAccount.getID() << " does not exist" << endl;
+			return;
+		}
+		flag = (targetAccount.getID() == NO_ID);
+		if (flag)
+		{
+			logFile << this->getID() << ": Your transaction failed - account id " << targetAccount.getID() << " does not exist" << endl;
+			return;
+		}
+
+		if (command.password != sourceAccount.getPassword())
+			logFile << "Error " << this->getID() << ": Your transcation failed - password for account id "
+			<< sourceAccount.getPassword() << "is incorrect" << endl;
+		else if (command.amount > sourceAccount.getBalance())
+			logFile << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+		else
+		{
+			//fixme - what if not found?
+			sourceAccount.addToBalance(-command.amount);
+			targetAccount.addToBalance(command.amount);
+			//logFile << this->getID() << ": Transfer " << command.amount << " from account " << sourceAccount.getID() << " to account " targetAccount.getID() << " new account balance is " << sourceAccount.getBalance() << " new target account balance is " << targetAccount.getBalance() << endl;
+		}
+	}
+
 }
+
+void ATM::operateATM()
+{
+	string line;
+	while (std::getline(this->input, line))
+	{
+		Command command(line);
+		Account& sourceAccount = bank.getAccountByID(command.sourceID);
+		pthread_mutex_lock(&sourceAccount.mutex);
+		if (command.targetID != NO_ID)
+		{
+			Account& targetAccount = bank.getAccountByID(command.targetID);
+			pthread_mutex_lock(&targetAccount.mutex);
+			this->handleAction(command, sourceAccount, targetAccount);
+			pthread_mutex_unlock(&targetAccount.mutex);
+		}
+		else
+		{
+			Account tmp(NO_ID, NO_ID, NO_ID);
+			Account& defAccount = tmp;
+			this->handleAction(command, sourceAccount, defAccount);
+		}
+		pthread_mutex_unlock(&sourceAccount.mutex);
+	}
+
+	pthread_exit(nullptr);
+}
+
+//test fixme delete this
