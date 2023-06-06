@@ -153,7 +153,6 @@ void Bank::commission(Account& currAccount, int rate)
 	currAccount.addToBalance(-commision);
 	this->addToBalance(commision);
 	writeToLog(0, false, false, defaultCommand, 0, true, rate, currAccount.getID(), commision);
-
 }
 
 /*=============================================================================

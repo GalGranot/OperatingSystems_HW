@@ -24,11 +24,12 @@ Command defaultCommand("O -1 -1 -1");
 class wrapperArgs
 {
 public:
-	wrapperArgs(int atmID, char* path)
+	wrapperArgs() = default;
+	wrapperArgs(char* path, int atmID)
 	{
+		this->atmID = atmID;
 		string s(path);
 		this->path = s;
-		this->atmID = atmID;
 	}
 	string path;
 	int atmID;
@@ -75,23 +76,29 @@ void* PrintStatusWrapper()
 
 int main(int argc, char* argv[])
 {
+	/* thread count:
+	* argc - 1 threads for ATMs
+	* 2 threads for bank - commision and print
+	* total - argc + 1 threads
+	*/
 	openLogFile("log.txt");
+	int* threadIDs = new int[argc + 1];
+	wrapperArgs* wrapperArgsArray = new wrapperArgs[argc - 1];
+	pthread_t* threads = new pthread_t[argc + 1];
 
-	int* threadIDs = new int[argc + 2];
-	pthread_t* threads = new pthread_t[argc + 2];
-	for (int i = 0; i < argc; i++)
+	for(int i = 0; i < argc - 1; i++) //init ATMs
 	{
 		threadIDs[i] = i + 1;
-		ATM atm(argv[i + 1], i + 1);
-		wrapperArgs w(i + 1, argv[i + 1]);
-		int result = pthread_create(&threads[i], nullptr, atmWrapper, &w);
+		wrapperArgsArray[i].atmID = i + 1;
+		wrapperArgsArray[i].path = argv[i + 1];
+		int result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
 		if (result != 0)
 		{
-			perror("Failed to create thread\n");
 			delete[] threadIDs;
+			delete[] wrapperArgsArray;
 			delete[] threads;
-			//FIXME close files not closed yet
-			return 1;
+			logFile.close();
+			exit(1);
 		}
 	}
 
@@ -104,9 +111,13 @@ int main(int argc, char* argv[])
 	//pthread join for last two ones once the other threads end
 
 	for (int i = 0; i < argc + 2; i++)
+	{
+		printf("trying to join %d\n", i);
 		pthread_join(threads[i], nullptr);
+	}
 
 	delete[] threadIDs;
+	delete[] wrapperArgsArray;
 	delete[] threads;
 	logFile.close();
 

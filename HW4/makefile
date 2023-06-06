@@ -1,7 +1,7 @@
 #makefile
 
 CXX=g++
-CXXFLAGS=-std=c++11 -Wall -Werror -pedantic-errors -DNDEBUG -pthread
+CXXFLAGS=-std=c++11 -g -Wall -Werror -pedantic-errors -DNDEBUG -pthread
 CXXLINK=$(CXX) $(CXXFLAGS)
 OBJS=bank.o bankClass.o atm.o
 EXE=bank
