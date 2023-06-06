@@ -57,12 +57,13 @@ public:
 class Bank
 {
 private:
-	map<int, Account> accounts;
 	int balance = 0;
 
 public:
 	Bank();
 	~Bank(); //fixme gal - kill all accounts here
+
+	map<int, Account> accounts;
 
 	//getters & setters
 	int getBalance();
@@ -71,7 +72,8 @@ public:
 	Account& getAccountByID(int id);
 
 	void printAccounts();
-	void commision();
+	void commission(Account& currAccount, int rate);
+
 };
 
 extern Command defaultCommand;

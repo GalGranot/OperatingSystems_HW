@@ -46,6 +46,28 @@ void* atmWrapper(void* arg)
 	return nullptr;
 }
 
+void* CommissionWrapper()
+{
+	if (bank.accounts.empty())
+		return nullptr;
+
+	int rate = ((std::rand() % MAX_RATE) + 1); //rate is 1%-5%
+
+	for (auto& it : bank.accounts) {
+		Account& currAccount = it.second;
+		pthread_mutex_lock(&currAccount.mutex);
+		bank.commission(currAccount, rate);
+		pthread_mutex_unlock(&currAccount.mutex);
+	}
+	return nullptr;
+}
+
+void* PrintStatusWrapper()
+{
+	bank.printAccounts();
+	return nullptr;
+}
+
 /*=============================================================================
 * main function
 =============================================================================*/
@@ -74,9 +96,9 @@ int main(int argc, char* argv[])
 	}
 
 	//added comments so it would compile, daniel - implement wrappers
-	//int result = pthread_create(&threads[argc + 1], nullptr, &Bank::commision, &threadIDs[argc + 1]); //FIXME get wrapper function for commision
+	//int result = pthread_create(&threads[argc + 1], nullptr, CommissionWrapper, &threadIDs[argc + 1]);
 	//FIXME check result
-	//result = pthread_create(&threads[argc + 2], nullptr, &Bank::printAccounts, &threadIDs[argc + 2]); //FIXME get wrapper function for printaccounts
+	//result = pthread_create(&threads[argc + 2], nullptr,PrintStatusWrapper(), &threadIDs[argc + 2]); //FIXME get wrapper function for printaccounts
 	//FIXME check result
 
 	//pthread join for last two ones once the other threads end

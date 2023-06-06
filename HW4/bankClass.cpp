@@ -132,34 +132,28 @@ void Bank::printAccounts()
 	printf("\033[1;1H");
 
 	cout << "Current Bank Status" << endl;
-	if (accounts.empty())
+	if (accounts.empty()) {
+		cout << "The bank has " << getBalance() << " $" << endl;
 		return;
+	}
 	//FIXME gal - this is supposed to print in order of account ids because the map
 	//is holding them ordered. make sure it does
 	for(const auto& it : accounts)
 	{
 		Account currAccount = it.second;
-		cout << "Account " << currAccount.getID() << " : Balance - " <<
-		currAccount.getBalance() << " $, Account Password - " << 
-		currAccount.getPassword() << endl;
+		pthread_mutex_lock(&currAccount.mutex);
+		cout << "Account " << currAccount.getID() << " : Balance - " <<currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
+		pthread_mutex_unlock(&currAccount.mutex);
 	}
 	cout << "The bank has " << getBalance() << " $" << endl;
 }
-void Bank::commision()
+void Bank::commission(Account& currAccount, int rate)
 {
-	if(accounts.empty())
-		return;
+	int commision = rate * currAccount.getBalance() / 100;
+	currAccount.addToBalance(-commision);
+	this->addToBalance(commision);
+	writeToLog(0, false, false, defaultCommand, 0, true, rate, currAccount.getID(), commision);
 
-	int rate = ((std::rand() % MAX_RATE) + 1); //rate is 1%-5%
-	for (auto& it : accounts)
-	{
-		Account& currAccount = it.second;
-		int commision = rate * currAccount.getBalance() / 100;
-		currAccount.addToBalance(-commision);
-		this->addToBalance(commision);
-
-		//FIXME gal - print to log 
-	}
 }
 
 /*=============================================================================
