@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <pthread.h>
+#include <unistd.h>
 
 #include "bankClass.h"
 #include "atm.h"
@@ -47,26 +48,32 @@ void* atmWrapper(void* arg)
 	return nullptr;
 }
 
-void* CommissionWrapper()
+void* CommissionWrapper(void*)
 {
-	if (bank.accounts.empty())
-		return nullptr;
+	while (1) {
+		usleep(3000);
+		if (bank.accounts.empty())
+			return nullptr;
 
-	int rate = ((std::rand() % MAX_RATE) + 1); //rate is 1%-5%
+		int rate = ((std::rand() % MAX_RATE) + 1); //rate is 1%-5%
 
-	for (auto& it : bank.accounts) {
-		Account& currAccount = it.second;
-		pthread_mutex_lock(&currAccount.mutex);
-		bank.commission(currAccount, rate);
-		pthread_mutex_unlock(&currAccount.mutex);
+		for (auto& it : bank.accounts) {
+			Account& currAccount = it.second;
+			pthread_mutex_lock(&currAccount.mutex);
+			bank.commission(currAccount, rate);
+			pthread_mutex_unlock(&currAccount.mutex);
+		}
 	}
 	return nullptr;
 }
 
-void* PrintStatusWrapper()
+void* PrintStatusWrapper(void*)
 {
-	bank.printAccounts();
-	return nullptr;
+	while (1) {
+		usleep(500);
+		bank.printAccounts();
+		return nullptr;
+	}
 }
 
 /*=============================================================================
@@ -103,10 +110,16 @@ int main(int argc, char* argv[])
 	}
 
 	//added comments so it would compile, daniel - implement wrappers
-	//int result = pthread_create(&threads[argc + 1], nullptr, CommissionWrapper, &threadIDs[argc + 1]);
-	//FIXME check result
-	//result = pthread_create(&threads[argc + 2], nullptr,PrintStatusWrapper(), &threadIDs[argc + 2]); //FIXME get wrapper function for printaccounts
-	//FIXME check result
+	int result = pthread_create(&threads[argc + 1], nullptr, CommissionWrapper, nullptr);
+	if (result != 0) {
+		perror("bank error: pthread_create failed" );
+		return 1;
+	}
+	result = pthread_create(&threads[argc + 2], nullptr,PrintStatusWrapper, nullptr); //FIXME get wrapper function for printaccounts
+	if (result != 0) {
+		perror("bank error: pthread_create failed");
+		return 1;
+	}
 
 	//pthread join for last two ones once the other threads end
 
