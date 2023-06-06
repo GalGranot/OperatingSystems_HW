@@ -43,6 +43,7 @@ void* atmWrapper(void* arg)
 {
 	wrapperArgs* w = static_cast<wrapperArgs*>(arg);
 	ATM atm(w->path, w->atmID);
+	cout << "atm " << w->atmID << " operating" << endl;
 	atm.operateATM();
 	return nullptr;
 }
@@ -110,7 +111,8 @@ int main(int argc, char* argv[])
 
 	//pthread join for last two ones once the other threads end
 
-	for (int i = 0; i < argc + 2; i++)
+	//FIXME - i < argc - 1 should be argc + 1 after daniel adds more threads
+	for (int i = 0; i < argc - 1; i++)
 	{
 		printf("trying to join %d\n", i);
 		pthread_join(threads[i], nullptr);
@@ -121,6 +123,6 @@ int main(int argc, char* argv[])
 	delete[] threads;
 	logFile.close();
 
-	
+	cout << "reached end of program" << endl;
 	return 0;
 }

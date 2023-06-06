@@ -1,0 +1,5 @@
+Error 1: Your transaction failed - account with same id exists
+1: Your transaction failed - account id -1 does not exist
+1: Your transaction failed - account id -1 does not exist
+1: New account id is 12346 with password 234 and initial balance 0
+1: Your transaction failed - account id -1 does not exist

@@ -19,9 +19,9 @@ Command::Command(string line)
 {
 	//parse strings
 	vector<string> stringParses;
-	int argsNum;
+	int argsNum = 0;
 	const char delimiter = ' ';
-	int start;
+	int start = 0;
 	int end = line.find(delimiter);
 	while (end != (int)string::npos) //npos = no position, ie end of string
 	{

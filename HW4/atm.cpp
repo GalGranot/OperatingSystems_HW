@@ -154,8 +154,11 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 void ATM::operateATM()
 {
 	string line;
-	while (std::getline(this->input, line))
+	while (1)
 	{
+		if (this->input.eof())
+			break;
+		std::getline(this->input, line);
 		Command command(line);
 		Account& sourceAccount = bank.getAccountByID(command.sourceID);
 		pthread_mutex_lock(&sourceAccount.mutex);
