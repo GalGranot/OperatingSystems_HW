@@ -44,14 +44,15 @@ void* atmWrapper(void* arg)
 {
 	wrapperArgs* w = static_cast<wrapperArgs*>(arg);
 	ATM atm(w->path, w->atmID);
-	cout << "atm " << w->atmID << " operating" << endl;
+	cout << "thread " << w->atmID << " operating, inited ATM and going to operate" << endl;
 	atm.operateATM();
 	return nullptr;
 }
 
 void* CommissionWrapper(void*)
 {
-	while (1) {
+	while (1)
+	{
 		usleep(3000);
 		if (bank.accounts.empty())
 			return nullptr;
@@ -70,7 +71,8 @@ void* CommissionWrapper(void*)
 
 void* PrintStatusWrapper(void*)
 {
-	while (1) {
+	while (1)
+	{
 		usleep(500);
 		bank.printAccounts();
 		return nullptr;
@@ -82,7 +84,7 @@ void* PrintStatusWrapper(void*)
 =============================================================================*/
 
 
-int main(int argc, char* argv[])
+int main1(int argc, char* argv[])
 {
 	/* thread count:
 	* argc - 1 threads for ATMs
@@ -96,12 +98,13 @@ int main(int argc, char* argv[])
 
 	for(int i = 0; i < argc - 1; i++) //init ATMs
 	{
-		threadIDs[i] = i + 1;
+		threadIDs[i] = i + 1; //ATM numbers start with 1, match IDs with ATM numbers
 		wrapperArgsArray[i].atmID = i + 1;
 		wrapperArgsArray[i].path = argv[i + 1];
 		int result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
 		if (result != 0)
 		{
+			perror("Bank error: pthread_create failed");
 			delete[] threadIDs;
 			delete[] wrapperArgsArray;
 			delete[] threads;
@@ -113,12 +116,12 @@ int main(int argc, char* argv[])
 	//added comments so it would compile, daniel - implement wrappers
 	int result = pthread_create(&threads[argc + 1], nullptr, CommissionWrapper, nullptr);
 	if (result != 0) {
-		perror("bank error: pthread_create failed" );
+		perror("Bank error: pthread_create failed");
 		return 1;
 	}
 	result = pthread_create(&threads[argc + 2], nullptr,PrintStatusWrapper, nullptr); //FIXME get wrapper function for printaccounts
 	if (result != 0) {
-		perror("bank error: pthread_create failed");
+		perror("Bank error: pthread_create failed");
 		return 1;
 	}
 
@@ -126,10 +129,7 @@ int main(int argc, char* argv[])
 
 	//FIXME - i < argc - 1 should be argc + 1 after daniel adds more threads
 	for (int i = 0; i < argc - 1; i++)
-	{
-		printf("trying to join %d\n", i);
 		pthread_join(threads[i], nullptr);
-	}
 
 	delete[] threadIDs;
 	delete[] wrapperArgsArray;
@@ -139,3 +139,42 @@ int main(int argc, char* argv[])
 	cout << "reached end of program" << endl;
 	return 0;
 }
+
+
+//FIXME this will be deleted later, for checks
+int main(int argc, char* argv[])
+{
+	openLogFile("log.txt");
+	int* threadIDs = new int[argc - 1];
+	wrapperArgs* wrapperArgsArray = new wrapperArgs[argc - 1];
+	pthread_t* threads = new pthread_t[argc - 1];
+
+	for (int i = 0; i < argc - 1; i++) //init ATMs
+	{
+		threadIDs[i] = i + 1; //ATM numbers start with 1, match IDs with ATM numbers
+		wrapperArgsArray[i].atmID = i + 1;
+		wrapperArgsArray[i].path = argv[i + 1];
+		int result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
+		if (result != 0)
+		{
+			perror("Bank error: pthread_create failed");
+			delete[] threadIDs;
+			delete[] wrapperArgsArray;
+			delete[] threads;
+			logFile.close();
+			exit(1);
+		}
+		else cout << "thread creation success" << endl;;
+	}
+	for (int i = 0; i < argc - 1; i++)
+		pthread_join(threads[i], nullptr);
+
+	delete[] threadIDs;
+	delete[] wrapperArgsArray;
+	delete[] threads;
+	logFile.close();
+
+	cout << "reached end of program" << endl;
+	return 0;
+}
+

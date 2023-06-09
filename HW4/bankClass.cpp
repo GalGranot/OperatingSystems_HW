@@ -77,17 +77,16 @@ Account::Account(Command command)
 {
 	this->setID(command.sourceID);
 	this->setPassword(command.password);
-	this->balance = 0;
+	this->balance = command.amount;
 	pthread_mutex_init(&this->mutex, nullptr);
 }
 Account::~Account()
 {
 	pthread_mutex_destroy(&this->mutex);
 }
-
 int Account::getID() { return id; }
 void Account::setID(int id) { this->id = id; }
-int Account::getPassword() { return password; }
+int Account::getPassword() { return this->password; }
 void Account::setPassword(int password) { this->password = password; }
 int Account::getBalance() { return balance; }
 void Account::addToBalance(int amount) { balance += amount; }

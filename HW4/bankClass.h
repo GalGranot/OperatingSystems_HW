@@ -21,6 +21,11 @@ using std::ofstream;
 
 extern ofstream logFile;
 
+class ioHandler
+{
+	pthread_mutex_t mutex;
+};
+
 class Command
 {
 public:
