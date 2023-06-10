@@ -75,8 +75,8 @@ void* PrintStatusWrapper(void*)
 	{
 		usleep(500);
 		bank.printAccounts();
-		return nullptr;
 	}
+	return nullptr;
 }
 
 /*=============================================================================

@@ -66,7 +66,6 @@ private:
 
 public:
 	Bank();
-	~Bank(); //fixme gal - kill all accounts here
 
 	map<int, Account> accounts;
 

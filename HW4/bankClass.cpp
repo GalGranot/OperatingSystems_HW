@@ -102,7 +102,6 @@ Account::Account(int id, int password, int balance)
 =============================================================================*/
 //FIXME gal - this is supposed to copy the account, so pass acount by value. check if it actually does
 Bank::Bank() {}
-Bank::~Bank() {}
 
 void Bank::addAccount(Account account) { accounts[account.getID()] = account; }
 int Bank::getBalance() { return balance; }
