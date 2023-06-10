@@ -21,6 +21,13 @@ private:
 	int id;
 	int password;
 	int balance = 0;
+<<<<<<< Updated upstream
+=======
+	pthread_mutex_t m;
+	pthread_mutex_t writers;
+	int readers = 0;
+	
+>>>>>>> Stashed changes
 
 public:
 	Account();
@@ -32,6 +39,13 @@ public:
 	int getPassword();
 	int getBalance();
 	void addToBalance(int amount);
+<<<<<<< Updated upstream
+=======
+	void enterReader();
+	void enterWriter();
+	void exitReader();
+	void exitWriter();
+>>>>>>> Stashed changes
 };
 
 class Bank

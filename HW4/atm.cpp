@@ -79,7 +79,13 @@ int ATM::getID() { return id; }
 
 void ATM::handleAction(Command command, Bank bank)
 {
+<<<<<<< Updated upstream
 	if (command.commandType == O) //open command
+=======
+	//O D W B Q T 
+
+	if (command.commandType == 'O') //open command
+>>>>>>> Stashed changes
 	{
 		Account currAccount = bank.getAccountByID(command.sourceID);
 		if(currAccount.getID() == NO_ID)
@@ -127,6 +133,7 @@ void ATM::handleAction(Command command, Bank bank)
 		case O: //open account
 
 			break;
+<<<<<<< Updated upstream
 	
 		case D: //deposit in account
 			
@@ -154,4 +161,19 @@ void ATM::handleAction(Command command, Bank bank)
 			break;
 			
 	}*/
+=======
+		std::getline(this->input, line);
+		Command command(line);
+		//cout << "read line: " << line << endl << "made command " << command.commandType << " " << command.sourceID << " " << command.password << " " << command.amount << endl;
+		Account& sourceAccount = bank.getAccountByID(command.sourceID);
+		pthread_mutex_lock(&sourceAccount.mutex);
+		{
+			Account& targetAccount = bank.getAccountByID(command.targetID);
+			this->handleAction(command, sourceAccount, targetAccount);
+		}
+		else
+			this->handleAction(command, sourceAccount, sourceAccount);
+	}
+	pthread_exit(nullptr);
+>>>>>>> Stashed changes
 }

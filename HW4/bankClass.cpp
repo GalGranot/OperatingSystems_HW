@@ -19,8 +19,59 @@ Account::Account(Command command)
 {
 	this->setID(command.sourceID);
 	this->setPassword(command.password);
+<<<<<<< Updated upstream
 }
 
+=======
+	this->balance = command.amount;
+	this->readers = 0;
+	pthread_mutex_init(&this->m, nullptr);
+	pthread_mutex_init(&this->writers, nullptr);
+}
+Account::~Account()
+{
+	pthread_mutex_destroy(&this->m);
+	pthread_mutex_destroy(&this->writers);
+}
+int Account::getID() { return id; }
+void Account::setID(int id) { this->id = id; }
+int Account::getPassword() { return this->password; }
+void Account::setPassword(int password) { this->password = password; }
+int Account::getBalance() { return balance; }
+void Account::addToBalance(int amount) { balance += amount; }
+Account::Account(int id, int password, int balance)
+{
+	this->id = id;
+	this->password = password;
+	this->balance = balance;
+}
+
+Account::enterReader()
+{
+	pthread_mutex_lock(&m);
+	readers++;
+	if (readers == 1)
+		pthread_mutex_lock(&writers);
+	pthread_mutex_unlock(&m);
+}
+
+Account::enterWriter() { pthread_mutex_lock(&writers); }
+
+Account::exitReader()
+{
+	pthread_mutex_lock(&m);
+	readers--;
+	if (readers == 0)
+		pthread_mutex_unlock(&writers);
+	pthread_mutex_unlock(&m);
+}
+
+Account::exitWriter() { pthread_mutex_unlock(&writers); }
+
+/*=============================================================================
+* Bank
+=============================================================================*/
+>>>>>>> Stashed changes
 //FIXME gal - this is supposed to copy the account, so pass acount by value. check if it actually does
 void Bank::addAccount(Account account) { accounts[account.getID()] = account; }
 int Bank::getBalance() { return balance; }
