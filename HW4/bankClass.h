@@ -66,8 +66,10 @@ private:
 
 public:
 	Bank();
+	~Bank();
 
 	map<int, Account> accounts;
+	pthread_mutex_t mutex;
 
 	//getters & setters
 	int getBalance();

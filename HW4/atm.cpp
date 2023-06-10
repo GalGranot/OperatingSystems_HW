@@ -36,12 +36,13 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 		}
 		else
 		{
+			pthread_mutex_lock(&bank.mutex);
 			Account account(command);
-			bank.addAccount(account); //fixme gal - make sure we dont need to dynamically allocate account
-			//fixme gal - pretty sure no need for dynamic allocate because set copies
+			bank.addAccount(account);
 			cout << this->getID() << ": New account id is " << account.getID() <<
 				" with password " << account.getPassword() << " and initial balance " <<
 				account.getBalance() << endl;
+			pthread_mutex_unlock(&bank.mutex);
 		}
 	}
 
@@ -156,8 +157,12 @@ void ATM::operateATM()
 			break;
 		std::getline(this->input, line);
 		Command command(line);
-		cout << "read line: " << line << endl << "made command " << command.commandType << " " << command.sourceID << " " << command.password << " " << command.amount << endl;
 		Account& sourceAccount = bank.getAccountByID(command.sourceID);
+		if (command.commandType == 'O')
+		{
+			this->handleAction(command, sourceAccount, sourceAccount);
+			continue;
+		}
 		pthread_mutex_lock(&sourceAccount.mutex);
 		if (command.targetID != NO_ID)
 		{
@@ -175,24 +180,4 @@ void ATM::operateATM()
 		pthread_mutex_unlock(&sourceAccount.mutex);
 	}
 	pthread_exit(nullptr);
-}
-
-void enterReader()
-{
-	pthread_mutex_lock(&atmMutex);
-}
-
-void enterWriter()
-{
-
-}
-
-void exitReader()
-{
-
-}
-
-void exitWriter
-{
-
 }
