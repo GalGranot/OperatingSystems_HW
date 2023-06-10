@@ -170,73 +170,73 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 	int commisionAmount)
 {
 	if (commissions)
-		logFile << "Bank:commissions of " << percentage <<
+		cout << "Bank: commissions of " << percentage <<
 		" % were charged, the bank gained " << commisionAmount << "$ from account "
 		<< commisionID << endl;
 	else if (bank.getAccountByID(command.sourceID).getID() == NO_ID)
-		logFile << "Error " << ATMid << ": Your transaction failed – account id "
+		cout << "Error " << ATMid << ": Your transaction failed – account id "
 		<< command.sourceID << " does not exists" << endl;
 	else
 	{
 		switch (command.commandType) {
 		case 'O':
 			if (error)
-				logFile << "Error " << ATMid
+				cout << "Error " << ATMid
 				<< ": Your transaction failed – account with the same id exists"
 				<< endl;
 			else
-				logFile << ATMid << ": New account id is " << command.sourceID
+				cout << ATMid << ": New account id is " << command.sourceID
 				<< " with password " << command.password << " and initial balance "
 				<< command.amount << endl;
 			break;
 
 		case 'D':
 			if (error)
-				logFile << "Error " << ATMid
+				cout << "Error " << ATMid
 				<< ": Your transaction failed – password for account id"
 				<< command.sourceID << "is incorrect" << endl;
 			else
-				logFile << ATMid << ": Account " << command.sourceID << " new balance is "
+				cout << ATMid << ": Account " << command.sourceID << " new balance is "
 				<< Balance << " after " << command.amount << " $ was deposited" << endl;
 			break;
 
 		case 'W':
 			if (minus)
-				logFile << "Error " << ATMid <<
+				cout << "Error " << ATMid <<
 				": Your transaction failed – account id " << command.sourceID
 				<< " balance is lower than" << command.amount << endl;
 			else if (error)
-				logFile << "Error " << ATMid
+				cout << "Error " << ATMid
 				<< ": Your transaction failed – password for account id "
 				<< command.sourceID << " is incorrect" << endl;
 			else
-				logFile << ATMid << ": Account " << command.sourceID << " new balance is "
+				cout << ATMid << ": Account " << command.sourceID << " new balance is "
 				<< Balance << " after " << command.amount << " $ was withdrew" << endl;
 			break;
 
 		case 'B':
 			if (error)
-				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
+				cout << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
 			else
-				logFile << ATMid << ": Account " << command.sourceID << " balance is " << Balance << endl;
+				cout << ATMid << ": Account " << command.sourceID << " balance is " << Balance << endl;
 			break;
 
 		case 'Q':
 			if (error)
-				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
+				cout << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
 			else
-				logFile << ATMid << ": Account " << command.sourceID << " is now closed. Balance was " << Balance << endl;
+				cout << ATMid << ": Account " << command.sourceID << " is now closed. Balance was " << Balance << endl;
 			break;
 
 		case 'T':
 			if (bank.getAccountByID(command.targetID).getID() == NO_ID)
-				logFile << "Error " << ATMid << ": Your transaction failed – account id " << command.targetID << " does not exists" << endl;
+				cout << "Error " << ATMid << ": Your transaction failed – account id " << command.targetID << " does not exists" << endl;
 			else if (minus)
-				logFile << "Error " << ATMid << ": Your transaction failed – account id " << command.sourceID << " balance is lower than" << command.amount << endl;
+				cout << "Error " << ATMid << ": Your transaction failed – account id " << command.sourceID << " balance is lower than" << command.amount << endl;
 			else if (error)
-				logFile << "Error " << ATMid << ": Your transaction failed – password for account id " << command.sourceID << " is incorrect" << endl;
+				cout << "Error " << ATMid << ": Your transaction failed – password for account id " << command.sourceID << " is incorrect" << endl;
 			else
-				logFile << ATMid << ": Transfer " << command.amount << " from account " << command.sourceID << " to account " << command.targetID << "  new account balance is " << Balance << " new target account balance is " << Balance << endl;
+				cout << ATMid << ": Transfer " << command.amount << " from account " << command.sourceID << " to account " << command.targetID << "  new account balance is " << Balance << " new target account balance is " << Balance << endl;
 			break;     // FIXME change last balance in print
 
 		}

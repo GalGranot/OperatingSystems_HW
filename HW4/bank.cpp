@@ -20,7 +20,8 @@ using std::vector;
 Bank bank;
 ofstream logFile;
 Command defaultCommand("O -1 -1 -1");
-//vector<string> commands;
+bool stopCommision = false;
+bool stopStatusPrint = false;
 
 class wrapperArgs
 {
@@ -53,13 +54,16 @@ void* CommissionWrapper(void*)
 {
 	while (1)
 	{
+		if (stopCommision)
+			return nullptr;
 		usleep(3000);
 		if (bank.accounts.empty())
-			return nullptr;
+			continue;
 
 		int rate = ((std::rand() % MAX_RATE) + 1); //rate is 1%-5%
 
-		for (auto& it : bank.accounts) {
+		for (auto& it : bank.accounts)
+		{
 			Account& currAccount = it.second;
 			pthread_mutex_lock(&currAccount.mutex);
 			bank.commission(currAccount, rate);
@@ -73,6 +77,8 @@ void* PrintStatusWrapper(void*)
 {
 	while (1)
 	{
+		if (stopStatusPrint)
+			return nullptr;
 		usleep(500);
 		bank.printAccounts();
 	}
@@ -84,66 +90,20 @@ void* PrintStatusWrapper(void*)
 =============================================================================*/
 
 
-int main1(int argc, char* argv[])
-{
-	/* thread count:
-	* argc - 1 threads for ATMs
-	* 2 threads for bank - commision and print
-	* total - argc + 1 threads
-	*/
-	openLogFile("log.txt");
-	int* threadIDs = new int[argc + 1];
-	wrapperArgs* wrapperArgsArray = new wrapperArgs[argc - 1];
-	pthread_t* threads = new pthread_t[argc + 1];
-
-	for(int i = 0; i < argc - 1; i++) //init ATMs
-	{
-		threadIDs[i] = i + 1; //ATM numbers start with 1, match IDs with ATM numbers
-		wrapperArgsArray[i].atmID = i + 1;
-		wrapperArgsArray[i].path = argv[i + 1];
-		int result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
-		if (result != 0)
-		{
-			perror("Bank error: pthread_create failed");
-			delete[] threadIDs;
-			delete[] wrapperArgsArray;
-			delete[] threads;
-			logFile.close();
-			exit(1);
-		}
-	}
-
-	//added comments so it would compile, daniel - implement wrappers
-
-
-	//pthread join for last two ones once the other threads end
-
-	//FIXME - i < argc - 1 should be argc + 1 after daniel adds more threads
-	for (int i = 0; i < argc - 1; i++)
-		pthread_join(threads[i], nullptr);
-
-	delete[] threadIDs;
-	delete[] wrapperArgsArray;
-	delete[] threads;
-	logFile.close();
-
-	cout << "reached end of program" << endl;
-	return 0;
-}
-
 int main(int argc, char* argv[])
 {
 	openLogFile("log.txt");
-	int* threadIDs = new int[argc - 1];
+	int* threadIDs = new int[argc + 1];
+	pthread_t* threads = new pthread_t[argc + 1];
 	wrapperArgs* wrapperArgsArray = new wrapperArgs[argc - 1];
-	pthread_t* threads = new pthread_t[argc - 1];
+	int result;
 
 	for (int i = 0; i < argc - 1; i++) //init ATMs
 	{
 		threadIDs[i] = i + 1; //ATM numbers start with 1, match IDs with ATM numbers
 		wrapperArgsArray[i].atmID = i + 1;
 		wrapperArgsArray[i].path = argv[i + 1];
-		int result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
+		result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
 		if (result != 0)
 		{
 			perror("Bank error: pthread_create failed");
@@ -153,19 +113,43 @@ int main(int argc, char* argv[])
 			logFile.close();
 			exit(1);
 		}
-		else
-			;//cout << "thread " << i << " created successfully" << endl;
+	}
+
+	threadIDs[argc] = argc + 1;
+	result = pthread_create(&threads[argc], nullptr, CommissionWrapper, nullptr);
+	if (result != 0)
+	{
+		perror("Bank error: pthread_create failed");
+		delete[] threadIDs;
+		delete[] wrapperArgsArray;
+		delete[] threads;
+		logFile.close();
+		exit(1);
+	}
+
+	threadIDs[argc + 1] = argc + 2;
+	result = pthread_create(&threads[argc + 1], nullptr, PrintStatusWrapper, nullptr);
+	if (result != 0) {
+		perror("bank error: pthread_create failed");
+		delete[] threadIDs;
+		delete[] wrapperArgsArray;
+		delete[] threads;
+		exit(1);
 	}
 
 	for (int i = 0; i < argc - 1; i++)
 		pthread_join(threads[i], nullptr);
 
-	delete[] threadIDs;
-	delete[] wrapperArgsArray;
-	delete[] threads;
+	stopCommision = true;
+	stopStatusPrint = true;
+	pthread_join(threads[argc], nullptr);
+	pthread_join(threads[argc + 1], nullptr);
+
+	//delete[] threadIDs;
+	//delete[] wrapperArgsArray; //FIXME - this fails for some reason. need to valgrind for mem leaks
+	//delete[] threads;	//FIXME - this fails for some reason. need to valgrind for mem leaks
 	logFile.close();
 
-	//cout << "reached end of program" << endl;
+	cout << "reached end of program" << endl;
 	return 0;
 }
-
