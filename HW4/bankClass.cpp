@@ -181,62 +181,62 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 		switch (command.commandType) {
 		case 'O':
 			if (error)
-				cout << "Error " << ATMid
+				logFile << "Error " << ATMid
 				<< ": Your transaction failed – account with the same id exists"
 				<< endl;
 			else
-				cout << ATMid << ": New account id is " << command.sourceID
+				logFile << ATMid << ": New account id is " << command.sourceID
 				<< " with password " << command.password << " and initial balance "
 				<< command.amount << endl;
 			break;
 
 		case 'D':
 			if (error)
-				cout << "Error " << ATMid
+				logFile << "Error " << ATMid
 				<< ": Your transaction failed – password for account id"
 				<< command.sourceID << "is incorrect" << endl;
 			else
-				cout << ATMid << ": Account " << command.sourceID << " new balance is "
+				logFile << ATMid << ": Account " << command.sourceID << " new balance is "
 				<< Balance << " after " << command.amount << " $ was deposited" << endl;
 			break;
 
 		case 'W':
 			if (minus)
-				cout << "Error " << ATMid <<
+				logFile << "Error " << ATMid <<
 				": Your transaction failed – account id " << command.sourceID
 				<< " balance is lower than" << command.amount << endl;
 			else if (error)
-				cout << "Error " << ATMid
+				logFile << "Error " << ATMid
 				<< ": Your transaction failed – password for account id "
 				<< command.sourceID << " is incorrect" << endl;
 			else
-				cout << ATMid << ": Account " << command.sourceID << " new balance is "
+				logFile << ATMid << ": Account " << command.sourceID << " new balance is "
 				<< Balance << " after " << command.amount << " $ was withdrew" << endl;
 			break;
 
 		case 'B':
 			if (error)
-				cout << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
 			else
-				cout << ATMid << ": Account " << command.sourceID << " balance is " << Balance << endl;
+				logFile << ATMid << ": Account " << command.sourceID << " balance is " << Balance << endl;
 			break;
 
 		case 'Q':
 			if (error)
-				cout << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
 			else
-				cout << ATMid << ": Account " << command.sourceID << " is now closed. Balance was " << Balance << endl;
+				logFile << ATMid << ": Account " << command.sourceID << " is now closed. Balance was " << Balance << endl;
 			break;
 
 		case 'T':
 			if (bank.getAccountByID(command.targetID).getID() == NO_ID)
-				cout << "Error " << ATMid << ": Your transaction failed – account id " << command.targetID << " does not exists" << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed – account id " << command.targetID << " does not exists" << endl;
 			else if (minus)
-				cout << "Error " << ATMid << ": Your transaction failed – account id " << command.sourceID << " balance is lower than" << command.amount << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed – account id " << command.sourceID << " balance is lower than" << command.amount << endl;
 			else if (error)
-				cout << "Error " << ATMid << ": Your transaction failed – password for account id " << command.sourceID << " is incorrect" << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed – password for account id " << command.sourceID << " is incorrect" << endl;
 			else
-				cout << ATMid << ": Transfer " << command.amount << " from account " << command.sourceID << " to account " << command.targetID << "  new account balance is " << Balance << " new target account balance is " << Balance << endl;
+				logFile << ATMid << ": Transfer " << command.amount << " from account " << command.sourceID << " to account " << command.targetID << "  new account balance is " << Balance << " new target account balance is " << Balance << endl;
 			break;     // FIXME change last balance in print
 
 		}
