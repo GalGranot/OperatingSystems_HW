@@ -22,6 +22,7 @@ ofstream logFile;
 Command defaultCommand("O -1 -1 -1");
 bool stopCommision = false;
 bool stopStatusPrint = false;
+pthread_mutex_t logLock;
 
 class wrapperArgs
 {
@@ -96,6 +97,7 @@ int main(int argc, char* argv[])
 	int* threadIDs = new int[argc + 1];
 	pthread_t* threads = new pthread_t[argc + 1];
 	wrapperArgs* wrapperArgsArray = new wrapperArgs[argc - 1];
+	pthread_mutex_init(&logLock, nullptr);
 	int result;
 
 	for (int i = 0; i < argc - 1; i++) //init ATMs
@@ -149,6 +151,7 @@ int main(int argc, char* argv[])
 	//delete[] wrapperArgsArray; //FIXME - this fails for some reason. need to valgrind for mem leaks
 	//delete[] threads;	//FIXME - this fails for some reason. need to valgrind for mem leaks
 	logFile.close();
+	pthread_mutex_destroy(&logLock);
 
 	cout << "reached end of program" << endl;
 	return 0;

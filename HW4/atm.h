@@ -10,6 +10,7 @@
 #include <vector>
 #include <unistd.h>
 #include <pthread.h>
+#include <sstream>
 
 #include "bankClass.h"
 
@@ -34,5 +35,6 @@ public:
 };
 
 extern Bank bank;
+extern pthread_mutex_t logLock;
 
 #endif

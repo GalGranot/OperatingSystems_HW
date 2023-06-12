@@ -9,6 +9,7 @@ using std::stoi;
 using std::vector;
 using std::string;
 using std::ifstream;
+using std::ostringstream;
 
 ATM::ATM(string path, int id)
 {
@@ -23,25 +24,35 @@ ATM::~ATM()
 		input.close();
 }
 
+inline void logWrite(const string message)
+{
+	pthread_mutex_lock(&logLock);
+	logFile << message;
+	pthread_mutex_unlock(&logLock);
+}
+
 int ATM::getID() { return id; }
 
 void ATM::handleAction(Command command, Account& sourceAccount, Account& targetAccount)
 {
+	ostringstream oss;
 	if (command.commandType == 'O') //open command
 	{
 		if(sourceAccount.getID() != NO_ID)
 		{
-			logFile << "Error " << getID() <<
-			": Your transaction failed - account with same id exists" << endl;
+			oss << "Error " << getID() <<
+				": Your transaction failed - account with same id exists" << endl;
+			logWrite(oss.str());
 		}
 		else
 		{
 			pthread_mutex_lock(&bank.mutex);
 			Account account(command);
 			bank.addAccount(account);
-			logFile << this->getID() << ": New account id is " << account.getID() <<
-				" with password " << account.getPassword() << " and initial balance " <<
-				account.getBalance() << endl;
+			oss << this->getID() << ": New account id is " << account.getID() 
+			<< " with password " << account.getPassword() << " and initial balance " 
+			<< account.getBalance() << endl;
+			logWrite(oss.str());
 			pthread_mutex_unlock(&bank.mutex);
 		}
 	}
@@ -49,59 +60,93 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 	else if (command.commandType == 'D')
 	{
 		if (sourceAccount.getID() == NO_ID)
-			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logWrite(oss.str());
+		}
 
 		else if (command.password != sourceAccount.getPassword())
-			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id " 
-			<< command.sourceID << " is incorrect" << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
+				<< command.sourceID << " is incorrect" << endl;
+			logWrite(oss.str());
+		}
+			
 		else
 		{
 			sourceAccount.addToBalance(command.amount);
-			logFile << this->getID() << ": Account " << sourceAccount.getID() 
+			oss << this->getID() << ": Account " << sourceAccount.getID()
 				<< " new balance is " << sourceAccount.getBalance() << " after "
 				<< command.amount << " $ was deposited" << endl;;
+			logWrite(oss.str());
 		}
 	}
 
 	else if (command.commandType == 'W')
 	{
 		if (sourceAccount.getID() == NO_ID)
-			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logWrite(oss.str());
+
+		}
 
 		else if (command.password != sourceAccount.getPassword())
-			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id "
-			<< command.sourceID << " is incorrect" << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
+				<< command.sourceID << " is incorrect" << endl;
+			logWrite(oss.str());
+		}
 		else if (command.amount > sourceAccount.getBalance())
-			logFile << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+			logWrite(oss.str());
+		}
 		else
 		{
-			sourceAccount.addToBalance(-command.amount); //fixme MAKE SURE THIS IS DONE IN PLACE!
-			logFile << this->getID() << ": Account " << sourceAccount.getID()
+			sourceAccount.addToBalance(-command.amount);
+			oss << this->getID() << ": Account " << sourceAccount.getID()
 				<< " new balance is " << sourceAccount.getBalance() << " after "
 				<< command.amount << " $ was withdrew" << endl;
+			logWrite(oss.str());
 		}
 	}
 
 	else if (command.commandType == 'B')
 	{
 		if (sourceAccount.getID() == NO_ID)
-			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logWrite(oss.str());
+		}
 		else if (command.password != sourceAccount.getPassword())
-			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id "
-			<< command.sourceID << " is incorrect" << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
+				<< command.sourceID << " is incorrect" << endl;
+			logWrite(oss.str());
+		}
 		else
-			logFile << this->getID() << ": Account " << command.sourceID << " balance is " << sourceAccount.getBalance() << endl;
+		{
+			oss << this->getID() << ": Account " << command.sourceID << " balance is " << sourceAccount.getBalance() << endl;
+			logWrite(oss.str());
+		}
 	}
 
 	
 	else if (command.commandType == 'Q')
 	{
 		if (sourceAccount.getID() == NO_ID)
-			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logWrite(oss.str());
+		}
 
 		else if (command.password != sourceAccount.getPassword())
-			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id "
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
 				<< command.sourceID << " is incorrect" << endl;
+			logWrite(oss.str());
+		}
 		else
 		{
 			int tmpBalance = sourceAccount.getBalance();
@@ -109,10 +154,11 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 			if (it != bank.accounts.end())
 			{
 				bank.accounts.erase(command.sourceID);
-				logFile << this->getID() << ": Account " << command.sourceID << " is now closed. Balance was " << tmpBalance << endl;
+				oss << this->getID() << ": Account " << command.sourceID << " is now closed. Balance was " << tmpBalance << endl;
+				logWrite(oss.str());
 			}
 			else
-				logFile << "couldn't find element to delete";
+				;
 		}
 	}
 	
@@ -121,30 +167,39 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 		bool flag = (sourceAccount.getID() == NO_ID);
 		if (flag)
 		{
-			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logWrite(oss.str());
 			return;
 		}
 		flag = (targetAccount.getID() == NO_ID);
 		if (flag)
 		{
-			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.targetID << " does not exist" << endl;
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.targetID << " does not exist" << endl;
+			logWrite(oss.str());
 			return;
 		}
 
 		if (command.password != sourceAccount.getPassword())
-			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id "
-			<< command.sourceID << " is incorrect" << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
+				<< command.sourceID << " is incorrect" << endl;
+			logWrite(oss.str());
+		}
 		else if (command.amount > sourceAccount.getBalance())
-			logFile << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+			logWrite(oss.str());
+		}
 		else
 		{
 
 			sourceAccount.addToBalance(-command.amount);
 			targetAccount.addToBalance(command.amount);
-			logFile << this->getID() << ": Transfer " << command.amount << " from account " 
+			oss << this->getID() << ": Transfer " << command.amount << " from account " 
 			<< sourceAccount.getID() << " to account " << targetAccount.getID() << endl
 			<< "new account balance is " << sourceAccount.getBalance() 
 			<< "new target account balance is " << targetAccount.getBalance() << endl;
+			logWrite(oss.str());
 		}
 	}
 }
