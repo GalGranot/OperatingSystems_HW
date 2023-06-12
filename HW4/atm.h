@@ -8,6 +8,8 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <unistd.h>
+#include <pthread.h>
 
 #include "bankClass.h"
 

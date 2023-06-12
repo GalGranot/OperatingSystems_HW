@@ -56,7 +56,7 @@ void* CommissionWrapper(void*)
 	{
 		if (stopCommision)
 			return nullptr;
-		usleep(3000);
+		usleep(3000000);
 		if (bank.accounts.empty())
 			continue;
 
@@ -79,7 +79,7 @@ void* PrintStatusWrapper(void*)
 	{
 		if (stopStatusPrint)
 			return nullptr;
-		usleep(500);
+		usleep(500000);
 		bank.printAccounts();
 	}
 	return nullptr;

@@ -170,11 +170,11 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 	int commisionAmount)
 {
 	if (commissions)
-		cout << "Bank: commissions of " << percentage <<
+		logFile << "Bank: commissions of " << percentage <<
 		" % were charged, the bank gained " << commisionAmount << "$ from account "
 		<< commisionID << endl;
 	else if (bank.getAccountByID(command.sourceID).getID() == NO_ID)
-		cout << "Error " << ATMid << ": Your transaction failed – account id "
+		logFile << "Error " << ATMid << ": Your transaction failed – account id "
 		<< command.sourceID << " does not exists" << endl;
 	else
 	{
