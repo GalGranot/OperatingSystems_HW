@@ -49,14 +49,14 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 	else if (command.commandType == 'D')
 	{
 		if (sourceAccount.getID() == NO_ID)
-			logFile << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 
 		else if (command.password != sourceAccount.getPassword())
 			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id " 
-			<< sourceAccount.getPassword() << " is incorrect" << endl;
+			<< command.sourceID << " is incorrect" << endl;
 		else
 		{
-			sourceAccount.addToBalance(command.amount); //fixme MAKE SURE THIS IS DONE IN PLACE!
+			sourceAccount.addToBalance(command.amount);
 			logFile << this->getID() << ": Account " << sourceAccount.getID() 
 				<< " new balance is " << sourceAccount.getBalance() << " after "
 				<< command.amount << " $ was deposited" << endl;;
@@ -66,11 +66,11 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 	else if (command.commandType == 'W')
 	{
 		if (sourceAccount.getID() == NO_ID)
-			logFile << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 
 		else if (command.password != sourceAccount.getPassword())
-			logFile << "Error " << this->getID() << ": Your transcation failed - password for account id "
-			<< sourceAccount.getPassword() << " is incorrect" << endl;
+			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id "
+			<< command.sourceID << " is incorrect" << endl;
 		else if (command.amount > sourceAccount.getBalance())
 			logFile << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
 		else
@@ -85,11 +85,10 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 	else if (command.commandType == 'B')
 	{
 		if (sourceAccount.getID() == NO_ID)
-			logFile << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
-
-		if (command.password != sourceAccount.getPassword())
-			logFile << "Error " << this->getID() << ": Your transcation failed - password for account id "
-			<< sourceAccount.getPassword() << " is incorrect" << endl;
+			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+		else if (command.password != sourceAccount.getPassword())
+			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id "
+			<< command.sourceID << " is incorrect" << endl;
 		else
 			logFile << this->getID() << ": Account " << command.sourceID << " balance is " << sourceAccount.getBalance() << endl;
 	}
@@ -98,11 +97,11 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 	else if (command.commandType == 'Q')
 	{
 		if (sourceAccount.getID() == NO_ID)
-			logFile << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 
 		else if (command.password != sourceAccount.getPassword())
-			logFile << "Error " << this->getID() << ": Your transcation failed - password for account id "
-				<< sourceAccount.getPassword() << " is incorrect" << endl;
+			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id "
+				<< command.sourceID << " is incorrect" << endl;
 		else
 		{
 			int tmpBalance = sourceAccount.getBalance();
@@ -122,19 +121,19 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 		bool flag = (sourceAccount.getID() == NO_ID);
 		if (flag)
 		{
-			logFile << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 			return;
 		}
 		flag = (targetAccount.getID() == NO_ID);
 		if (flag)
 		{
-			logFile << this->getID() << ": Your transaction failed - account id " << command.targetID << " does not exist" << endl;
+			logFile << "Error " << this->getID() << ": Your transaction failed - account id " << command.targetID << " does not exist" << endl;
 			return;
 		}
 
 		if (command.password != sourceAccount.getPassword())
-			logFile << "Error " << this->getID() << ": Your transcation failed - password for account id "
-			<< sourceAccount.getPassword() << " is incorrect" << endl;
+			logFile << "Error " << this->getID() << ": Your transaction failed - password for account id "
+			<< command.sourceID << " is incorrect" << endl;
 		else if (command.amount > sourceAccount.getBalance())
 			logFile << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
 		else
@@ -143,9 +142,9 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 			sourceAccount.addToBalance(-command.amount);
 			targetAccount.addToBalance(command.amount);
 			logFile << this->getID() << ": Transfer " << command.amount << " from account " 
-			<< sourceAccount.getID() << " to account " << targetAccount.getID()
-			<< "a new account balance is " << sourceAccount.getBalance() 
-			<< "a new target account balance is " << targetAccount.getBalance() << endl;
+			<< sourceAccount.getID() << " to account " << targetAccount.getID() << endl
+			<< "new account balance is " << sourceAccount.getBalance() 
+			<< "new target account balance is " << targetAccount.getBalance() << endl;
 		}
 	}
 }
@@ -161,11 +160,12 @@ void ATM::operateATM()
 		std::getline(this->input, line);
 		Command command(line);
 		Account& sourceAccount = bank.getAccountByID(command.sourceID);
-		if (command.commandType == 'O')
+		if (sourceAccount.getID() == NO_ID)
 		{
 			this->handleAction(command, sourceAccount, sourceAccount);
 			continue;
 		}
+
 		pthread_mutex_lock(&sourceAccount.mutex);
 		if (command.targetID != NO_ID)
 		{
