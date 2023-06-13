@@ -76,12 +76,15 @@ void* CommissionWrapper(void*)
 
 void* PrintStatusWrapper(void*)
 {
+	int i = 0;
 	while (1)
 	{
+		i++;
 		if (stopStatusPrint)
 			return nullptr;
-		usleep(500000);
+		usleep(1);
 		bank.printAccounts();
+		printf("i is %d\n", i);
 	}
 	return nullptr;
 }

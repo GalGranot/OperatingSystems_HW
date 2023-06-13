@@ -39,7 +39,7 @@ Command::Command(string line)
 	commandType = stringParses[0][0];
 	sourceID = stoi(stringParses[1]);
 	if (argsNum > 2)
-		password = stoi(stringParses[2]);
+		password = stringParses[2];
 	if (argsNum > 3) {
 		if (commandType == 'T') {
 			targetID = stoi(stringParses[3]);
@@ -86,11 +86,11 @@ Account::~Account()
 }
 int Account::getID() { return id; }
 void Account::setID(int id) { this->id = id; }
-int Account::getPassword() { return this->password; }
-void Account::setPassword(int password) { this->password = password; }
+string Account::getPassword() { return this->password; }
+void Account::setPassword(string password) { this->password = password; }
 int Account::getBalance() { return balance; }
 void Account::addToBalance(int amount) { balance += amount; }
-Account::Account(int id, int password, int balance)
+Account::Account(int id, string password, int balance)
 {
 	this->id = id;
 	this->password = password;
@@ -136,6 +136,8 @@ void Bank::printAccounts()
 {
 	printf("\033[2J");
 	printf("\033[1;1H");
+
+	cout << "heyo new print yoyoy" << endl;
 
 	cout << "Current Bank Status" << endl;
 	if (accounts.empty()) {

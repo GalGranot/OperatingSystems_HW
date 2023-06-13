@@ -32,7 +32,7 @@ public:
 	Command(string line);
 	char commandType;
 	int sourceID = NO_ID;
-	int password = NOT_SET;
+	string password = "-1";
 	int amount = NOT_SET;
 	int targetID = NOT_SET;
 	void printCommand();
@@ -42,18 +42,18 @@ class Account
 {
 private:
 	int id;
-	int password;
+	string password;
 	int balance = 0;
 	
 
 public:
-	Account(int id = NO_ID, int password = NOT_SET, int balance = 0);
+	Account(int id = NO_ID, string password = "-1", int balance = 0);
 	Account(Command command); //init account from open command
 	~Account();
 	int getID();
 	void setID(int id);
-	int getPassword();
-	void setPassword(int password);
+	string getPassword();
+	void setPassword(string password);
 	int getBalance();
 	void addToBalance(int amount);
 	pthread_mutex_t mutex; //fixme check if needs to be private

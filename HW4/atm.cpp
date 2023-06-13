@@ -36,6 +36,7 @@ int ATM::getID() { return id; }
 void ATM::handleAction(Command command, Account& sourceAccount, Account& targetAccount)
 {
 	ostringstream oss;
+	logFile << "DEBUG " << endl << "soruce account id " << sourceAccount.getID() << endl;
 	if (command.commandType == 'O') //open command
 	{
 		if(sourceAccount.getID() != NO_ID)
@@ -47,13 +48,23 @@ void ATM::handleAction(Command command, Account& sourceAccount, Account& targetA
 		else
 		{
 			pthread_mutex_lock(&bank.mutex);
-			Account account(command);
-			bank.addAccount(account);
-			oss << this->getID() << ": New account id is " << account.getID() 
-			<< " with password " << account.getPassword() << " and initial balance " 
-			<< account.getBalance() << endl;
-			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex);
+			if (bank.accounts.count(command.sourceID) != 0)
+			{
+				pthread_mutex_unlock(&bank.mutex);
+				oss << "Error " << getID() <<
+					": Your transaction failed - account with same id exists" << endl;
+				logWrite(oss.str());
+				return;
+			}
+		Account account(command);
+		pthread_mutex_lock(&account.mutex);
+		oss << this->getID() << ": New account id is " << account.getID() 
+		<< " with password " << account.getPassword() << " and initial balance " 
+		<< account.getBalance() << endl;
+		logWrite(oss.str());
+		bank.addAccount(account);
+		pthread_mutex_unlock(&account.mutex);
+		pthread_mutex_unlock(&bank.mutex);
 		}
 	}
 
@@ -217,6 +228,7 @@ void ATM::operateATM()
 		Account& sourceAccount = bank.getAccountByID(command.sourceID);
 		if (sourceAccount.getID() == NO_ID)
 		{
+			logFile << "DEBUG" << endl << "here" << endl;
 			this->handleAction(command, sourceAccount, sourceAccount);
 			continue;
 		}
@@ -230,11 +242,8 @@ void ATM::operateATM()
 			pthread_mutex_unlock(&targetAccount.mutex);
 		}
 		else
-		{
-			Account tmp(NO_ID, NO_ID, NO_ID);
-			Account& defAccount = tmp;
-			this->handleAction(command, sourceAccount, defAccount);
-		}
+			this->handleAction(command, sourceAccount, sourceAccount);
+		
 		pthread_mutex_unlock(&sourceAccount.mutex);
 	}
 	pthread_exit(nullptr);
