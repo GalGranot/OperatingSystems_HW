@@ -12,8 +12,10 @@
 
 #define MIN_RATE 1
 #define MAX_RATE 5
-#define NO_ID -1
-#define NOT_SET -1
+#define NO_ID "-1"
+#define NOT_SET "-1"
+#define NO_AMOUNT -1
+#define FIELDS_NUM 5
 
 using std::map;
 using std::string;
@@ -23,7 +25,17 @@ extern ofstream logFile;
 
 class ioHandler
 {
-	pthread_mutex_t mutex;
+private:
+	pthread_mutex_t readerLock;
+	pthread_mutex_t writerLock;
+	int readers;
+public:
+	void init();
+	void killHandler();
+	void enterReader();
+	void enterWriter();
+	void exitReader();
+	void exitWriter();
 };
 
 class Command
@@ -31,32 +43,32 @@ class Command
 public:
 	Command(string line);
 	char commandType;
-	int sourceID = NO_ID;
-	string password = "-1";
-	int amount = NOT_SET;
-	int targetID = NOT_SET;
+	string sourceID = NO_ID;
+	string password = NO_ID;
+	int amount = NO_AMOUNT;
+	string targetID = NOT_SET;
 	void printCommand();
 };
 
 class Account
 {
 private:
-	int id;
+	string id;
 	string password;
 	int balance = 0;
-	
 
 public:
-	Account(int id = NO_ID, string password = "-1", int balance = 0);
-	Account(Command command); //init account from open command
+	Account(string id = NO_ID, string password = NO_ID, int balance = 0);
+	Account(Command command);
 	~Account();
-	int getID();
-	void setID(int id);
+	string getID();
+	void setID(string id);
 	string getPassword();
 	void setPassword(string password);
 	int getBalance();
 	void addToBalance(int amount);
-	pthread_mutex_t mutex; //fixme check if needs to be private
+
+	ioHandler io;
 };
 
 class Bank
@@ -68,28 +80,29 @@ public:
 	Bank();
 	~Bank();
 
-	map<int, Account> accounts;
-	pthread_mutex_t mutex;
+	map<string, Account> accounts;
 
 	//getters & setters
 	int getBalance();
 	void addToBalance(int amount);
 	void addAccount(Account account);
-	Account& getAccountByID(int id);
+	Account& getAccountByID(string id);
 
 	void printAccounts();
 	void commission(Account& currAccount, int rate);
 
+	pthread_mutex_t mutex;
 };
 
 extern Command defaultCommand;
 
 void writeToLog(int ATMid = 0, bool error = 0, bool minus = 0,
 	Command command = defaultCommand, int Balance = 0, bool commissions = 0, 
-	int percentage = 0, int commisionID = 0, int commisionAmount = 0);
+	int percentage = 0, string commisionID = 0, int commisionAmount = 0);
 
 void openLogFile(const string& filename);
 extern Bank bank;
+extern Account defaultAccount;
 
 #endif 
 

@@ -2,8 +2,7 @@
 
 #ifndef _ATM_H
 #define _ATM_H
-#define NO_ID -1
-#define FIELDS_NUM 5
+#define NO_ID "-1"
 
 #include <string>
 #include <fstream>
@@ -30,7 +29,7 @@ public:
 	~ATM(); //FIXME gal - close file here
 
 	int getID();
-	void handleAction(Command command, Account& sourceAccount, Account& targetAccount);
+	void handleAction(Command command);
 	void operateATM();
 };
 

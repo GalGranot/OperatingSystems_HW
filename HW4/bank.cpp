@@ -20,6 +20,7 @@ using std::vector;
 Bank bank;
 ofstream logFile;
 Command defaultCommand("O -1 -1 -1");
+Account defaultAccount(defaultCommand);
 bool stopCommision = false;
 bool stopStatusPrint = false;
 pthread_mutex_t logLock;
@@ -46,8 +47,16 @@ void* atmWrapper(void* arg)
 {
 	wrapperArgs* w = static_cast<wrapperArgs*>(arg);
 	ATM atm(w->path, w->atmID);
-	//cout << "thread " << w->atmID << " operating, inited ATM and going to operate\n" << endl;
-	atm.operateATM();
+	string line;
+	while (1)
+	{
+		if (atm.input.eof())
+			break;
+		std::getline(atm.input, line);
+		Command command(line);
+		atm.handleAction(command);
+	}
+
 	return nullptr;
 }
 
@@ -62,29 +71,34 @@ void* CommissionWrapper(void*)
 			continue;
 
 		int rate = ((std::rand() % MAX_RATE) + 1); //rate is 1%-5%
-
+		pthread_mutex_lock(&bank.mutex);
 		for (auto& it : bank.accounts)
 		{
-			Account& currAccount = it.second;
-			pthread_mutex_lock(&currAccount.mutex);
-			bank.commission(currAccount, rate);
-			pthread_mutex_unlock(&currAccount.mutex);
+			Account& currentAccount = it.second;
+			currentAccount.io.enterWriter();
 		}
+		for(auto& it : bank.accounts)
+		{
+			Account& currentAccount = it.second;
+			bank.commission(currentAccount, rate);
+			currentAccount.io.exitWriter();
+		}
+		pthread_mutex_unlock(&bank.mutex);
 	}
 	return nullptr;
 }
 
 void* PrintStatusWrapper(void*)
 {
+	cout << "entering status wrapper" << endl;
 	int i = 0;
 	while (1)
 	{
-		i++;
+		cout << "entering iteration " << i++ << endl;;
 		if (stopStatusPrint)
 			return nullptr;
-		usleep(1);
+		usleep(500000);
 		bank.printAccounts();
-		printf("i is %d\n", i);
 	}
 	return nullptr;
 }
@@ -139,6 +153,7 @@ int main(int argc, char* argv[])
 		delete[] threadIDs;
 		delete[] wrapperArgsArray;
 		delete[] threads;
+		logFile.close();
 		exit(1);
 	}
 

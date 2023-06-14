@@ -35,12 +35,14 @@ Command::Command(string line)
 		stringParses.push_back(line.substr(start));
 		argsNum++;
 	}
+
 	//put parses in place
 	commandType = stringParses[0][0];
-	sourceID = stoi(stringParses[1]);
-	if (argsNum > 2)
+	sourceID = stringParses[1];
+	if (argsNum > FIELDS_NUM - 3)
 		password = stringParses[2];
-	if (argsNum > 3) {
+	if (argsNum > FIELDS_NUM - 2)
+	{
 		if (commandType == 'T') {
 			targetID = stoi(stringParses[3]);
 			amount = stoi(stringParses[4]);
@@ -48,15 +50,27 @@ Command::Command(string line)
 		else
 			amount = stoi(stringParses[3]);
 	}
-
-	//if (i == FIELDS_NUM - 1) //received amount
-	//	amount = stoi(stringParses[3]);
-	//else
-	//	amount = NOT_SET;
-	//if (i == FIELDS_NUM)
-	//	targetID = stringparses[4];
-	//else
-	//	targetID = NOT_SET;
+	/*
+	if (argsNum > 2)
+		password = stringParses[2];
+	if (argsNum > 3)
+	{
+		if (commandType == 'T') {
+			targetID = stoi(stringParses[3]);
+			amount = stoi(stringParses[4]);
+		}
+		else
+			amount = stoi(stringParses[3]);
+	}
+	if (i == FIELDS_NUM - 1) //received amount
+		amount = stoi(stringParses[3]);
+	else
+		amount = NOT_SET;
+	if (i == FIELDS_NUM)
+		targetID = stringparses[4];
+	else
+		targetID = NOT_SET;
+	*/
 }
 
 void Command::printCommand()
@@ -78,42 +92,27 @@ Account::Account(Command command)
 	this->setID(command.sourceID);
 	this->setPassword(command.password);
 	this->balance = command.amount;
-	pthread_mutex_init(&this->mutex, nullptr);
+	this->io.init();
 }
-Account::~Account()
-{
-	pthread_mutex_destroy(&this->mutex);
-}
-int Account::getID() { return id; }
-void Account::setID(int id) { this->id = id; }
+Account::~Account() { this->io.killHandler(); }
+string Account::getID() { return id; }
+void Account::setID(string id) { this->id = id; }
 string Account::getPassword() { return this->password; }
 void Account::setPassword(string password) { this->password = password; }
 int Account::getBalance() { return balance; }
 void Account::addToBalance(int amount) { balance += amount; }
-Account::Account(int id, string password, int balance)
-{
-	this->id = id;
-	this->password = password;
-	this->balance = balance;
-}
+Account::Account(string id, string password, int balance) : id(id), password(password), balance(balance) {}
 
 /*=============================================================================
 * Bank
 =============================================================================*/
-//FIXME gal - this is supposed to copy the account, so pass acount by value. check if it actually does
-Bank::Bank() 
-{
-	pthread_mutex_init(&this->mutex, nullptr);
-}
-
-Bank::~Bank()
-{
-	pthread_mutex_destroy(&this->mutex);
-}
+Bank::Bank() { pthread_mutex_init(&this->mutex, nullptr); }
+Bank::~Bank() { pthread_mutex_destroy(&this->mutex); }
 
 void Bank::addAccount(Account account) { accounts[account.getID()] = account; }
 int Bank::getBalance() { return balance; }
 void Bank::addToBalance(int amount) { balance += amount; }
+
 /// <summary>
 /// this returns a reference to the actual account! everything is modified in place!
 /// make sure to not change the id of an account here, this will break the map's ordering
@@ -121,23 +120,21 @@ void Bank::addToBalance(int amount) { balance += amount; }
 /// </summary>
 /// <param name="id"></param>
 /// <returns> an account if found, an account with id=-1=NO_ID if not found </returns>
-Account& Bank::getAccountByID(int id)
+Account& Bank::getAccountByID(string id)
 {
 	auto it = accounts.find(id);
-	if (it != accounts.end())
-		return it->second; //FIXME - maybe we need to use references here? ie auto& it
+	if (it != accounts.end()) //FIXME - see if removing & matters
+		return it->second;
 
 	//not found
-	Account tmp; tmp.setID(NO_ID);
-	Account& errorAccount = tmp;
-	return errorAccount;
+	Account& tmp = defaultAccount;
+	return tmp;
 }
 void Bank::printAccounts()
 {
+	//pthread_mutex_lock(&bank.mutex);
 	printf("\033[2J");
 	printf("\033[1;1H");
-
-	cout << "heyo new print yoyoy" << endl;
 
 	cout << "Current Bank Status" << endl;
 	if (accounts.empty()) {
@@ -149,26 +146,72 @@ void Bank::printAccounts()
 	for(const auto& it : accounts)
 	{
 		Account currAccount = it.second;
-		pthread_mutex_lock(&currAccount.mutex);
-		cout << "Account " << currAccount.getID() << " : Balance - " <<currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
-		pthread_mutex_unlock(&currAccount.mutex);
+		currAccount.io.enterReader();
+	}
+
+	for (const auto& it : accounts)
+	{
+		Account currAccount = it.second;
+		cout << "Account " << currAccount.getID() << " : Balance - " << currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
+		currAccount.io.exitReader();
 	}
 	cout << "The bank has " << getBalance() << " $" << endl;
+	//pthread_mutex_unlock(&bank.mutex);
 }
+
 void Bank::commission(Account& currAccount, int rate)
 {
-	int commision = rate * currAccount.getBalance() / 100;
-	currAccount.addToBalance(-commision);
-	this->addToBalance(commision);
-	writeToLog(0, false, false, defaultCommand, 0, true, rate, currAccount.getID(), commision);
+	int commission = rate * currAccount.getBalance() / 100;
+	currAccount.addToBalance(-commission);
+	this->addToBalance(commission);
+	writeToLog(0, false, false, defaultCommand, 0, true, rate, currAccount.getID(), commission);
 }
+
+/*=============================================================================
+* ioHandler
+=============================================================================*/
+
+void ioHandler::init()
+{
+	readers = 0;
+	pthread_mutex_init(&readerLock, nullptr);
+	pthread_mutex_init(&writerLock, nullptr);
+	readers = 0;
+}
+
+void ioHandler::killHandler()
+{
+	pthread_mutex_destroy(&readerLock);
+	pthread_mutex_destroy(&writerLock);
+}
+
+void ioHandler::enterReader()
+{
+	pthread_mutex_lock(&readerLock);
+	readers++;
+	if (readers == 1)
+		pthread_mutex_lock(&writerLock);
+	pthread_mutex_unlock(&readerLock);
+}
+
+void ioHandler::exitReader()
+{
+	pthread_mutex_lock(&readerLock);
+	readers--;
+	if (readers == 0)
+		pthread_mutex_unlock(&writerLock);
+	pthread_mutex_unlock(&readerLock);
+}
+
+void ioHandler::enterWriter() { pthread_mutex_lock(&writerLock); }
+void ioHandler::exitWriter() { pthread_mutex_unlock(&writerLock); }
 
 /*=============================================================================
 * global functions
 =============================================================================*/
 
 void writeToLog(int ATMid, bool error, bool minus, Command command,
-	int Balance, bool commissions, int percentage, int commisionID,
+	int Balance, bool commissions, int percentage, string commisionID,
 	int commisionAmount)
 {
 	if (commissions)
@@ -251,5 +294,4 @@ void openLogFile(const string& filename)
 	logFile.open(filename);
 	if (!logFile.is_open())
 		std::cerr << "Error: Failed to open log file." << endl;
-
 }
