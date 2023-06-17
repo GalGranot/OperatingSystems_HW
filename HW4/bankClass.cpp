@@ -146,9 +146,9 @@ void Bank::printAccounts()
 	for(const auto& it : accounts)
 	{
 		Account currAccount = it.second;
-		currAccount.io.enterReader();
+		cout <<"account to lock read - " << currAccount.getID() << endl;
+		currAccount.io.enterReader(); 
 	}
-
 	for (const auto& it : accounts)
 	{
 		Account currAccount = it.second;
@@ -189,8 +189,11 @@ void ioHandler::enterReader()
 {
 	pthread_mutex_lock(&readerLock);
 	readers++;
-	if (readers == 1)
+	if (readers == 1) {
+		cout << "DEBUG locking writer" << endl;
 		pthread_mutex_lock(&writerLock);
+		cout << "DEBUG locking writer-after " << endl;
+	}
 	pthread_mutex_unlock(&readerLock);
 }
 
