@@ -63,11 +63,9 @@ void* CommissionWrapper(void*)
 {
 	while (1)
 	{
-		if (stopCommision) {
-			cout << " DEBUG stopped commision" << endl;
+		if (stopCommision)
 			return nullptr;
-		}
-		//usleep(3000000);
+		usleep(3000000);
 		if (bank.accounts.empty())
 			continue;
 
@@ -76,40 +74,30 @@ void* CommissionWrapper(void*)
 		for (auto& it : bank.accounts)
 		{
 			Account& currentAccount = it.second;
-			cout << " DEBUG enter write in com" << endl;
 			currentAccount.io.enterWriter();
-			//pthread_mutex_unlock(&bank.mutex);
+		}
+		for(auto& it : bank.accounts)
+		{
+			Account& currentAccount = it.second;
 			bank.commission(currentAccount, rate);
 			currentAccount.io.exitWriter();
-			cout << " DEBUG exit write in com" << endl;
-			//pthread_mutex_lock(&bank.mutex);
 		}
-		//for(auto& it : bank.accounts)
-		//{
-		//	Account& currentAccount = it.second;
-		//	bank.commission(currentAccount, rate);
-		//	currentAccount.io.exitWriter();
-		//}
 		pthread_mutex_unlock(&bank.mutex);
-		usleep(300);
 	}
 	return nullptr;
 }
 
 void* PrintStatusWrapper(void*)
 {
-	//cout << "entering status wrapper" << endl;
+	cout << "entering status wrapper" << endl;
 	int i = 0;
 	while (1)
 	{
-		//usleep(500000);
-		cout << "DEBUG entering iteration " << i++ << endl;
-		if (stopStatusPrint) {
-			cout << "DEBUG stoped iteration " << endl;
+		cout << "entering iteration " << i++ << endl;;
+		if (stopStatusPrint)
 			return nullptr;
-		}
-		bank.printAccounts(); 
-		usleep(500);
+		usleep(500000);
+		bank.printAccounts();
 	}
 	return nullptr;
 }
@@ -127,6 +115,23 @@ int main(int argc, char* argv[])
 	wrapperArgs* wrapperArgsArray = new wrapperArgs[argc - 1];
 	pthread_mutex_init(&logLock, nullptr);
 	int result;
+
+	for (int i = 0; i < argc - 1; i++) //init ATMs
+	{
+		threadIDs[i] = i + 1; //ATM numbers start with 1, match IDs with ATM numbers
+		wrapperArgsArray[i].atmID = i + 1;
+		wrapperArgsArray[i].path = argv[i + 1];
+		result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
+		if (result != 0)
+		{
+			perror("Bank error: pthread_create failed");
+			delete[] threadIDs;
+			delete[] wrapperArgsArray;
+			delete[] threads;
+			logFile.close();
+			exit(1);
+		}
+	}
 
 	threadIDs[argc] = argc + 1;
 	result = pthread_create(&threads[argc], nullptr, CommissionWrapper, nullptr);
@@ -150,25 +155,6 @@ int main(int argc, char* argv[])
 		logFile.close();
 		exit(1);
 	}
-
-	for (int i = 0; i < argc - 1; i++) //init ATMs
-	{
-		threadIDs[i] = i + 1; //ATM numbers start with 1, match IDs with ATM numbers
-		wrapperArgsArray[i].atmID = i + 1;
-		wrapperArgsArray[i].path = argv[i + 1];
-		result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
-		if (result != 0)
-		{
-			perror("Bank error: pthread_create failed");
-			delete[] threadIDs;
-			delete[] wrapperArgsArray;
-			delete[] threads;
-			logFile.close();
-			exit(1);
-		}
-	}
-
-
 
 	for (int i = 0; i < argc - 1; i++)
 		pthread_join(threads[i], nullptr);
