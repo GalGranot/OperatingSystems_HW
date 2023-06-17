@@ -6,6 +6,89 @@ using std::cin;
 using std::cout;
 using std::endl;
 using std::map;
+<<<<<<< Updated upstream
+=======
+using std::stoi;
+using std::vector;
+using std::string;
+using std::ifstream;
+
+/*=============================================================================
+* Command
+=============================================================================*/
+
+Command::Command(string line)
+{
+	//parse strings
+	vector<string> stringParses;
+	int argsNum = 0;
+	const char delimiter = ' ';
+	int start = 0;
+	int end = line.find(delimiter);
+	while (end != (int)string::npos) //npos = no position, ie end of string
+	{
+		stringParses.push_back(line.substr(start, end - start));
+		argsNum++;
+		start = end + 1;
+		end = line.find(delimiter, start);
+	}
+	if (start < (int)line.length()) //check if missed the end
+	{
+		stringParses.push_back(line.substr(start));
+		argsNum++;
+	}
+
+	//put parses in place
+	commandType = stringParses[0][0];
+	sourceID = stringParses[1];
+	if (argsNum > FIELDS_NUM - 3)
+		password = stringParses[2];
+	if (argsNum > FIELDS_NUM - 2)
+	{
+		if (commandType == 'T') {
+			targetID = stoi(stringParses[3]);
+			amount = stoi(stringParses[4]);
+		}
+		else
+			amount = stoi(stringParses[3]);
+	}
+	/*
+	if (argsNum > 2)
+		password = stringParses[2];
+	if (argsNum > 3)
+	{
+		if (commandType == 'T') {
+			targetID = stoi(stringParses[3]);
+			amount = stoi(stringParses[4]);
+		}
+		else
+			amount = stoi(stringParses[3]);
+	}
+	if (i == FIELDS_NUM - 1) //received amount
+		amount = stoi(stringParses[3]);
+	else
+		amount = NOT_SET;
+	if (i == FIELDS_NUM)
+		targetID = stringparses[4];
+	else
+		targetID = NOT_SET;
+	*/
+}
+
+void Command::printCommand()
+{
+	logFile << "printing command\n";
+	logFile << "command type: " << commandType << "\n";
+	logFile << "source id: " << sourceID << "\n";
+	logFile << "password: " << password << "\n";
+	logFile << "amount " << amount << "\n";
+	logFile << "target id: " << targetID << "\n";
+}
+
+/*=============================================================================
+* Account
+=============================================================================*/
+>>>>>>> Stashed changes
 
 int Account::getID() { return id; }
 void Account::setID(int id) { this->id = id; }
@@ -108,9 +191,20 @@ void Bank::printAccounts()
 	for(const auto& it : accounts)
 	{
 		Account currAccount = it.second;
+<<<<<<< Updated upstream
 		cout << "Account " << currAccount.getID() << " : Balance - " <<
 		currAccount.getBalance() << " $, Account Password - " << 
 		currAccount.getPassword() << endl;
+=======
+		currAccount.io.enterReader(); logFile << "started reading from account " << currAccount.getID() << "in printStatus" << endl;
+	}
+
+	for (const auto& it : accounts)
+	{
+		Account currAccount = it.second;
+		cout << "Account " << currAccount.getID() << " : Balance - " << currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
+		currAccount.io.exitReader(); logFile << "finished reading from account " << currAccount.getID() << "in printStatus" << endl;
+>>>>>>> Stashed changes
 	}
 	cout << "The bank has " << getBalance() << " $" << endl;
 }

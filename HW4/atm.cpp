@@ -80,9 +80,28 @@ int ATM::getID() { return id; }
 void ATM::handleAction(Command command, Bank bank)
 {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	if (command.commandType == O) //open command
 =======
 	//O D W B Q T 
+=======
+	a1.io.enterWriter(); logFile << "started writing from account " << a1.getID() << " in command: T" << endl;
+	a2.io.enterWriter(); logFile << "started writing from account " << a2.getID() << " in command: T"<< endl;
+}
+
+inline void exitWriterInOrder(Account& a1, Account& a2)
+{
+	a1.io.exitWriter(); logFile << "finished writing from account " << a1.getID() << " in command: T" << endl;
+	a2.io.exitWriter();	logFile << "finished writing from account " << a2.getID() << " in command: T" << endl;
+}
+
+void ATM::handleAction(Command command)
+{
+	logFile << "starting with command " << command.commandType << " for account " << command.sourceID << endl;
+	ostringstream oss;
+	pthread_mutex_lock(&bank.mutex);
+	Account& sourceAccount = bank.getAccountByID(command.sourceID);
+>>>>>>> Stashed changes
 
 	if (command.commandType == 'O') //open command
 >>>>>>> Stashed changes
@@ -90,6 +109,7 @@ void ATM::handleAction(Command command, Bank bank)
 		Account currAccount = bank.getAccountByID(command.sourceID);
 		if(currAccount.getID() == NO_ID)
 		{
+<<<<<<< Updated upstream
 			cout << "Error <ATM " << getID() <<
 			">: Your transaction failed - account with same id exists" << endl;
 			return;
@@ -101,17 +121,142 @@ void ATM::handleAction(Command command, Bank bank)
 			" with password " << account.getPassword() << " and initial balance " <<
 			account.getBalance() << endl;
 		//FIXME gal - print to log & to screen
+=======
+			oss << "Error " << getID() << ": Your transaction failed - account with same id exists" << endl;
+			logWrite(oss.str());
+		}
+		else //account doesn't exist, init it
+		{
+			Account account(command);
+			bank.addAccount(account);
+			oss << this->getID() << ": New account id is " << account.getID() << " with password " << account.getPassword() << " and initial balance " << account.getBalance() << endl;
+			logWrite(oss.str());
+		}
+		pthread_mutex_unlock(&bank.mutex);
+	}
+
+	else if (command.commandType == 'Q') //close command
+	{
+		if (sourceAccount.getID() == NO_ID)
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logWrite(oss.str());
+		}
+
+		else if (command.password != sourceAccount.getPassword())
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
+				<< command.sourceID << " is incorrect" << endl;
+			logWrite(oss.str());
+		}
+		else
+		{
+			//write an invalid id to the account so it isn't found, then delete it
+			sourceAccount.io.enterWriter(); logFile << "started writing to account " << sourceAccount.getID() << " in command: " << command.commandType << endl;
+			map<string, Account>::iterator it = bank.accounts.find(command.sourceID);
+			sourceAccount.setID(NO_ID);
+			sourceAccount.io.exitWriter(); logFile << "finished writing to account " << sourceAccount.getID() << " in command: " << command.commandType << endl;
+			int tmpBalance = sourceAccount.getBalance();
+			if (it != bank.accounts.end())
+			{
+				bank.accounts.erase(command.sourceID);
+				oss << this->getID() << ": Account " << command.sourceID << " is now closed. Balance was " << tmpBalance << endl;
+				logWrite(oss.str());
+			}
+		}
+		pthread_mutex_unlock(&bank.mutex);
+	}
+
+	else if (command.commandType == 'B') //balance command
+	{
+		if (sourceAccount.getID() == NO_ID)
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logWrite(oss.str());
+			pthread_mutex_unlock(&bank.mutex);
+			return;
+		}
+		sourceAccount.io.enterReader(); logFile << "reading from account " << sourceAccount.getID() << " in command: " << command.commandType << endl;
+		pthread_mutex_unlock(&bank.mutex);
+		if (command.password != sourceAccount.getPassword())
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id " << command.sourceID << " is incorrect" << endl;
+			logWrite(oss.str());
+		}
+		else
+		{
+			oss << this->getID() << ": Account " << command.sourceID << " balance is " << sourceAccount.getBalance() << endl;
+			logWrite(oss.str());
+		}
+		sourceAccount.io.exitReader(); logFile << "finished reading from acount " << sourceAccount.getID() << " in command: " << command.commandType << endl;
+>>>>>>> Stashed changes
 	}
 
 	/*
 	else if (command.commandType == D)
 	{
+<<<<<<< Updated upstream
 
+=======
+		if (sourceAccount.getID() == NO_ID)
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logWrite(oss.str());
+			pthread_mutex_unlock(&bank.mutex);
+			return;
+		}
+		sourceAccount.io.enterWriter(); logFile << "started writing to account " << sourceAccount.getID() << " in command: " << command.commandType << endl;
+		pthread_mutex_unlock(&bank.mutex);
+		if (command.password != sourceAccount.getPassword())
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id " << command.sourceID << " is incorrect" << endl;
+			logWrite(oss.str());
+		}
+		else
+		{
+			sourceAccount.addToBalance(command.amount);
+			oss << this->getID() << ": Account " << sourceAccount.getID() << " new balance is " 
+				<< sourceAccount.getBalance() << " after " << command.amount << " $ was deposited" << endl;
+			logWrite(oss.str());
+		}
+		sourceAccount.io.exitWriter(); logFile << "finished writing to account " << sourceAccount.getID() << " in command: " << command.commandType << endl;
+>>>>>>> Stashed changes
 	}
 
 	else if (command.commandType == W)
 	{
+<<<<<<< Updated upstream
 
+=======
+		if (sourceAccount.getID() == NO_ID)
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
+			logWrite(oss.str());
+			pthread_mutex_unlock(&bank.mutex);
+			return;
+		}
+		sourceAccount.io.enterWriter(); logFile << "started writing to account " << sourceAccount.getID() << " in command: " << command.commandType << endl;
+		pthread_mutex_unlock(&bank.mutex);
+		if (command.password != sourceAccount.getPassword())
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
+				<< command.sourceID << " is incorrect" << endl;
+			logWrite(oss.str());
+		}
+		else if (command.amount > sourceAccount.getBalance())
+		{
+			oss << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+			logWrite(oss.str());
+		}
+		else
+		{
+			sourceAccount.addToBalance(-command.amount);
+			oss << this->getID() << ": Account " << sourceAccount.getID() << " new balance is " 
+				<< sourceAccount.getBalance() << " after " << command.amount << " $ was withdrew" << endl;
+			logWrite(oss.str());
+		}
+		sourceAccount.io.exitWriter(); logFile << "finished writing to account " << sourceAccount.getID() << " in command: " << command.commandType << endl;
+>>>>>>> Stashed changes
 	}
 
 	else if (command.commandType == B)
