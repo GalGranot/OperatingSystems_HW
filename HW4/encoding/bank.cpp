@@ -76,9 +76,9 @@ void* CommissionWrapper(void*)
 			pthread_mutex_lock(&bank.mutex);
 			Account& currentAccount = it.second;
 			currentAccount.io.enterWriter();
+			pthread_mutex_unlock(&bank.mutex);
 			bank.commission(currentAccount, rate);
 			currentAccount.io.exitWriter();
-			pthread_mutex_unlock(&bank.mutex);
 		}
 	}
 	return nullptr;
@@ -86,10 +86,8 @@ void* CommissionWrapper(void*)
 
 void* PrintStatusWrapper(void*)
 {
-	int i = 0;
 	while (1)
 	{
-		cout << "entering iteration " << i++ << endl;;
 		if (stopStatusPrint)
 			return nullptr;
 		usleep(SECOND / 2);

@@ -1,0 +1,553 @@
+2: New account id is 2001 with password 0000 and initial balance 0
+1: New account id is 1001 with password 0000 and initial balance 10000
+3: New account id is 3001 with password 0000 and initial balance 0
+Error 7: Your transaction failed - password for account id 1001 is incorrect
+Error 6: Your transaction failed - password for account id 1001 is incorrect
+Error 4: Your transaction failed - password for account id 1001 is incorrect
+Error 14: Your transaction failed - password for account id 1001 is incorrect
+Error 8: Your transaction failed - password for account id 1001 is incorrect
+Error 5: Your transaction failed - password for account id 1001 is incorrect
+23: Account 1001 is now closed. Balance was 10000
+Error 13: Your transaction failed - account id 1001 does not exist
+Error 11: Your transaction failed - account id 1001 does not exist
+Error 16: Your transaction failed - account id 1001 does not exist
+Error 10: Your transaction failed - account id 1001 does not exist
+Error 18: Your transaction failed - account id 1001 does not exist
+Error 12: Your transaction failed - account id 1001 does not exist
+Error 17: Your transaction failed - account id 1001 does not exist
+Error 15: Your transaction failed - account id 1001 does not exist
+Error 9: Your transaction failed - account id 1001 does not exist
+Error 19: Your transaction failed - account id 1001 does not exist
+Error 20: Your transaction failed - account id 1001 does not exist
+Error 21: Your transaction failed - account id 1001 does not exist
+Error 22: Your transaction failed - account id 1001 does not exist
+Error 6: Your transaction failed - account id 1001 does not exist
+Error 14: Your transaction failed - account id 1001 does not exist
+Error 8: Your transaction failed - account id 1001 does not exist
+Error 7: Your transaction failed - account id 1001 does not exist
+Error 3: Your transaction failed - account with same id exists
+1: New account id is 1002 with password 0000 and initial balance 10000
+Error 4: Your transaction failed - account id 1001 does not exist
+2: New account id is 2002 with password 1111 and initial balance 10000
+Error 5: Your transaction failed - account id 1001 does not exist
+Error 15: Your transaction failed - account id 1001 does not exist
+Error 12: Your transaction failed - account id 1001 does not exist
+Error 9: Your transaction failed - account id 1001 does not exist
+Error 17: Your transaction failed - account id 1001 does not exist
+Error 10: Your transaction failed - account id 1001 does not exist
+Error 16: Your transaction failed - account id 1001 does not exist
+Error 18: Your transaction failed - account id 1001 does not exist
+Error 11: Your transaction failed - account id 1001 does not exist
+23: Account 1002 is now closed. Balance was 10000
+Error 13: Your transaction failed - account id 1001 does not exist
+Error 19: Your transaction failed - account id 1001 does not exist
+Error 20: Your transaction failed - account id 1001 does not exist
+Error 21: Your transaction failed - account id 1001 does not exist
+Error 22: Your transaction failed - account id 1001 does not exist
+1: New account id is 1003 with password 0000 and initial balance 10000
+Error 3: Your transaction failed - account with same id exists
+Error 4: Your transaction failed - account id 1001 does not exist
+2: New account id is 2003 with password 0000 and initial balance 0
+Error 5: Your transaction failed - account id 1001 does not exist
+Error 7: Your transaction failed - account id 1001 does not exist
+Error 8: Your transaction failed - account id 1001 does not exist
+Error 6: Your transaction failed - account id 1001 does not exist
+Error 14: Your transaction failed - account id 1001 does not exist
+Bank: commissions of 4 % were charged, the bank gained 400$ from account 1003
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 2001
+Bank: commissions of 4 % were charged, the bank gained 400$ from account 2002
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 2003
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 3001
+23: Account 1003 is now closed. Balance was 9600
+Error 18: Your transaction failed - account id 1001 does not exist
+Error 13: Your transaction failed - account id 1001 does not exist
+Error 17: Your transaction failed - account id 1001 does not exist
+Error 16: Your transaction failed - account id 1001 does not exist
+Error 11: Your transaction failed - account id 1001 does not exist
+Error 10: Your transaction failed - account id 1001 does not exist
+Error 9: Your transaction failed - account id 1001 does not exist
+Error 12: Your transaction failed - account id 1001 does not exist
+Error 15: Your transaction failed - account id 1001 does not exist
+Error 19: Your transaction failed - account id 1001 does not exist
+Error 20: Your transaction failed - account id 1001 does not exist
+Error 21: Your transaction failed - account id 1001 does not exist
+Error 22: Your transaction failed - account id 1001 does not exist
+Error 3: Your transaction failed - account with same id exists
+Error 4: Your transaction failed - account id 1001 does not exist
+2: New account id is 2004 with password 1111 and initial balance 10000
+Error 14: Your transaction failed - account id 1001 does not exist
+1: New account id is 1004 with password 0000 and initial balance 10000
+Error 6: Your transaction failed - account id 1001 does not exist
+Error 5: Your transaction failed - account id 1001 does not exist
+Error 7: Your transaction failed - account id 1001 does not exist
+Error 8: Your transaction failed - account id 1001 does not exist
+Error 9: Your transaction failed - account id 1001 does not exist
+Error 15: Your transaction failed - account id 1001 does not exist
+23: Account 1004 is now closed. Balance was 10000
+Error 17: Your transaction failed - account id 1001 does not exist
+Error 11: Your transaction failed - account id 1001 does not exist
+Error 12: Your transaction failed - account id 1001 does not exist
+Error 10: Your transaction failed - account id 1001 does not exist
+Error 16: Your transaction failed - account id 1001 does not exist
+Error 13: Your transaction failed - account id 1001 does not exist
+Error 18: Your transaction failed - account id 1001 does not exist
+Error 19: Your transaction failed - account id 1001 does not exist
+Error 20: Your transaction failed - account id 1001 does not exist
+Error 21: Your transaction failed - account id 1001 does not exist
+Error 22: Your transaction failed - account id 1001 does not exist
+Error 4: Your transaction failed - account id 1001 does not exist
+1: New account id is 1005 with password 0000 and initial balance 10000
+2: New account id is 2005 with password 0000 and initial balance 0
+Error 8: Your transaction failed - account id 1001 does not exist
+Error 3: Your transaction failed - account with same id exists
+Error 7: Your transaction failed - account id 1001 does not exist
+Error 5: Your transaction failed - account id 1001 does not exist
+Error 6: Your transaction failed - account id 1001 does not exist
+Error 14: Your transaction failed - account id 1001 does not exist
+23: Account 1005 is now closed. Balance was 10000
+Error 16: Your transaction failed - account id 1001 does not exist
+Error 17: Your transaction failed - account id 1001 does not exist
+Error 18: Your transaction failed - account id 1001 does not exist
+Error 10: Your transaction failed - account id 1001 does not exist
+Error 13: Your transaction failed - account id 1001 does not exist
+Error 11: Your transaction failed - account id 1001 does not exist
+Error 12: Your transaction failed - account id 1001 does not exist
+Error 15: Your transaction failed - account id 1001 does not exist
+Error 9: Your transaction failed - account id 1001 does not exist
+Error 19: Your transaction failed - account id 1001 does not exist
+Error 20: Your transaction failed - account id 1001 does not exist
+Error 21: Your transaction failed - account id 1001 does not exist
+Error 22: Your transaction failed - account id 1001 does not exist
+1: New account id is 1006 with password 0000 and initial balance 10000
+Error 14: Your transaction failed - account id 1001 does not exist
+2: New account id is 2006 with password 1111 and initial balance 10000
+Error 7: Your transaction failed - account id 1001 does not exist
+Error 8: Your transaction failed - account id 1001 does not exist
+Error 6: Your transaction failed - account id 1001 does not exist
+Error 4: Your transaction failed - account id 1001 does not exist
+Error 3: Your transaction failed - account with same id exists
+Error 5: Your transaction failed - account id 1001 does not exist
+Bank: commissions of 2 % were charged, the bank gained 200$ from account 1006
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2001
+Bank: commissions of 2 % were charged, the bank gained 192$ from account 2002
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2003
+Bank: commissions of 2 % were charged, the bank gained 200$ from account 2004
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2005
+Bank: commissions of 2 % were charged, the bank gained 200$ from account 2006
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 3001
+23: Account 1006 is now closed. Balance was 9800
+Error 16: Your transaction failed - account id 1001 does not exist
+Error 17: Your transaction failed - account id 1001 does not exist
+Error 18: Your transaction failed - account id 1001 does not exist
+Error 10: Your transaction failed - account id 1001 does not exist
+Error 13: Your transaction failed - account id 1001 does not exist
+Error 11: Your transaction failed - account id 1001 does not exist
+Error 12: Your transaction failed - account id 1001 does not exist
+Error 15: Your transaction failed - account id 1001 does not exist
+Error 9: Your transaction failed - account id 1001 does not exist
+Error 19: Your transaction failed - account id 1001 does not exist
+Error 20: Your transaction failed - account id 1001 does not exist
+Error 21: Your transaction failed - account id 1001 does not exist
+Error 22: Your transaction failed - account id 1001 does not exist
+2: New account id is 2007 with password 0000 and initial balance 0
+Error 4: Your transaction failed - account id 1001 does not exist
+1: New account id is 1007 with password 0000 and initial balance 10000
+3: New account id is 1001 with password 0000 and initial balance 0
+23: Account 1007 is now closed. Balance was 10000
+Error 6: Your transaction failed - password for account id 1001 is incorrect
+Error 8: Your transaction failed - password for account id 1001 is incorrect
+Error 14: Your transaction failed - password for account id 1001 is incorrect
+Error 5: Your transaction failed - password for account id 1001 is incorrect
+Error 7: Your transaction failed - password for account id 1001 is incorrect
+Error 3: Your transaction failed - account with same id exists
+1: New account id is 1008 with password 0000 and initial balance 10000
+2: New account id is 2008 with password 1111 and initial balance 10000
+Error 15: Your transaction failed - password for account id 1001 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 18: Your transaction failed - password for account id 1001 is incorrect
+Error 10: Your transaction failed - password for account id 1001 is incorrect
+Error 9: Your transaction failed - password for account id 1001 is incorrect
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 13: Your transaction failed - password for account id 1001 is incorrect
+Error 17: Your transaction failed - password for account id 1001 is incorrect
+Error 16: Your transaction failed - password for account id 1001 is incorrect
+Error 19: Your transaction failed - password for account id 1001 is incorrect
+Error 20: Your transaction failed - password for account id 1001 is incorrect
+Error 21: Your transaction failed - password for account id 1001 is incorrect
+Error 22: Your transaction failed - password for account id 1001 is incorrect
+23: Account 1008 is now closed. Balance was 10000
+Error 4: Your transaction failed - password for account id 1001 is incorrect
+Error 5: Your transaction failed - password for account id 1001 is incorrect
+Error 7: Your transaction failed - password for account id 1001 is incorrect
+Error 14: Your transaction failed - password for account id 1001 is incorrect
+Error 8: Your transaction failed - password for account id 1001 is incorrect
+Error 6: Your transaction failed - password for account id 1001 is incorrect
+Error 3: Your transaction failed - account with same id exists
+1: New account id is 1009 with password 0000 and initial balance 10000
+2: New account id is 2009 with password 0000 and initial balance 0
+Error 17: Your transaction failed - password for account id 1001 is incorrect
+Error 9: Your transaction failed - password for account id 1001 is incorrect
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 13: Your transaction failed - password for account id 1001 is incorrect
+Error 18: Your transaction failed - password for account id 1001 is incorrect
+Error 16: Your transaction failed - password for account id 1001 is incorrect
+Error 10: Your transaction failed - password for account id 1001 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 15: Your transaction failed - password for account id 1001 is incorrect
+Error 19: Your transaction failed - password for account id 1001 is incorrect
+Error 20: Your transaction failed - password for account id 1001 is incorrect
+Error 21: Your transaction failed - password for account id 1001 is incorrect
+Error 22: Your transaction failed - password for account id 1001 is incorrect
+Error 7: Your transaction failed - password for account id 1001 is incorrect
+Error 6: Your transaction failed - password for account id 1001 is incorrect
+Error 4: Your transaction failed - password for account id 1001 is incorrect
+Error 8: Your transaction failed - password for account id 1001 is incorrect
+Error 14: Your transaction failed - password for account id 1001 is incorrect
+Error 5: Your transaction failed - password for account id 1001 is incorrect
+Bank: commissions of 3 % were charged, the bank gained 0$ from account 1001
+Bank: commissions of 3 % were charged, the bank gained 300$ from account 1009
+Bank: commissions of 3 % were charged, the bank gained 0$ from account 2001
+Bank: commissions of 3 % were charged, the bank gained 282$ from account 2002
+Bank: commissions of 3 % were charged, the bank gained 0$ from account 2003
+Bank: commissions of 3 % were charged, the bank gained 294$ from account 2004
+Bank: commissions of 3 % were charged, the bank gained 0$ from account 2005
+Bank: commissions of 3 % were charged, the bank gained 294$ from account 2006
+Bank: commissions of 3 % were charged, the bank gained 0$ from account 2007
+Bank: commissions of 3 % were charged, the bank gained 300$ from account 2008
+Bank: commissions of 3 % were charged, the bank gained 0$ from account 2009
+Bank: commissions of 3 % were charged, the bank gained 0$ from account 3001
+23: Account 1009 is now closed. Balance was 9700
+1: New account id is 1010 with password 0000 and initial balance 10000
+2: New account id is 2010 with password 1111 and initial balance 10000
+Error 3: Your transaction failed - account with same id exists
+Error 15: Your transaction failed - password for account id 1001 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 10: Your transaction failed - password for account id 1001 is incorrect
+Error 18: Your transaction failed - password for account id 1001 is incorrect
+Error 16: Your transaction failed - password for account id 1001 is incorrect
+Error 13: Your transaction failed - password for account id 1001 is incorrect
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 9: Your transaction failed - password for account id 1001 is incorrect
+Error 17: Your transaction failed - password for account id 1001 is incorrect
+Error 19: Your transaction failed - password for account id 1001 is incorrect
+Error 20: Your transaction failed - password for account id 1001 is incorrect
+Error 21: Your transaction failed - password for account id 1001 is incorrect
+Error 22: Your transaction failed - password for account id 1001 is incorrect
+Error 4: Your transaction failed - password for account id 1001 is incorrect
+Error 5: Your transaction failed - password for account id 1001 is incorrect
+23: Account 1010 is now closed. Balance was 10000
+Error 7: Your transaction failed - password for account id 1001 is incorrect
+Error 6: Your transaction failed - password for account id 1001 is incorrect
+Error 8: Your transaction failed - password for account id 1001 is incorrect
+Error 14: Your transaction failed - password for account id 1001 is incorrect
+2: New account id is 2011 with password 0000 and initial balance 0
+1: New account id is 1011 with password 0000 and initial balance 10000
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 17: Your transaction failed - password for account id 1001 is incorrect
+Error 20: Your transaction failed - password for account id 1001 is incorrect
+Error 16: Your transaction failed - password for account id 1001 is incorrect
+Error 10: Your transaction failed - password for account id 1001 is incorrect
+Error 18: Your transaction failed - password for account id 1001 is incorrect
+Error 19: Your transaction failed - password for account id 1001 is incorrect
+Error 13: Your transaction failed - password for account id 1001 is incorrect
+Error 9: Your transaction failed - password for account id 1001 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 15: Your transaction failed - password for account id 1001 is incorrect
+Error 21: Your transaction failed - password for account id 1001 is incorrect
+Error 22: Your transaction failed - password for account id 1001 is incorrect
+Error 3: Your transaction failed - account with same id exists
+Error 5: Your transaction failed - account id 3002 does not exist
+4: Account 1001 new balance is 100 after 100 $ was deposited
+Error 8: Your transaction failed - account id 3002 does not exist
+Error 14: Your transaction failed - password for account id 1001 is incorrect
+Error 6: Your transaction failed - password for account id 1001 is incorrect
+23: Account 1011 is now closed. Balance was 10000
+Error 15: Your transaction failed - account id ê does not exist
+Error 16: Your transaction failed - account id 1002 does not exist
+7: Account 1001 new balance is 0 after 100 $ was withdrew
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Error 9: Your transaction failed - password for account id 1001 is incorrect
+Error 20: Your transaction failed - account id º does not exist
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 17: Your transaction failed - account id 1002 does not exist
+Error 21: Your transaction failed - account id Ñ does not exist
+Error 22: Your transaction failed - account id é does not exist
+1: New account id is 1012 with password 0000 and initial balance 10000
+2: New account id is 2012 with password 1111 and initial balance 10000
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 10: Your transaction failed - account id 2001 balance is lower than 5000
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 1001
+Bank: commissions of 1 % were charged, the bank gained 100$ from account 1012
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2001
+Bank: commissions of 1 % were charged, the bank gained 91$ from account 2002
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2003
+Bank: commissions of 1 % were charged, the bank gained 95$ from account 2004
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2005
+Bank: commissions of 1 % were charged, the bank gained 95$ from account 2006
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2007
+Error 15: Your transaction failed - account id ê does not exist
+Error 16: Your transaction failed - account id 1002 does not exist
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Bank: commissions of 1 % were charged, the bank gained 97$ from account 2008
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2009
+Bank: commissions of 1 % were charged, the bank gained 100$ from account 2010
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2011
+Bank: commissions of 1 % were charged, the bank gained 100$ from account 2012
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 3001
+Error 9: Your transaction failed - password for account id 1001 is incorrect
+23: Account 1012 is now closed. Balance was 9900
+Error 7: Your transaction failed - account id 1001 balance is lower than 100
+Error 3: Your transaction failed - account with same id exists
+Error 5: Your transaction failed - account id 3002 does not exist
+Error 8: Your transaction failed - account id 3002 does not exist
+4: Account 1001 new balance is 100 after 100 $ was deposited
+Error 14: Your transaction failed - password for account id 1001 is incorrect
+1: New account id is 1013 with password 0000 and initial balance 10000
+2: New account id is 2013 with password 0000 and initial balance 0
+Error 20: Your transaction failed - account id º does not exist
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 17: Your transaction failed - account id ê does not exist
+Error 6: Your transaction failed - password for account id 1001 is incorrect
+Error 21: Your transaction failed - account id Ñ does not exist
+Error 22: Your transaction failed - account id é does not exist
+Error 16: Your transaction failed - account id 1002 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 10: Your transaction failed - account id 2001 balance is lower than 5000
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 15: Your transaction failed - account id ê does not exist
+Error 9: Your transaction failed - password for account id 1001 is incorrect
+23: Account 1013 is now closed. Balance was 10000
+7: Account 1001 new balance is 0 after 100 $ was withdrew
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 1001
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 2001
+Error 3: Your transaction failed - account with same id exists
+Bank: commissions of 4 % were charged, the bank gained 361$ from account 2002
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 2003
+Bank: commissions of 4 % were charged, the bank gained 376$ from account 2004
+Error 13: Your transaction failed - account id 3002 does not exist
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 2005
+Bank: commissions of 4 % were charged, the bank gained 376$ from account 2006
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 2007
+Error 17: Your transaction failed - account id 1002 does not exist
+Error 20: Your transaction failed - account id 3002 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 16: Your transaction failed - account id 1002 does not exist
+Error 21: Your transaction failed - account id Ñ does not exist
+Error 22: Your transaction failed - account id ê does not exist
+Error 15: Your transaction failed - account id ê does not exist
+Error 9: Your transaction failed - account id 1002 does not exist
+Bank: commissions of 4 % were charged, the bank gained 384$ from account 2008
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 2009
+Bank: commissions of 4 % were charged, the bank gained 396$ from account 2010
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 2011
+Bank: commissions of 4 % were charged, the bank gained 396$ from account 2012
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 2013
+Bank: commissions of 4 % were charged, the bank gained 0$ from account 3001
+Error 8: Your transaction failed - account id 3002 does not exist
+Error 10: Your transaction failed - account id 2001 balance is lower than 5000
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 5: Your transaction failed - account id 3002 does not exist
+4: Account 1001 new balance is 100 after 100 $ was deposited
+Error 14: Your transaction failed - password for account id 1001 is incorrect
+2: New account id is 2014 with password 1111 and initial balance 10000
+1: New account id is 1014 with password 0000 and initial balance 10000
+Error 6: Your transaction failed - password for account id 1001 is incorrect
+23: Account 1014 is now closed. Balance was 10000
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 3: Your transaction failed - account with same id exists
+Error 17: Your transaction failed - account id ê does not exist
+Error 20: Your transaction failed - account id 3002 does not exist
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Error 16: Your transaction failed - account id 1002 does not exist
+7: Account 1001 new balance is 0 after 100 $ was withdrew
+Error 15: Your transaction failed - account id ê does not exist
+Error 9: Your transaction failed - account id 1002 does not exist
+Error 21: Your transaction failed - account id 1002 does not exist
+Error 22: Your transaction failed - account id ë does not exist
+Error 8: Your transaction failed - account id 3002 does not exist
+Error 10: Your transaction failed - account id 2001 balance is lower than 5000
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 5: Your transaction failed - account id 3002 does not exist
+4: Account 1001 new balance is 100 after 100 $ was deposited
+Bank: commissions of 1 % were charged, the bank gained 1$ from account 1001
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2001
+Bank: commissions of 1 % were charged, the bank gained 86$ from account 2002
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2003
+Bank: commissions of 1 % were charged, the bank gained 90$ from account 2004
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2005
+Bank: commissions of 1 % were charged, the bank gained 90$ from account 2006
+Error 17: Your transaction failed - account id 1002 does not exist
+Error 20: Your transaction failed - account id º does not exist
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Error 16: Your transaction failed - account id 1005 does not exist
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 3: Your transaction failed - account with same id exists
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2007
+Error 9: Your transaction failed - account id 1002 does not exist
+Error 15: Your transaction failed - account id 1003 does not exist
+Error 21: Your transaction failed - account id 1002 does not exist
+Error 22: Your transaction failed - account id ê does not exist
+Bank: commissions of 1 % were charged, the bank gained 92$ from account 2008
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2009
+Bank: commissions of 1 % were charged, the bank gained 95$ from account 2010
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2011
+Bank: commissions of 1 % were charged, the bank gained 95$ from account 2012
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 2013
+Bank: commissions of 1 % were charged, the bank gained 100$ from account 2014
+Bank: commissions of 1 % were charged, the bank gained 0$ from account 3001
+Error 6: Your transaction failed - account id 1002 does not exist
+1: New account id is 1015 with password 0000 and initial balance 10000
+2: New account id is 2015 with password 0000 and initial balance 0
+Error 10: Your transaction failed - account id 2001 balance is lower than 5000
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+23: Account 1015 is now closed. Balance was 10000
+Error 8: Your transaction failed - account id 3002 does not exist
+Error 14: Your transaction failed - account id 1002 does not exist
+Error 7: Your transaction failed - account id 1001 balance is lower than 100
+Error 5: Your transaction failed - account id 3002 does not exist
+Error 12: Your transaction failed - account id 1002 does not exist
+Error 15: Your transaction failed - account id 1004 does not exist
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 3: Your transaction failed - account with same id exists
+Error 19: Your transaction failed - account id º does not exist
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 20: Your transaction failed - account id º does not exist
+Error 16: Your transaction failed - account id 1006 does not exist
+Error 17: Your transaction failed - account id 1003 does not exist
+Error 21: Your transaction failed - account id 1002 does not exist
+Error 9: Your transaction failed - password for account id 2002 is incorrect
+4: Account 1001 new balance is 199 after 100 $ was deposited
+Error 22: Your transaction failed - account id ë does not exist
+Error 6: Your transaction failed - account id 1002 does not exist
+2: New account id is 2016 with password 1111 and initial balance 10000
+1: New account id is 1016 with password 0000 and initial balance 10000
+Error 8: Your transaction failed - account id 3002 does not exist
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 10: Your transaction failed - account id 2001 balance is lower than 5000
+Error 14: Your transaction failed - account id 1002 does not exist
+23: Account 1016 is now closed. Balance was 10000
+7: Account 1001 new balance is 99 after 100 $ was withdrew
+Bank: commissions of 2 % were charged, the bank gained 1$ from account 1001
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 3: Your transaction failed - account with same id exists
+Error 20: Your transaction failed - account id 3002 does not exist
+Error 15: Your transaction failed - account id 1003 does not exist
+Error 16: Your transaction failed - account id 1004 does not exist
+Error 17: Your transaction failed - account id 1004 does not exist
+Error 21: Your transaction failed - account id Õ does not exist
+Error 12: Your transaction failed - password for account id 2001 is incorrect
+Error 9: Your transaction failed - password for account id 2002 is incorrect
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2001
+Bank: commissions of 2 % were charged, the bank gained 171$ from account 2002
+Error 22: Your transaction failed - account id ì does not exist
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 10: Your transaction failed - account id 2003 balance is lower than 5000
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2003
+Bank: commissions of 2 % were charged, the bank gained 178$ from account 2004
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2005
+Bank: commissions of 2 % were charged, the bank gained 178$ from account 2006
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2007
+Bank: commissions of 2 % were charged, the bank gained 182$ from account 2008
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2009
+Bank: commissions of 2 % were charged, the bank gained 188$ from account 2010
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2011
+Bank: commissions of 2 % were charged, the bank gained 188$ from account 2012
+Error 15: Your transaction failed - account id 1004 does not exist
+Error 20: Your transaction failed - account id 3002 does not exist
+Error 3: Your transaction failed - account with same id exists
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 16: Your transaction failed - account id 1003 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 17: Your transaction failed - account id 1005 does not exist
+Error 21: Your transaction failed - account id Õ does not exist
+Error 12: Your transaction failed - password for account id 2002 is incorrect
+Error 6: Your transaction failed - account id 1002 does not exist
+1: New account id is 1017 with password 0000 and initial balance 10000
+2: New account id is 2017 with password 0000 and initial balance 0
+Error 14: Your transaction failed - account id 1002 does not exist
+Error 9: Your transaction failed - password for account id 2002 is incorrect
+4: Account 1001 new balance is 198 after 100 $ was deposited
+23: Account 1017 is now closed. Balance was 10000
+Error 5: Your transaction failed - account id 3002 does not exist
+Error 8: Your transaction failed - account id 3002 does not exist
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2013
+7: Account 1001 new balance is 98 after 100 $ was withdrew
+Error 22: Your transaction failed - account id Ñ does not exist
+Error 21: Your transaction failed - account id Õ does not exist
+Error 16: Your transaction failed - account id 1004 does not exist
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 20: Your transaction failed - account id º does not exist
+Error 3: Your transaction failed - account with same id exists
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 15: Your transaction failed - account id 1003 does not exist
+Error 17: Your transaction failed - account id 1006 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Bank: commissions of 2 % were charged, the bank gained 198$ from account 2014
+Error 10: Your transaction failed - account id 2003 balance is lower than 5000
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 14: Your transaction failed - password for account id 2002 is incorrect
+Error 9: Your transaction failed - password for account id 1001 is incorrect
+2: New account id is 2018 with password 1111 and initial balance 10000
+1: New account id is 1018 with password 0000 and initial balance 10000
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2015
+Bank: commissions of 2 % were charged, the bank gained 200$ from account 2016
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 2017
+Bank: commissions of 2 % were charged, the bank gained 200$ from account 2018
+Bank: commissions of 2 % were charged, the bank gained 0$ from account 3001
+Error 17: Your transaction failed - account id 1005 does not exist
+Error 20: Your transaction failed - account id º does not exist
+Error 15: Your transaction failed - account id 1004 does not exist
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 19: Your transaction failed - account id º does not exist
+Error 16: Your transaction failed - account id 1004 does not exist
+Error 21: Your transaction failed - account id × does not exist
+4: Account 1001 new balance is 198 after 100 $ was deposited
+Error 6: Your transaction failed - password for account id 2002 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Error 22: Your transaction failed - account id Ñ does not exist
+Error 3: Your transaction failed - account with same id exists
+Error 5: Your transaction failed - account id 3002 does not exist
+Error 8: Your transaction failed - account id 3002 does not exist
+Error 10: Your transaction failed - account id 1001 balance is lower than 1000000
+23: Account 1018 is now closed. Balance was 10000
+7: Account 1001 new balance is 98 after 100 $ was withdrew
+Error 14: Your transaction failed - password for account id 2002 is incorrect
+1: New account id is 1019 with password 0000 and initial balance 10000
+2: New account id is 2019 with password 0000 and initial balance 0
+Error 9: Your transaction failed - password for account id 1001 is incorrect
+Error 18: Your transaction failed - account id 3002 does not exist
+Error 16: Your transaction failed - account id 1005 does not exist
+Error 15: Your transaction failed - account id 1003 does not exist
+Error 13: Your transaction failed - account id 3002 does not exist
+Error 21: Your transaction failed - account id × does not exist
+Error 20: Your transaction failed - account id 3002 does not exist
+Error 17: Your transaction failed - account id 1004 does not exist
+Error 19: Your transaction failed - account id º does not exist
+4: Account 1001 new balance is 198 after 100 $ was deposited
+Error 6: Your transaction failed - password for account id 2002 is incorrect
+Error 11: Your transaction failed - password for account id 1001 is incorrect
+Error 12: Your transaction failed - password for account id 1001 is incorrect
+Bank: commissions of 3 % were charged, the bank gained 5$ from account 1001
+Bank: commissions of 3 % were charged, the bank gained 300$ from account 1019
+Error 22: Your transaction failed - account id Ò does not exist
+Bank: commissions of 3 % were charged, the bank gained 0$ from account 2001
+Bank: commissions of 3 % were charged, the bank gained 252$ from account 2002
+Bank: commissions of 3 % were charged, the bank gained 0$ from account 2003
+Bank: commissions of 3 % were charged, the bank gained 263$ from account 2004

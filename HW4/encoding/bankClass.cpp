@@ -134,17 +134,18 @@ Account& Bank::getAccountByID(string id)
 
 void Bank::printAccounts()
 {
-	printf("\033[2j");
-	printf("\033[1;1h"); //fixme remove comment
+	printf("\033[2J");
+	printf("\033[1;1H");
 
-	cout << "Current Bank Status" << endl;
 	if (accounts.empty())
 	{
+		cout << "Current Bank Status" << endl;
 		cout << "The bank has " << getBalance() << " $" << endl;
 		return;
 	}
 	//FIXME gal - this is supposed to print in order of account ids because the map
 	//is holding them ordered. make sure it does
+	cout << "Current Bank Status" << endl;
 	for(auto& it : accounts)
 	{
 	//	pthread_mutex_lock(&bank.mutex);
@@ -153,8 +154,9 @@ void Bank::printAccounts()
 		cout << "Account " << it.second.getID() << " : Balance - " << it.second.getBalance() << " $, Account Password - " << it.second.getPassword() << endl;
 		it.second.io.exitReader();
 	}
+	//FIXME - maybe add stringstream of all inputs and then print when finished whith accounts
 	cout << "The bank has " << getBalance() << " $" << endl;
-	pthread_mutex_unlock(&bank.mutex);
+	//pthread_mutex_unlock(&bank.mutex); //FIXME check if this is wrong
 }
 
 void Bank::commission(Account& currAccount, int rate)
