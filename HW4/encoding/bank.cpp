@@ -93,7 +93,7 @@ void* PrintStatusWrapper(void*)
 		if (stopStatusPrint)
 			return nullptr;
 		usleep(SECOND / 2);
-		bank.printAccounts();
+		//bank.printAccounts();
 	}
 	return nullptr;
 }
@@ -130,8 +130,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	threadIDs[argc] = argc + 1;
-	result = pthread_create(&threads[argc], nullptr, CommissionWrapper, nullptr);
+	threadIDs[argc - 1] = argc;
+	result = pthread_create(&threads[argc - 1], nullptr, CommissionWrapper, nullptr);
 	if (result != 0)
 	{
 		perror("Bank error: pthread_create failed");
@@ -142,28 +142,28 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	//threadIDs[argc + 1] = argc + 2;
-	//result = pthread_create(&threads[argc + 1], nullptr, PrintStatusWrapper, nullptr);
-	//if (result != 0) {
-	//	perror("bank error: pthread_create failed");
-	//	delete[] threadIDs;
-	//	delete[] wrapperArgsArray;
-	//	delete[] threads;
-	//	logFile.close();
-	//	exit(1);
-	//}
+	threadIDs[argc] = argc + 1;
+	result = pthread_create(&threads[argc], nullptr, PrintStatusWrapper, nullptr);
+	if (result != 0) {
+		perror("bank error: pthread_create failed");
+		delete[] threadIDs;
+		delete[] wrapperArgsArray;
+		delete[] threads;
+		logFile.close();
+		exit(1);
+	}
 
 	for (int i = 0; i < argc - 1; i++)
 		pthread_join(threads[i], nullptr);
 
 	stopCommision = true;
+	pthread_join(threads[argc - 1], nullptr);
+	stopStatusPrint = true;
 	pthread_join(threads[argc], nullptr);
-	//stopStatusPrint = true;
-	//pthread_join(threads[argc + 1], nullptr);
 
 	delete[] threadIDs;
-	delete[] wrapperArgsArray;
 	delete[] threads;
+	delete[] wrapperArgsArray;
 	logFile.close();
 	pthread_mutex_destroy(&logLock);
 

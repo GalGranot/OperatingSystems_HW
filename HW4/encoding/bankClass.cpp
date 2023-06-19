@@ -134,33 +134,26 @@ Account& Bank::getAccountByID(string id)
 
 void Bank::printAccounts()
 {
-	ostringstream oss;
-	pthread_mutex_lock(&bank.mutex);
-	printf("\033[2J");
-	printf("\033[1;1H");
+	/*printf("\033[2J");
+	printf("\033[1;1H");*/ //FIXME remove comment
 
-	oss << "Current Bank Status" << endl;
+	cout << "Current Bank Status" << endl;
 	if (accounts.empty()) {
-		oss << "The bank has " << getBalance() << " $" << endl;
+		cout << "The bank has " << getBalance() << " $" << endl;
 		return;
 	}
 	//FIXME gal - this is supposed to print in order of account ids because the map
 	//is holding them ordered. make sure it does
 	for(auto& it : accounts)
 	{
+		pthread_mutex_lock(&bank.mutex);
 		Account currAccount = it.second;
-		logFile << "print: trying to read from account " << currAccount.getID() << endl;
-		currAccount.io.enterReader();
-		logFile << "print: sucesss reading from account " << currAccount.getID() << endl;
+		//currAccount.io.enterReader();
+		pthread_mutex_unlock(&bank.mutex);
+		cout << "Account " << currAccount.getID() << " : Balance - " << currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
+		//currAccount.io.exitReader();
 	}
-
-	for (auto& it : accounts)
-	{
-		Account currAccount = it.second;
-		oss << "Account " << currAccount.getID() << " : Balance - " << currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
-		currAccount.io.exitReader();
-	}
-	oss << "The bank has " << getBalance() << " $" << endl;
+	cout << "The bank has " << getBalance() << " $" << endl;
 	pthread_mutex_unlock(&bank.mutex);
 }
 
