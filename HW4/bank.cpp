@@ -50,7 +50,7 @@ void* atmWrapper(void* arg)
 	string line;
 	while (1)
 	{
-		sleep(SECOND / 10);
+		usleep(SECOND / 10);
 		if (atm.input.eof())
 			break;
 		std::getline(atm.input, line);
@@ -66,7 +66,7 @@ void* CommissionWrapper(void*)
 	{
 		if (stopCommision)
 			return nullptr;
-		usleep(3000000);
+		usleep(SECOND * 3);
 		if (bank.accounts.empty())
 			continue;
 
@@ -90,14 +90,13 @@ void* CommissionWrapper(void*)
 
 void* PrintStatusWrapper(void*)
 {
-	cout << "entering status wrapper" << endl;
 	int i = 0;
 	while (1)
 	{
 		cout << "entering iteration " << i++ << endl;;
 		if (stopStatusPrint)
 			return nullptr;
-		usleep(500000);
+		usleep(SECOND / 2);
 		bank.printAccounts();
 	}
 	return nullptr;
@@ -111,6 +110,7 @@ void* PrintStatusWrapper(void*)
 int main(int argc, char* argv[])
 {
 	openLogFile("log.txt");
+	//argc + 1 threads: argc - 1 for ATMs (first one is program name), two more for commission and status prints = argc + 1
 	int* threadIDs = new int[argc + 1];
 	pthread_t* threads = new pthread_t[argc + 1];
 	wrapperArgs* wrapperArgsArray = new wrapperArgs[argc - 1];
@@ -146,24 +146,24 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	threadIDs[argc + 1] = argc + 2;
-	result = pthread_create(&threads[argc + 1], nullptr, PrintStatusWrapper, nullptr);
-	if (result != 0) {
-		perror("bank error: pthread_create failed");
-		delete[] threadIDs;
-		delete[] wrapperArgsArray;
-		delete[] threads;
-		logFile.close();
-		exit(1);
-	}
+	//threadIDs[argc + 1] = argc + 2;
+	//result = pthread_create(&threads[argc + 1], nullptr, PrintStatusWrapper, nullptr);
+	//if (result != 0) {
+	//	perror("bank error: pthread_create failed");
+	//	delete[] threadIDs;
+	//	delete[] wrapperArgsArray;
+	//	delete[] threads;
+	//	logFile.close();
+	//	exit(1);
+	//}
 
 	for (int i = 0; i < argc - 1; i++)
 		pthread_join(threads[i], nullptr);
 
 	stopCommision = true;
-	stopStatusPrint = true;
 	pthread_join(threads[argc], nullptr);
-	pthread_join(threads[argc + 1], nullptr);
+	//stopStatusPrint = true;
+	//pthread_join(threads[argc + 1], nullptr);
 
 	//delete[] threadIDs;
 	//delete[] wrapperArgsArray; //FIXME - this fails for some reason. need to valgrind for mem leaks

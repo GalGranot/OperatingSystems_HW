@@ -17,7 +17,7 @@
 #define NOT_SET "-1"
 #define NO_AMOUNT -1
 #define FIELDS_NUM 5
-#define SECOND 1
+#define SECOND 1000000 //FIXME return to 1000000
 
 
 using std::map;

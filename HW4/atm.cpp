@@ -171,7 +171,7 @@ void ATM::handleAction(Command command)
 		}
 		else if (command.amount > sourceAccount.getBalance())
 		{
-			oss << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
 			logWrite(oss.str());
 		}
 		else
@@ -313,7 +313,7 @@ void ATM::handleActionOLD(Command command)
 		}
 		else if (command.amount > sourceAccount.getBalance())
 		{
-			oss << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
 			logWrite(oss.str());
 		}
 		else
@@ -401,7 +401,7 @@ void ATM::handleActionOLD(Command command)
 		}
 		else if (command.amount > sourceAccount.getBalance())
 		{
-			oss << "Error " << this->getID() << ": Your transaction failed – account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
+			oss << "Error " << this->getID() << ": Your transaction failed - account id " << sourceAccount.getID() << " balance is lower than " << command.amount << endl;
 			logWrite(oss.str());
 		}
 		else

@@ -130,9 +130,10 @@ Account& Bank::getAccountByID(string id)
 	Account& tmp = defaultAccount;
 	return tmp;
 }
+
 void Bank::printAccounts()
 {
-	//pthread_mutex_lock(&bank.mutex);
+	pthread_mutex_lock(&bank.mutex);
 	printf("\033[2J");
 	printf("\033[1;1H");
 
@@ -146,7 +147,9 @@ void Bank::printAccounts()
 	for(const auto& it : accounts)
 	{
 		Account currAccount = it.second;
+		logFile << "print: trying to read from account " << currAccount.getID() << endl;
 		currAccount.io.enterReader();
+		logFile << "print: sucesss reading from account " << currAccount.getID() << endl;
 	}
 
 	for (const auto& it : accounts)
@@ -156,7 +159,7 @@ void Bank::printAccounts()
 		currAccount.io.exitReader();
 	}
 	cout << "The bank has " << getBalance() << " $" << endl;
-	//pthread_mutex_unlock(&bank.mutex);
+	pthread_mutex_unlock(&bank.mutex);
 }
 
 void Bank::commission(Account& currAccount, int rate)
@@ -192,7 +195,7 @@ void ioHandler::enterReader()
 	if (readers == 1)
 		pthread_mutex_lock(&writerLock);
 	pthread_mutex_unlock(&readerLock);
-	sleep(SECOND);
+	usleep(SECOND);
 }
 
 void ioHandler::exitReader()
@@ -207,7 +210,7 @@ void ioHandler::exitReader()
 void ioHandler::enterWriter()
 { 
 	pthread_mutex_lock(&writerLock);
-	sleep(SECOND);
+	usleep(SECOND);
 }
 void ioHandler::exitWriter() { pthread_mutex_unlock(&writerLock); }
 
@@ -224,7 +227,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 		" % were charged, the bank gained " << commisionAmount << "$ from account "
 		<< commisionID << endl;
 	else if (bank.getAccountByID(command.sourceID).getID() == NO_ID)
-		logFile << "Error " << ATMid << ": Your transaction failed – account id "
+		logFile << "Error " << ATMid << ": Your transaction failed - account id "
 		<< command.sourceID << " does not exists" << endl;
 	else
 	{
@@ -232,7 +235,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 		case 'O':
 			if (error)
 				logFile << "Error " << ATMid
-				<< ": Your transaction failed – account with the same id exists"
+				<< ": Your transaction failed - account with the same id exists"
 				<< endl;
 			else
 				logFile << ATMid << ": New account id is " << command.sourceID
@@ -243,7 +246,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 		case 'D':
 			if (error)
 				logFile << "Error " << ATMid
-				<< ": Your transaction failed – password for account id"
+				<< ": Your transaction failed - password for account id"
 				<< command.sourceID << "is incorrect" << endl;
 			else
 				logFile << ATMid << ": Account " << command.sourceID << " new balance is "
@@ -253,11 +256,11 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 		case 'W':
 			if (minus)
 				logFile << "Error " << ATMid <<
-				": Your transaction failed – account id " << command.sourceID
+				": Your transaction failed - account id " << command.sourceID
 				<< " balance is lower than" << command.amount << endl;
 			else if (error)
 				logFile << "Error " << ATMid
-				<< ": Your transaction failed – password for account id "
+				<< ": Your transaction failed - password for account id "
 				<< command.sourceID << " is incorrect" << endl;
 			else
 				logFile << ATMid << ": Account " << command.sourceID << " new balance is "
@@ -266,25 +269,25 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 
 		case 'B':
 			if (error)
-				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed - password for account id" << command.sourceID << "is incorrect" << endl;
 			else
 				logFile << ATMid << ": Account " << command.sourceID << " balance is " << Balance << endl;
 			break;
 
 		case 'Q':
 			if (error)
-				logFile << "Error " << ATMid << ": Your transaction failed – password for account id" << command.sourceID << "is incorrect" << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed - password for account id" << command.sourceID << "is incorrect" << endl;
 			else
 				logFile << ATMid << ": Account " << command.sourceID << " is now closed. Balance was " << Balance << endl;
 			break;
 
 		case 'T':
 			if (bank.getAccountByID(command.targetID).getID() == NO_ID)
-				logFile << "Error " << ATMid << ": Your transaction failed – account id " << command.targetID << " does not exists" << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed - account id " << command.targetID << " does not exists" << endl;
 			else if (minus)
-				logFile << "Error " << ATMid << ": Your transaction failed – account id " << command.sourceID << " balance is lower than" << command.amount << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed - account id " << command.sourceID << " balance is lower than" << command.amount << endl;
 			else if (error)
-				logFile << "Error " << ATMid << ": Your transaction failed – password for account id " << command.sourceID << " is incorrect" << endl;
+				logFile << "Error " << ATMid << ": Your transaction failed - password for account id " << command.sourceID << " is incorrect" << endl;
 			else
 				logFile << ATMid << ": Transfer " << command.amount << " from account " << command.sourceID << " to account " << command.targetID << "  new account balance is " << Balance << " new target account balance is " << Balance << endl;
 			break;     // FIXME change last balance in print
