@@ -57,6 +57,7 @@ void* atmWrapper(void* arg)
 		Command command(line);
 		atm.handleAction(command);
 	}
+
 	return nullptr;
 }
 
