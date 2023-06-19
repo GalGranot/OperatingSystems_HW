@@ -1,4 +1,4 @@
-//bank.cpp
+﻿//bank.cpp
 
 #include <vector>
 #include <iostream>
@@ -71,15 +71,15 @@ void* CommissionWrapper(void*)
 			continue;
 
 		int rate = ((std::rand() % MAX_RATE) + 1); //rate is 1%-5%
-		pthread_mutex_lock(&bank.mutex);
 		for (auto& it : bank.accounts)
 		{
+			pthread_mutex_lock(&bank.mutex);
 			Account& currentAccount = it.second;
 			currentAccount.io.enterWriter();
 			bank.commission(currentAccount, rate);
 			currentAccount.io.exitWriter();
+			pthread_mutex_unlock(&bank.mutex);
 		}
-		pthread_mutex_unlock(&bank.mutex);
 	}
 	return nullptr;
 }
@@ -161,9 +161,9 @@ int main(int argc, char* argv[])
 	//stopStatusPrint = true;
 	//pthread_join(threads[argc + 1], nullptr);
 
-	//delete[] threadIDs;
-	//delete[] wrapperArgsArray; //FIXME - this fails for some reason. need to valgrind for mem leaks
-	//delete[] threads;	//FIXME - this fails for some reason. need to valgrind for mem leaks
+	delete[] threadIDs;
+	delete[] wrapperArgsArray; //FIXME - this fails for some reason. need to valgrind for mem leaks
+	delete[] threads;	//FIXME - this fails for some reason. need to valgrind for mem leaks
 	logFile.close();
 	pthread_mutex_destroy(&logLock);
 

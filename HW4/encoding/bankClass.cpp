@@ -1,4 +1,4 @@
-//bankClass.cpp
+﻿//bankClass.cpp
 
 #include "bankClass.h"
 
@@ -169,7 +169,8 @@ void Bank::commission(Account& currAccount, int rate)
 	int commission = rate * currAccount.getBalance() / 100;
 	currAccount.addToBalance(-commission);
 	this->addToBalance(commission);
-	writeToLog(0, false, false, defaultCommand, 0, true, rate, currAccount.getID(), commission);
+	cout << "commision: got " << commission << " from account " << currAccount.getID() << endl;
+	//writeToLog(0, false, false, defaultCommand, 0, true, rate, currAccount.getID(), commission); FIXME - remove comment
 }
 
 /*=============================================================================
@@ -197,7 +198,6 @@ void ioHandler::enterReader()
 	if (readers == 1)
 		pthread_mutex_lock(&writerLock);
 	pthread_mutex_unlock(&readerLock);
-	usleep(SECOND);
 }
 
 void ioHandler::exitReader()
@@ -212,7 +212,6 @@ void ioHandler::exitReader()
 void ioHandler::enterWriter()
 { 
 	pthread_mutex_lock(&writerLock);
-	usleep(SECOND);
 }
 void ioHandler::exitWriter() { pthread_mutex_unlock(&writerLock); }
 
