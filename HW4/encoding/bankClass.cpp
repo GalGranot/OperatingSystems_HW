@@ -124,7 +124,7 @@ void Bank::addToBalance(int amount) { balance += amount; }
 Account& Bank::getAccountByID(string id)
 {
 	auto it = accounts.find(id);
-	if (it != accounts.end()) //FIXME - see if removing & matters
+	if (it != accounts.end())
 		return it->second;
 
 	//not found
@@ -134,6 +134,7 @@ Account& Bank::getAccountByID(string id)
 
 void Bank::printAccounts()
 {
+	ostringstream oss;
 	printf("\033[2J");
 	printf("\033[1;1H");
 
@@ -143,20 +144,15 @@ void Bank::printAccounts()
 		cout << "The bank has " << getBalance() << " $" << endl;
 		return;
 	}
-	//FIXME gal - this is supposed to print in order of account ids because the map
-	//is holding them ordered. make sure it does
-	cout << "Current Bank Status" << endl;
+	oss << "Current Bank Status" << endl;
 	for(auto& it : accounts)
 	{
-	//	pthread_mutex_lock(&bank.mutex);
 		it.second.io.enterReader();
-	//	pthread_mutex_unlock(&bank.mutex);
-		cout << "Account " << it.second.getID() << " : Balance - " << it.second.getBalance() << " $, Account Password - " << it.second.getPassword() << endl;
+		oss << "Account " << it.second.getID() << " : Balance - " << it.second.getBalance() << " $, Account Password - " << it.second.getPassword() << endl;
 		it.second.io.exitReader();
 	}
-	//FIXME - maybe add stringstream of all inputs and then print when finished whith accounts
-	cout << "The bank has " << getBalance() << " $" << endl;
-	//pthread_mutex_unlock(&bank.mutex); //FIXME check if this is wrong
+	oss << "The bank has " << getBalance() << " $" << endl;
+	cout << oss.str();
 }
 
 void Bank::commission(Account& currAccount, int rate)
@@ -164,7 +160,6 @@ void Bank::commission(Account& currAccount, int rate)
 	int commission = rate * currAccount.getBalance() / 100;
 	currAccount.addToBalance(-commission);
 	this->addToBalance(commission);
-	//cout << "commision: got " << commission << " from account " << currAccount.getID() << endl; FIXME remove this
 	writeToLog(0, false, false, defaultCommand, 0, true, rate, currAccount.getID(), commission);
 }
 
@@ -287,7 +282,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 				logFile << "Error " << ATMid << ": Your transaction failed - password for account id " << command.sourceID << " is incorrect" << endl;
 			else
 				logFile << ATMid << ": Transfer " << command.amount << " from account " << command.sourceID << " to account " << command.targetID << "  new account balance is " << Balance << " new target account balance is " << Balance << endl;
-			break;     // FIXME change last balance in print
+			break;
 
 		}
 	}

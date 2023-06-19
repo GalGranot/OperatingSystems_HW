@@ -84,6 +84,7 @@ void* CommissionWrapper(void*)
 	return nullptr;
 }
 
+
 void* PrintStatusWrapper(void*)
 {
 	while (1)
@@ -165,6 +166,5 @@ int main(int argc, char* argv[])
 	logFile.close();
 	pthread_mutex_destroy(&logLock);
 
-	cout << "reached end of program" << endl;
 	return 0;
 }
