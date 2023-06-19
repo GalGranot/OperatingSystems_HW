@@ -132,7 +132,9 @@ Account& Bank::getAccountByID(string id)
 }
 void Bank::printAccounts()
 {
-	//pthread_mutex_lock(&bank.mutex);
+	/*logFile << "trying to lock bank in print statuts" << endl;
+	pthread_mutex_lock(&bank.mutex);
+	logFile << "locked bank in print statuts" << endl;*/
 	printf("\033[2J");
 	printf("\033[1;1H");
 
@@ -141,22 +143,19 @@ void Bank::printAccounts()
 		cout << "The bank has " << getBalance() << " $" << endl;
 		return;
 	}
-	//FIXME gal - this is supposed to print in order of account ids because the map
-	//is holding them ordered. make sure it does
+
 	for(const auto& it : accounts)
 	{
 		Account currAccount = it.second;
-		currAccount.io.enterReader();
+		currAccount.io.enterReader(); logFile << "started reading from account " << currAccount.getID() << " in print status" << endl;
+		cout << "Account " << currAccount.getID() << " : Balance - " << currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
+		currAccount.io.exitReader(); logFile << "finished reading from account " << currAccount.getID() << " in print status" << endl;
 	}
 
-	for (const auto& it : accounts)
-	{
-		Account currAccount = it.second;
-		cout << "Account " << currAccount.getID() << " : Balance - " << currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
-		currAccount.io.exitReader();
-	}
 	cout << "The bank has " << getBalance() << " $" << endl;
-	//pthread_mutex_unlock(&bank.mutex);
+	logFile << "trying to unlock bank in print status" << endl;
+	pthread_mutex_unlock(&bank.mutex);
+	logFile << "unlocked bank in print status" << endl;
 }
 
 void Bank::commission(Account& currAccount, int rate)
@@ -192,6 +191,7 @@ void ioHandler::enterReader()
 	if (readers == 1)
 		pthread_mutex_lock(&writerLock);
 	pthread_mutex_unlock(&readerLock);
+	sleep(1);
 }
 
 void ioHandler::exitReader()
@@ -203,7 +203,11 @@ void ioHandler::exitReader()
 	pthread_mutex_unlock(&readerLock);
 }
 
-void ioHandler::enterWriter() { pthread_mutex_lock(&writerLock); }
+void ioHandler::enterWriter()
+{
+	pthread_mutex_lock(&writerLock);
+	sleep(1);
+}
 void ioHandler::exitWriter() { pthread_mutex_unlock(&writerLock); }
 
 /*=============================================================================

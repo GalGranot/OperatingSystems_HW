@@ -50,6 +50,7 @@ void* atmWrapper(void* arg)
 	string line;
 	while (1)
 	{
+		sleep(0.1);
 		if (atm.input.eof())
 			break;
 		std::getline(atm.input, line);
@@ -59,30 +60,34 @@ void* atmWrapper(void* arg)
 	return nullptr;
 }
 
-void* CommissionWrapper(void*)
+void* CommissionWrapper(void* arg)
 {
 	while (1)
 	{
 		if (stopCommision)
 			return nullptr;
-		usleep(3000000);
+		usleep(300);
 		if (bank.accounts.empty())
 			continue;
 
 		int rate = ((std::rand() % MAX_RATE) + 1); //rate is 1%-5%
+		logFile << "trying to lock bank in commision" << endl;
 		pthread_mutex_lock(&bank.mutex);
+		logFile << "locked bank in commision" << endl;
 		for (auto& it : bank.accounts)
 		{
 			Account& currentAccount = it.second;
-			currentAccount.io.enterWriter();
+			currentAccount.io.enterWriter(); logFile << "started writing to account " << currentAccount.getID() << " in commision" << endl;
 		}
 		for(auto& it : bank.accounts)
 		{
 			Account& currentAccount = it.second;
 			bank.commission(currentAccount, rate);
-			currentAccount.io.exitWriter();
+			currentAccount.io.exitWriter(); logFile << "finished writing to account " << currentAccount.getID() << " in commision" << endl;
 		}
+		logFile << "trying to unlock bank in commision" << endl;
 		pthread_mutex_unlock(&bank.mutex);
+		logFile << "unlocked bank in commision" << endl;
 	}
 	return nullptr;
 }
@@ -93,11 +98,13 @@ void* PrintStatusWrapper(void*)
 	int i = 0;
 	while (1)
 	{
+		usleep(500);
 		cout << "entering iteration " << i++ << endl;;
 		if (stopStatusPrint)
 			return nullptr;
-		usleep(500000);
 		bank.printAccounts();
+		if (i > 10)
+			break;
 	}
 	return nullptr;
 }
@@ -106,6 +113,87 @@ void* PrintStatusWrapper(void*)
 * main function
 =============================================================================*/
 
+int main3(int argc, char* argv[])
+{
+	openLogFile("log.txt");
+	//int* threadIDs = new int[argc - 1];
+	//pthread_t* threads = new pthread_t[argc - 1];
+	wrapperArgs* wrapperArgsArray = new wrapperArgs[argc - 1];
+	pthread_mutex_init(&logLock, nullptr);
+	//int result;
+
+	/*
+	for (int i = 0; i < argc - 1; i++) //init ATMs
+	{
+		threadIDs[i] = i + 1; //ATM numbers start with 1, match IDs with ATM numbers
+		wrapperArgsArray[i].atmID = i + 1;
+		wrapperArgsArray[i].path = argv[i + 1];
+		result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
+		if (result != 0)
+		{
+			perror("Bank error: pthread_create failed");
+			delete[] threadIDs;
+			delete[] wrapperArgsArray;
+			delete[] threads;
+			logFile.close();
+			exit(1);
+		}
+	}
+
+	for (int i = 0; i < argc - 1; i++)
+		pthread_join(threads[i], nullptr);
+	*/
+	wrapperArgsArray[0].atmID = 1;
+	wrapperArgsArray[0].path = argv[1];
+	atmWrapper(&wrapperArgsArray[0]);
+	PrintStatusWrapper(0);
+	//delete[] threadIDs;
+	//delete[] wrapperArgsArray; //FIXME - this fails for some reason. need to valgrind for mem leaks
+	//delete[] threads;	//FIXME - this fails for some reason. need to valgrind for mem leaks
+	logFile.close();
+	pthread_mutex_destroy(&logLock);
+
+	cout << "reached end of program" << endl;
+	return 0;
+}
+int main2(int argc, char* argv[])
+{
+	openLogFile("log.txt");
+	int* threadIDs = new int[argc - 1];
+	pthread_t* threads = new pthread_t[argc - 1];
+	wrapperArgs* wrapperArgsArray = new wrapperArgs[argc - 1];
+	pthread_mutex_init(&logLock, nullptr);
+	int result;
+
+	for (int i = 0; i < argc - 1; i++) //init ATMs
+	{
+		threadIDs[i] = i + 1; //ATM numbers start with 1, match IDs with ATM numbers
+		wrapperArgsArray[i].atmID = i + 1;
+		wrapperArgsArray[i].path = argv[i + 1];
+		result = pthread_create(&threads[i], nullptr, atmWrapper, &(wrapperArgsArray[i]));
+		if (result != 0)
+		{
+			perror("Bank error: pthread_create failed");
+			delete[] threadIDs;
+			delete[] wrapperArgsArray;
+			delete[] threads;
+			logFile.close();
+			exit(1);
+		}
+	}
+
+	for (int i = 0; i < argc - 1; i++)
+		pthread_join(threads[i], nullptr);
+
+	//delete[] threadIDs;
+	//delete[] wrapperArgsArray; //FIXME - this fails for some reason. need to valgrind for mem leaks
+	//delete[] threads;	//FIXME - this fails for some reason. need to valgrind for mem leaks
+	logFile.close();
+	pthread_mutex_destroy(&logLock);
+
+	cout << "reached end of program" << endl;
+	return 0;
+}
 
 int main(int argc, char* argv[])
 {
@@ -133,7 +221,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	threadIDs[argc] = argc + 1;
+	/**/
+	threadIDs[argc - 1] = argc;
 	result = pthread_create(&threads[argc], nullptr, CommissionWrapper, nullptr);
 	if (result != 0)
 	{
@@ -145,7 +234,7 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	threadIDs[argc + 1] = argc + 2;
+	threadIDs[argc] = argc + 1;
 	result = pthread_create(&threads[argc + 1], nullptr, PrintStatusWrapper, nullptr);
 	if (result != 0) {
 		perror("bank error: pthread_create failed");
@@ -161,8 +250,8 @@ int main(int argc, char* argv[])
 
 	stopCommision = true;
 	stopStatusPrint = true;
+	pthread_join(threads[argc - 1], nullptr);
 	pthread_join(threads[argc], nullptr);
-	pthread_join(threads[argc + 1], nullptr);
 
 	//delete[] threadIDs;
 	//delete[] wrapperArgsArray; //FIXME - this fails for some reason. need to valgrind for mem leaks

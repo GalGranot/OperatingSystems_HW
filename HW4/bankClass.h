@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <vector>
 #include <pthread.h>
+#include <unistd.h>
 
 #define MIN_RATE 1
 #define MAX_RATE 5

@@ -49,8 +49,11 @@ inline void exitWriterInOrder(Account& a1, Account& a2)
 
 void ATM::handleAction(Command command)
 {
+	logFile << "command: type " << command.commandType << ", sourceID " << command.sourceID << endl;
 	ostringstream oss;
+	logFile << "trying to lock bank in command" << endl;
 	pthread_mutex_lock(&bank.mutex);
+	logFile << "locked bank in command" << endl;
 	Account& sourceAccount = bank.getAccountByID(command.sourceID);
 
 	if (command.commandType == 'O') //open command
@@ -67,7 +70,7 @@ void ATM::handleAction(Command command)
 			oss << this->getID() << ": New account id is " << account.getID() << " with password " << account.getPassword() << " and initial balance " << account.getBalance() << endl;
 			logWrite(oss.str());
 		}
-		pthread_mutex_unlock(&bank.mutex);
+		logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 	}
 
 	else if (command.commandType == 'Q') //close command
@@ -80,17 +83,16 @@ void ATM::handleAction(Command command)
 
 		else if (command.password != sourceAccount.getPassword())
 		{
-			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
-				<< command.sourceID << " is incorrect" << endl;
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id " << command.sourceID << " is incorrect" << endl;
 			logWrite(oss.str());
 		}
 		else
 		{
 			//write an invalid id to the account so it isn't found, then delete it
-			sourceAccount.io.enterWriter();
+			sourceAccount.io.enterWriter(); logFile << "command: started writing to account " << sourceAccount.getID() << endl;
 			map<string, Account>::iterator it = bank.accounts.find(command.sourceID);
 			sourceAccount.setID(NO_ID);
-			sourceAccount.io.exitWriter();
+			sourceAccount.io.exitWriter(); logFile << "finished writing to account " << sourceAccount.getID() << endl;
 			int tmpBalance = sourceAccount.getBalance();
 			if (it != bank.accounts.end())
 			{
@@ -99,7 +101,7 @@ void ATM::handleAction(Command command)
 				logWrite(oss.str());
 			}
 		}
-		pthread_mutex_unlock(&bank.mutex);
+		logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 	}
 
 	else if (command.commandType == 'B') //balance command
@@ -108,11 +110,11 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex);
+			logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 			return;
 		}
-		sourceAccount.io.enterReader();
-		pthread_mutex_unlock(&bank.mutex);
+		sourceAccount.io.enterReader(); logFile << "command: started reading from account " << sourceAccount.getID() << endl;
+		logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 		if (command.password != sourceAccount.getPassword())
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - password for account id " << command.sourceID << " is incorrect" << endl;
@@ -123,7 +125,7 @@ void ATM::handleAction(Command command)
 			oss << this->getID() << ": Account " << command.sourceID << " balance is " << sourceAccount.getBalance() << endl;
 			logWrite(oss.str());
 		}
-		sourceAccount.io.exitReader();
+		sourceAccount.io.exitReader(); logFile << "finished reading from account " << sourceAccount.getID() << endl;
 	}
 
 	else if (command.commandType == 'D') //deposit command
@@ -132,11 +134,11 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex);
+			logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 			return;
 		}
-		sourceAccount.io.enterWriter();
-		pthread_mutex_unlock(&bank.mutex);
+		sourceAccount.io.enterWriter(); logFile << "command: started writing to account " << sourceAccount.getID() << endl;
+		logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 		if (command.password != sourceAccount.getPassword())
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - password for account id " << command.sourceID << " is incorrect" << endl;
@@ -145,11 +147,10 @@ void ATM::handleAction(Command command)
 		else
 		{
 			sourceAccount.addToBalance(command.amount);
-			oss << this->getID() << ": Account " << sourceAccount.getID() << " new balance is " 
-				<< sourceAccount.getBalance() << " after " << command.amount << " $ was deposited" << endl;
+			oss << this->getID() << ": Account " << sourceAccount.getID() << " new balance is " << sourceAccount.getBalance() << " after " << command.amount << " $ was deposited" << endl;
 			logWrite(oss.str());
 		}
-		sourceAccount.io.exitWriter();
+		sourceAccount.io.exitWriter(); logFile << "finished writing to account " << sourceAccount.getID() << endl;
 	}
 
 	else if (command.commandType == 'W')
@@ -158,11 +159,11 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex);
+			logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 			return;
 		}
-		sourceAccount.io.enterWriter();
-		pthread_mutex_unlock(&bank.mutex);
+		sourceAccount.io.enterWriter(); logFile << "command: started writing to account " << sourceAccount.getID() << endl;
+		logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 		if (command.password != sourceAccount.getPassword())
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
@@ -177,11 +178,10 @@ void ATM::handleAction(Command command)
 		else
 		{
 			sourceAccount.addToBalance(-command.amount);
-			oss << this->getID() << ": Account " << sourceAccount.getID() << " new balance is " 
-				<< sourceAccount.getBalance() << " after " << command.amount << " $ was withdrew" << endl;
+			oss << this->getID() << ": Account " << sourceAccount.getID() << " new balance is " << sourceAccount.getBalance() << " after " << command.amount << " $ was withdrew" << endl;
 			logWrite(oss.str());
 		}
-		sourceAccount.io.exitWriter();
+		sourceAccount.io.exitWriter(); logFile << "finished writing to account " << sourceAccount.getID() << endl;
 	}
 
 	else if (command.commandType == 'T') //transfer command
@@ -190,7 +190,7 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex);
+			logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 			return;
 		}
 		Account& targetAccount = bank.getAccountByID(command.targetID);
@@ -198,7 +198,7 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.targetID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex);
+			logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 			return;
 		}
 		//if reached here - both accounts exist. lock accounts by order - smallest id first
@@ -208,13 +208,12 @@ void ATM::handleAction(Command command)
 			enterWriterInOrder(sourceAccount, targetAccount);
 		else
 			enterWriterInOrder(targetAccount, sourceAccount);
-		pthread_mutex_unlock(&bank.mutex);
+		logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 
 		//now both accounts are locked, bank is unlocked
 		if (command.password != sourceAccount.getPassword())
 		{
-			oss << "Error " << this->getID() << ": Your transaction failed - password for account id "
-				<< command.sourceID << " is incorrect" << endl;
+			oss << "Error " << this->getID() << ": Your transaction failed - password for account id " << command.sourceID << " is incorrect" << endl;
 			logWrite(oss.str());
 		}
 		else if (command.amount > sourceAccount.getBalance())
@@ -226,8 +225,7 @@ void ATM::handleAction(Command command)
 		{
 			sourceAccount.addToBalance(-command.amount);
 			targetAccount.addToBalance(command.amount);
-			oss << this->getID() << ": Transfer " << command.amount << " from account " << sourceAccount.getID() << " to account " << targetAccount.getID() 
-				<< endl << "new account balance is " << sourceAccount.getBalance() << "new target account balance is " << targetAccount.getBalance() << endl;
+			oss << this->getID() << ": Transfer " << command.amount << " from account " << sourceAccount.getID() << " to account " << targetAccount.getID() << endl << "new account balance is " << sourceAccount.getBalance() << "new target account balance is " << targetAccount.getBalance() << endl;
 			logWrite(oss.str());
 		}
 
@@ -266,9 +264,9 @@ void ATM::handleActionOLD(Command command)
 			<< " with password " << account.getPassword() << " and initial balance " 
 			<< account.getBalance() << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex);
+			logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 		}
-		pthread_mutex_unlock(&bank.mutex);
+		logFile << "trying to unlock bank in command" << endl; pthread_mutex_unlock(&bank.mutex); logFile << "unlocked bank in command" << endl;
 	}
 
 	else if (command.commandType == 'D')
