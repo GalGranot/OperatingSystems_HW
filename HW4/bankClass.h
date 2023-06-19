@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <vector>
 #include <pthread.h>
+#include <unistd.h>
 
 #define MIN_RATE 1
 #define MAX_RATE 5
@@ -16,6 +17,8 @@
 #define NOT_SET "-1"
 #define NO_AMOUNT -1
 #define FIELDS_NUM 5
+#define SECOND 1
+
 
 using std::map;
 using std::string;

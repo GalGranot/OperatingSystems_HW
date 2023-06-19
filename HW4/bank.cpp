@@ -50,6 +50,7 @@ void* atmWrapper(void* arg)
 	string line;
 	while (1)
 	{
+		sleep(SECOND / 10);
 		if (atm.input.eof())
 			break;
 		std::getline(atm.input, line);

@@ -192,6 +192,7 @@ void ioHandler::enterReader()
 	if (readers == 1)
 		pthread_mutex_lock(&writerLock);
 	pthread_mutex_unlock(&readerLock);
+	sleep(SECOND);
 }
 
 void ioHandler::exitReader()
@@ -203,7 +204,11 @@ void ioHandler::exitReader()
 	pthread_mutex_unlock(&readerLock);
 }
 
-void ioHandler::enterWriter() { pthread_mutex_lock(&writerLock); }
+void ioHandler::enterWriter()
+{ 
+	pthread_mutex_lock(&writerLock);
+	sleep(SECOND);
+}
 void ioHandler::exitWriter() { pthread_mutex_unlock(&writerLock); }
 
 /*=============================================================================
