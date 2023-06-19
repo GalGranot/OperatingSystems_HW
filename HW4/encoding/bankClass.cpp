@@ -169,8 +169,8 @@ void Bank::commission(Account& currAccount, int rate)
 	int commission = rate * currAccount.getBalance() / 100;
 	currAccount.addToBalance(-commission);
 	this->addToBalance(commission);
-	cout << "commision: got " << commission << " from account " << currAccount.getID() << endl;
-	//writeToLog(0, false, false, defaultCommand, 0, true, rate, currAccount.getID(), commission); FIXME - remove comment
+	//cout << "commision: got " << commission << " from account " << currAccount.getID() << endl; FIXME remove this
+	writeToLog(0, false, false, defaultCommand, 0, true, rate, currAccount.getID(), commission);
 }
 
 /*=============================================================================
@@ -223,6 +223,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 	int Balance, bool commissions, int percentage, string commisionID,
 	int commisionAmount)
 {
+	pthread_mutex_lock(&logLock);
 	if (commissions)
 		logFile << "Bank: commissions of " << percentage <<
 		" % were charged, the bank gained " << commisionAmount << "$ from account "
@@ -295,6 +296,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 
 		}
 	}
+	pthread_mutex_unlock(&logLock);
 }
 
 // Open the log file for writing

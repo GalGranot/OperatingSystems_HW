@@ -162,8 +162,8 @@ int main(int argc, char* argv[])
 	//pthread_join(threads[argc + 1], nullptr);
 
 	delete[] threadIDs;
-	delete[] wrapperArgsArray; //FIXME - this fails for some reason. need to valgrind for mem leaks
-	delete[] threads;	//FIXME - this fails for some reason. need to valgrind for mem leaks
+	delete[] wrapperArgsArray;
+	delete[] threads;
 	logFile.close();
 	pthread_mutex_destroy(&logLock);
 
