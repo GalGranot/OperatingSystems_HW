@@ -50,7 +50,7 @@ inline void exitWriterInOrder(Account& a1, Account& a2)
 void ATM::handleAction(Command command)
 {
 	ostringstream oss;
-	pthread_mutex_lock(&bank.mutex); cout << "locking bank in command " << command.commandType << " id " << command.sourceID << endl;
+	pthread_mutex_lock(&bank.mutex);
 	Account& sourceAccount = bank.getAccountByID(command.sourceID);
 
 	if (command.commandType == 'O') //open command
@@ -67,7 +67,7 @@ void ATM::handleAction(Command command)
 			oss << this->getID() << ": New account id is " << account.getID() << " with password " << account.getPassword() << " and initial balance " << account.getBalance() << endl;
 			logWrite(oss.str());
 		}
-		pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+		pthread_mutex_unlock(&bank.mutex);
 		usleep(SECOND);
 	}
 
@@ -99,7 +99,7 @@ void ATM::handleAction(Command command)
 				logWrite(oss.str());
 			}
 		}
-		pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+		pthread_mutex_unlock(&bank.mutex);
 		usleep(SECOND);
 	}
 
@@ -109,12 +109,12 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+			pthread_mutex_unlock(&bank.mutex);
 			usleep(SECOND);
 			return;
 		}
 		sourceAccount.io.enterReader();
-		pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+		pthread_mutex_unlock(&bank.mutex);
 		usleep(SECOND);
 		if (command.password != sourceAccount.getPassword())
 		{
@@ -135,12 +135,12 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+			pthread_mutex_unlock(&bank.mutex);
 			usleep(SECOND);
 			return;
 		}
 		sourceAccount.io.enterWriter();
-		pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+		pthread_mutex_unlock(&bank.mutex);
 		usleep(SECOND);
 		if (command.password != sourceAccount.getPassword())
 		{
@@ -162,12 +162,12 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+			pthread_mutex_unlock(&bank.mutex);
 			usleep(SECOND);
 			return;
 		}
 		sourceAccount.io.enterWriter();
-		pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+		pthread_mutex_unlock(&bank.mutex);
 		usleep(SECOND);
 		if (command.password != sourceAccount.getPassword())
 		{
@@ -194,7 +194,7 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.sourceID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+			pthread_mutex_unlock(&bank.mutex);
 			usleep(SECOND);
 			return;
 		}
@@ -203,7 +203,7 @@ void ATM::handleAction(Command command)
 		{
 			oss << "Error " << this->getID() << ": Your transaction failed - account id " << command.targetID << " does not exist" << endl;
 			logWrite(oss.str());
-			pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+			pthread_mutex_unlock(&bank.mutex);
 			usleep(SECOND);
 			return;
 		}
@@ -214,7 +214,7 @@ void ATM::handleAction(Command command)
 			enterWriterInOrder(sourceAccount, targetAccount);
 		else
 			enterWriterInOrder(targetAccount, sourceAccount);
-		pthread_mutex_unlock(&bank.mutex); cout << "UNlocking bank in command " << command.commandType << " id " << command.sourceID << endl;
+		pthread_mutex_unlock(&bank.mutex);
 		usleep(SECOND);
 
 		//now both accounts are locked, bank is unlocked

@@ -93,7 +93,7 @@ void* PrintStatusWrapper(void*)
 		if (stopStatusPrint)
 			return nullptr;
 		usleep(SECOND / 2);
-		//bank.printAccounts();
+		bank.printAccounts();
 	}
 	return nullptr;
 }

@@ -134,11 +134,12 @@ Account& Bank::getAccountByID(string id)
 
 void Bank::printAccounts()
 {
-	/*printf("\033[2J");
-	printf("\033[1;1H");*/ //FIXME remove comment
+	printf("\033[2j");
+	printf("\033[1;1h"); //fixme remove comment
 
 	cout << "Current Bank Status" << endl;
-	if (accounts.empty()) {
+	if (accounts.empty())
+	{
 		cout << "The bank has " << getBalance() << " $" << endl;
 		return;
 	}
@@ -146,12 +147,11 @@ void Bank::printAccounts()
 	//is holding them ordered. make sure it does
 	for(auto& it : accounts)
 	{
-		pthread_mutex_lock(&bank.mutex);
-		Account currAccount = it.second;
-		//currAccount.io.enterReader();
-		pthread_mutex_unlock(&bank.mutex);
-		cout << "Account " << currAccount.getID() << " : Balance - " << currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
-		//currAccount.io.exitReader();
+	//	pthread_mutex_lock(&bank.mutex);
+		it.second.io.enterReader();
+	//	pthread_mutex_unlock(&bank.mutex);
+		cout << "Account " << it.second.getID() << " : Balance - " << it.second.getBalance() << " $, Account Password - " << it.second.getPassword() << endl;
+		it.second.io.exitReader();
 	}
 	cout << "The bank has " << getBalance() << " $" << endl;
 	pthread_mutex_unlock(&bank.mutex);
