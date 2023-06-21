@@ -1,4 +1,4 @@
-//bankClass.h
+﻿//bankClass.h
 
 #ifndef _BANKCLASS_H
 #define _BANKCLASS_H
@@ -11,6 +11,8 @@
 #include <vector>
 #include <pthread.h>
 #include <unistd.h>
+#include <locale>
+
 
 #define MIN_RATE 1
 #define MAX_RATE 5
@@ -18,7 +20,7 @@
 #define NOT_SET "-1"
 #define NO_AMOUNT -1
 #define FIELDS_NUM 5
-#define SECOND 100 //FIXME return to 1000000
+#define SECOND 1000000
 
 
 using std::map;
@@ -107,6 +109,7 @@ void writeToLog(int ATMid = 0, bool error = 0, bool minus = 0,
 void openLogFile(const string& filename);
 extern Bank bank;
 extern Account defaultAccount;
+extern pthread_mutex_t logLock;
 
 #endif 
 

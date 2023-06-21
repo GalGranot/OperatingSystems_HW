@@ -1,4 +1,4 @@
-//atm.h
+﻿//atm.h
 
 #ifndef _ATM_H
 #define _ATM_H
@@ -24,9 +24,9 @@ private:
 
 public:
 	
-	ifstream input; //FIXME move this to private, this is for testing - implement a getter method
+	ifstream input;
 	ATM(string path, int id);
-	~ATM(); //FIXME gal - close file here
+	~ATM();
 
 	int getID();
 	void handleAction(Command command);

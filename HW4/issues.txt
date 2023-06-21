@@ -1,4 +1,0 @@
-make sure print accounts works in order of account id
-add checks for file openers
-removed bank lock in print accounts. unsure if this is safe or not
-change no id in delete account to other number for safety

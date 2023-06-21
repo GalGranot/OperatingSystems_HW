@@ -1,4 +1,4 @@
-//bankClass.cpp
+﻿//bankClass.cpp
 
 #include "bankClass.h"
 
@@ -124,7 +124,7 @@ void Bank::addToBalance(int amount) { balance += amount; }
 Account& Bank::getAccountByID(string id)
 {
 	auto it = accounts.find(id);
-	if (it != accounts.end()) //FIXME - see if removing & matters
+	if (it != accounts.end())
 		return it->second;
 
 	//not found
@@ -135,33 +135,24 @@ Account& Bank::getAccountByID(string id)
 void Bank::printAccounts()
 {
 	ostringstream oss;
-	pthread_mutex_lock(&bank.mutex);
 	printf("\033[2J");
 	printf("\033[1;1H");
 
-	oss << "Current Bank Status" << endl;
-	if (accounts.empty()) {
-		oss << "The bank has " << getBalance() << " $" << endl;
+	if (accounts.empty())
+	{
+		cout << "Current Bank Status" << endl;
+		cout << "The bank has " << getBalance() << " $" << endl;
 		return;
 	}
-	//FIXME gal - this is supposed to print in order of account ids because the map
-	//is holding them ordered. make sure it does
+	oss << "Current Bank Status" << endl;
 	for(auto& it : accounts)
 	{
-		Account currAccount = it.second;
-		logFile << "print: trying to read from account " << currAccount.getID() << endl;
-		currAccount.io.enterReader();
-		logFile << "print: sucesss reading from account " << currAccount.getID() << endl;
-	}
-
-	for (auto& it : accounts)
-	{
-		Account currAccount = it.second;
-		oss << "Account " << currAccount.getID() << " : Balance - " << currAccount.getBalance() << " $, Account Password - " << currAccount.getPassword() << endl;
-		currAccount.io.exitReader();
+		it.second.io.enterReader();
+		oss << "Account " << it.second.getID() << " : Balance - " << it.second.getBalance() << " $, Account Password - " << it.second.getPassword() << endl;
+		it.second.io.exitReader();
 	}
 	oss << "The bank has " << getBalance() << " $" << endl;
-	pthread_mutex_unlock(&bank.mutex);
+	cout << oss.str();
 }
 
 void Bank::commission(Account& currAccount, int rate)
@@ -197,7 +188,6 @@ void ioHandler::enterReader()
 	if (readers == 1)
 		pthread_mutex_lock(&writerLock);
 	pthread_mutex_unlock(&readerLock);
-	usleep(SECOND);
 }
 
 void ioHandler::exitReader()
@@ -212,7 +202,6 @@ void ioHandler::exitReader()
 void ioHandler::enterWriter()
 { 
 	pthread_mutex_lock(&writerLock);
-	usleep(SECOND);
 }
 void ioHandler::exitWriter() { pthread_mutex_unlock(&writerLock); }
 
@@ -224,6 +213,7 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 	int Balance, bool commissions, int percentage, string commisionID,
 	int commisionAmount)
 {
+	pthread_mutex_lock(&logLock);
 	if (commissions)
 		logFile << "Bank: commissions of " << percentage <<
 		" % were charged, the bank gained " << commisionAmount << "$ from account "
@@ -292,10 +282,11 @@ void writeToLog(int ATMid, bool error, bool minus, Command command,
 				logFile << "Error " << ATMid << ": Your transaction failed - password for account id " << command.sourceID << " is incorrect" << endl;
 			else
 				logFile << ATMid << ": Transfer " << command.amount << " from account " << command.sourceID << " to account " << command.targetID << "  new account balance is " << Balance << " new target account balance is " << Balance << endl;
-			break;     // FIXME change last balance in print
+			break;
 
 		}
 	}
+	pthread_mutex_unlock(&logLock);
 }
 
 // Open the log file for writing
