@@ -57,10 +57,14 @@ int main(int argc, char* argv[])
 	}
 
 	struct sockaddr_in serverAddress = { 0 };
+	socklen_t serverAddressLength = sizeof(sockaddr_in);
+	struct sockaddr_in clientAddress = { 0 };
+	socklen_t clientAddressLength = sizeof(sockaddr_in);
+
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = INADRR_ANY;
 	serverAddress.sin_port = htons(atoi(argv[1]));
-	if (bind(socketFD, (struct sockadrr*)&serverAddress, sizeof(serverAddress)) < 0)
+	if (bind(socketFD, (struct sockadrr*)&serverAddress, &serverAddressLength) < 0)
 	{
 		perror("TTFTP_ERROR: fail to bind socket");
 		exit(1);
@@ -71,7 +75,7 @@ int main(int argc, char* argv[])
 	while (1)
 	{
 		//stop condition FIXME
-		int bytesRead = recv(socketFD, buffer, PACKET_SIZE, 0);
+		int bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, (struct sockaddr*)&clientAddress, &clientAddressLength);
 		if (bytesRead < 0)
 		{
 			//handle error FIXME
@@ -83,7 +87,7 @@ int main(int argc, char* argv[])
 		{
 			//FIXME handle wrong opcode error
 		}
-		ofstream outputFile(wrq.fileName, std::ios::out | std::ios::binary); //
+		ofstream outputFile(wrq.fileName, std::ios::out | std::ios::binary);
 		if (!outputFile)
 		{
 			//handle error
@@ -93,6 +97,19 @@ int main(int argc, char* argv[])
 		ack0.opcode = OP_ACK;
 		ack0.blockNumber = 0;
 
+		if (sendto(sockFD, (void*)&ack0, (size_t)sizeof(ACK), 0, &clientAddress, clientAddressLength) < 0)
+		{
+			//handle error
+		}
+
+		struct sockaddr_in receivedAddress = { 0 };
+		socklen_t receivedAddressLength = sizeof(sockaddr_in);
+		bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, (struct sockaddr*)&receivedAddress, &receivedAddress);
+		if (bytesRead < 0)
+		{
+			//handle error
+		}
+		if(receivedAddress.sin)
 
 		
 		if (outputFile.is_open())
