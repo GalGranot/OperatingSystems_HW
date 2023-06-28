@@ -1,0 +1,2 @@
+1: New account id is 12345 with password 1234 and initial balance 100
+Bank: commissions of 4 % were charged, the bank gained 4$ from account 12345
