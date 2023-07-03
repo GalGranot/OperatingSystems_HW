@@ -19,37 +19,37 @@ using std::ofstream;
 #define ERROR -1
 #define ARG_NUM 4
 
-#define OP_WRQ '2'
-#define OP_DATA '3'
-#define OP_ACK '4'
-#define OP_ERROR '5'
+#define OP_WRQ 2
+#define OP_DATA 3
+#define OP_ACK 4
+#define OP_ERROR 5
 
 
 struct WRQ
 {
-	unsigned char opcode[2 * BYTE];
+	uint16_t opcode;
 	char* fileName;
 	char* transmissionMode;
 } __attribute__((packed));
 
 struct ACK
 {
-	unsigned char opcode[2 * BYTE];
-	unsigned char blockNumber[2 * BYTE];
+	uint16_t opcode;
+	uint16_t blockNumber;
 } __attribute__((packed));
 
 
 struct Data
 {
-	unsigned char opcode[2 * BYTE];
-	unsigned char blockNumber[2 * BYTE];
-	unsigned char data[512 * BYTE];
+	uint16_t opcode;
+	uint16_t blockNumber;
+	char data[512];
 } __attribute__((packed));
 
 struct ErrorMessage
 {
-	unsigned char opcode[2 * BYTE];
-	unsigned char errorCode[2 * BYTE];
+	uint16_t opcode;
+	uint16_t errorCode;
 	char* message;
 } __attribute__((packed));
 
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 
 	struct sockaddr_in serverAddress;
 	socklen_t serverAddressLength = sizeof(sockaddr_in);
-	struct sockaddr_in clientAddress;
+	struct sockaddr clientAddress;
 	socklen_t clientAddressLength = sizeof(sockaddr_in);
 
 	serverAddress.sin_family = AF_INET;
@@ -98,8 +98,13 @@ int main(int argc, char* argv[])
 		struct ErrorMessage error;
 		bool success = false;
 		int bytesRead = 0;
+		fd_set readfds;
+		FD_ZERO(&readfds);
+		FD_SET(socketFD, &readfds);
+
+
 		//write request
-		bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, (struct sockaddr*)&clientAddress, &clientAddressLength);
+		bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, /*(struct sockaddr*)*/ &clientAddress, &clientAddressLength);
 		if (bytesRead < 0)
 		{
 			perror("TTFTP_ERROR: recvfrom fail");
@@ -110,10 +115,10 @@ int main(int argc, char* argv[])
 		memcpy(&wrq, buffer, sizeof(WRQ)); //fix this
 
 
-		if (strcmp((char*)wrq.opcode, OP_WRQ) != 0)
+		if (wrq.opcode != OP_WRQ)
 		{
 			error.errorCode = 7;
-			error.message = "Unknown user";
+			strcpy(error.message , "Unknown user");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &clientAddress, clientAddressLength) < 0)
 			{
 				perror("TTFTP_ERROR: sendto fail");
@@ -139,11 +144,11 @@ int main(int argc, char* argv[])
 		}
 
 		//data1
-		struct sockaddr_in receivedAddress;
+		struct sockaddr receivedAddress;
 		socklen_t receivedAddressLength = sizeof(sockaddr_in);
 		while (!success)
 		{
-			int result = select(1, &socketFD, NULL, NULL, , tv); //this reads from server to client
+			int result = select(1, &readfds, NULL, NULL, &tv); //this reads from server to client
 			if (result == 0)
 			{
 				errorCount++;
@@ -152,7 +157,7 @@ int main(int argc, char* argv[])
 					struct ErrorMessage error;
 					error.opcode = OP_ERROR;
 					error.errorCode = 0;
-					error.message = "Abandoning file transmission";
+					strcpy(error.message ,"Abandoning file transmission");
 					if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &clientAddress, clientAddressLength) < 0)
 					{
 						perror("TTFTP_ERROR: sendto fail");
@@ -167,18 +172,18 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: select fail");
 				exit(1);
 			}
-			bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, (struct sockaddr*)&receivedAddress, &receivedAddress);
+			bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, &receivedAddress, &receivedAddressLength);
 			if (bytesRead < 0)
 			{
 				perror("TTFTP_ERROR: recvfrom fail");
 				exit(1);
 			}
-			if (receivedAddress.sin_addr != clientAddress.sin_addr)
+			if (strcmp(receivedAddress.sa_data , clientAddress.sa_data) !=0) //FIXME: check if compares the right fields fpr address
 			{
 				struct Data data1;
 				memcpy(&data1, buffer, sizeof(Data));
 				error.errorCode = 4;
-				error.message = "Unexpected packet";
+				strcpy(error.message , "Unexpected packet");
 				if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &receivedAddress, receivedAddressLength) < 0)
 				{
 					perror("TTFTP_ERROR: sendto fail");
@@ -200,7 +205,7 @@ int main(int argc, char* argv[])
 		if (data1.opcode != OP_DATA)
 		{
 			error.errorCode = 4;
-			error.message = "Unexpected packet";
+			strcpy(error.message , "Unexpected packet");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &receivedAddress, receivedAddressLength) < 0)
 			{
 				perror("TTFTP_ERROR: sendto fail");
@@ -210,7 +215,7 @@ int main(int argc, char* argv[])
 		if (data1.blockNumber != 1)
 		{
 			error.errorCode = 0;
-			error.message = "Bad block number";
+			strcpy(error.message, "Bad block number");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &receivedAddress, receivedAddressLength) < 0)
 			{
 				perror("TTFTP_ERROR: sendto fail");
@@ -233,11 +238,9 @@ int main(int argc, char* argv[])
 		}
 
 		//data2
-		struct sockaddr_in receivedAddress;
-		socklen_t receivedAddressLength = sizeof(sockaddr_in);
 		while (!success)
 		{
-			int result = select(1, &socketFD, NULL, NULL, , tv); //this reads from server to client
+			int result = select(1, &readfds, NULL, NULL, &tv); //this reads from server to client
 			if (result == 0)
 			{
 				errorCount++;
@@ -246,7 +249,7 @@ int main(int argc, char* argv[])
 					struct ErrorMessage error;
 					error.opcode = OP_ERROR;
 					error.errorCode = 0;
-					error.message = "Abandoning file transmission";
+					strcpy(error.message , "Abandoning file transmission");
 					if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &clientAddress, clientAddressLength) < 0)
 					{
 						perror("TTFTP_ERROR: sendto fail");
@@ -261,18 +264,18 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: select fail");
 				exit(1);
 			}
-			bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, (struct sockaddr*)&receivedAddress, &receivedAddress);
+			bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, &receivedAddress, &receivedAddressLength);
 			if (bytesRead < 0)
 			{
 				perror("TTFTP_ERROR: recvfrom fail");
 				exit(1);
 			}
-			if (receivedAddress.sin_addr != clientAddress.sin_addr)
+			if (strcmp(receivedAddress.sa_data, clientAddress.sa_data) != 0)
 			{
 				struct Data data2;
 				memcpy(&data2, buffer, sizeof(Data));
 				error.errorCode = 4;
-				error.message = "Unexpected packet";
+				strcpy(error.message , "Unexpected packet");
 				if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &receivedAddress, receivedAddressLength) < 0)
 				{
 					perror("TTFTP_ERROR: sendto fail");
@@ -294,7 +297,7 @@ int main(int argc, char* argv[])
 		if (data2.opcode != OP_DATA)
 		{
 			error.errorCode = 4;
-			error.message = "Unexpected packet";
+			strcpy(error.message , "Unexpected packet");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &receivedAddress, receivedAddressLength) < 0)
 			{
 				perror("TTFTP_ERROR: sendto fail");
@@ -304,7 +307,7 @@ int main(int argc, char* argv[])
 		if (data2.blockNumber != 2)
 		{
 			error.errorCode = 0;
-			error.message = "Bad block number";
+			strcpy(error.message , "Bad block number");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &receivedAddress, receivedAddressLength) < 0)
 			{
 				perror("TTFTP_ERROR: sendto fail");
@@ -324,7 +327,7 @@ int main(int argc, char* argv[])
 		}
 			
 		if (outputFile.is_open())
-			outFile.close();
+			outputFile.close();
 	}
 	close(socketFD);
 }
