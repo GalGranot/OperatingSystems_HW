@@ -13,6 +13,8 @@
 using std::string;
 using std::atoi;
 using std::ofstream;
+using std::cout;
+using std::endl;
 
 #define BYTE 8
 #define PACKET_SIZE 516
@@ -50,7 +52,7 @@ struct ErrorMessage
 {
 	uint16_t opcode;
 	uint16_t errorCode;
-	char* message;
+	char message[100];
 } __attribute__((packed));
 
 
@@ -86,12 +88,13 @@ int main(int argc, char* argv[])
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
 	serverAddress.sin_port = htons(port);
+	cout << "before bind" << endl;
 	if (bind(socketFD, (struct sockaddr*)&serverAddress, serverAddressLength) < 0)
 	{
 		perror("TTFTP_ERROR: fail to bind socket");
 		exit(1);
 	}
-	
+	cout << "bind finished, before while" << endl;
 	while (1)
 	{
 		unsigned short errorCount = 0;
@@ -113,18 +116,20 @@ int main(int argc, char* argv[])
 
 		struct WRQ wrq;
 		memcpy(&wrq, buffer, sizeof(WRQ)); //fix this
-
+		cout << "got WRQ" << endl;
 
 		if (wrq.opcode != OP_WRQ)
 		{
 			error.errorCode = 7;
 			strcpy(error.message , "Unknown user");
+			cout << "got WRQ1" << endl;
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &clientAddress, clientAddressLength) < 0)
 			{
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
 		}
+		cout << "got WRQ 2" << endl;
 		ofstream outputFile(wrq.fileName, std::ios::out | std::ios::binary);
 		if (!outputFile)
 		{
@@ -132,6 +137,7 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 
+		cout << "try to send ack0" << endl;
 		//ack0
 		struct ACK ack0;
 		ack0.opcode = OP_ACK;
@@ -143,6 +149,7 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 
+		cout << "try to get data1" << endl;
 		//data1
 		struct sockaddr receivedAddress;
 		socklen_t receivedAddressLength = sizeof(sockaddr_in);
@@ -226,6 +233,7 @@ int main(int argc, char* argv[])
 		outputFile << data1.data; //FIXME check if this works
 		success = false;
 		
+		cout << "try to send ack1" << endl;
 		//ack1
 		struct ACK ack1;
 		ack1.opcode = OP_ACK;
@@ -237,6 +245,7 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 
+		cout << "try to get data2" << endl;
 		//data2
 		while (!success)
 		{
@@ -315,6 +324,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		cout << "try to send ack2" << endl;
 		//ack2
 		struct ACK ack2;
 		ack2.opcode = OP_ACK;
