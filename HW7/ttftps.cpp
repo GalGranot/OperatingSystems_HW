@@ -156,19 +156,19 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 
+
+
+
+
+
+
+
 		cout << "try to send ack0" << endl;
-
-
-
-
-
-
-
 		//ack0
 		struct ACK ack0;
 		ack0.opcode = htons(OP_ACK);
 		ack0.blockNumber = htons(0); 
-
+		cout << "ack0: opcode: " << ack0.opcode << "block:  " << ack0.blockNumber << endl;
 		if (sendto(socketFD, (void*)&ack0, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 		{
 			perror("TTFTP_ERROR: sendto fail");
@@ -250,6 +250,10 @@ int main(int argc, char* argv[])
 		data1.opcode = ntohs(data1.opcode);
 		data1.blockNumber = ntohs(data1.blockNumber);
 		//data1.data = ntohs(data1.data); //FIXME
+		cout << "------------------------------" << data1.opcode <<"    " << OP_DATA << "    " << htons(OP_DATA) << "------------------------------" << endl;
+		cout << "------------------------------" << data1.blockNumber << "    " << ntohs(1) << "------------------------------" << endl;
+		cout << "---------------------" << buffer[0] << "  "  << buffer[1] << "  " << buffer[2] << "  " << buffer[3] << "  " << buffer[4] << "  " << "-------------------------" << endl;
+		cout << "---------------------" << ntohs(buffer[0]) << "  " << ntohs(buffer[1]) << "  " << ntohs(buffer[2]) << "  " << ntohs(buffer[3]) << "  " << ntohs(buffer[4]) << "  " << "-------------------------" << endl;
 		if (data1.opcode != OP_DATA)
 		{
 			error.errorCode = 4;
@@ -259,9 +263,11 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
+			continue;
 		}
-		if (data1.blockNumber != 1)
+		if (data1.blockNumber != htons(1))
 		{
+			cout << "------------------------------" << data1.blockNumber  << "    " << ntohs(1) << "------------------------------" << endl;
 			error.errorCode = 0;
 			strcpy(error.message, "Bad block number");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&receivedAddress, receivedAddressLength) < 0)
@@ -269,18 +275,20 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
+			continue;
 		}
-
 		outputFile << data1.data; //FIXME check if this works
 		success = false;
-		
-		cout << "try to send ack1" << endl;
+		cout << "try to send ack1 " << endl;
 		//ack1
 		struct ACK ack1;
 		ack1.opcode = htons(OP_ACK);
 		ack1.blockNumber = htons(1);
-		int bytesSent = sendto(socketFD, &ack1, sizeof(ACK), 0, (struct sockaddr*)&clientAddress, sizeof(clientAddress));
-		if (bytesSent < 0)
+		//cout << "ack1: opcode: "<< htons(OP_ACK) <<"  block:  " << htons(1) << endl;
+		//int bytesSent = sendto(socketFD, (void*)&ack1, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength);				
+		cout << "sent ack1 " <<ack1.opcode << endl;
+		usleep(1000000);
+		if (sendto(socketFD, (void*)&ack1, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 		{
 			perror("TTFTP_ERROR: sendto fail");
 			exit(1);
@@ -368,8 +376,9 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
+			continue;
 		}
-		if (data2.blockNumber != 2)
+		if (data2.blockNumber != ntohs(2))
 		{
 			error.errorCode = 0;
 			strcpy(error.message , "Bad block number");
@@ -378,6 +387,7 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
+			continue;
 		}
 
 		outputFile << data2.data; //FIXME check if this works
