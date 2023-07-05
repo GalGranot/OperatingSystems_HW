@@ -30,8 +30,8 @@ using std::endl;
 struct WRQ
 {
 	uint16_t opcode;
-	char* fileName;
-	char* transmissionMode;
+	char fileName[100];
+	char transmissionMode[50];
 } __attribute__((packed));
 
 struct ACK
@@ -64,14 +64,14 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	//FIXME check valid args
+	//FIXME check valid args - first int, then if small change to short
 	unsigned short port = atoi(argv[1]);
 	unsigned short timeout = atoi(argv[2]);
 	unsigned short maxErrorCount = atoi(argv[3]);
 	struct timeval tv;
 	tv.tv_sec = timeout;
 	tv.tv_usec = 0;
-	char buffer[PACKET_SIZE];
+	char buffer[PACKET_SIZE] = { 0 };
 
 	int socketFD = socket(AF_INET, SOCK_DGRAM, 0);
 	if(socketFD < 0)
@@ -82,11 +82,13 @@ int main(int argc, char* argv[])
 
 	struct sockaddr_in serverAddress;
 	socklen_t serverAddressLength = sizeof(sockaddr_in);
+	memset(&serverAddress, 0, serverAddressLength);
 	struct sockaddr clientAddress;
-	socklen_t clientAddressLength = sizeof(sockaddr_in);
+	socklen_t clientAddressLength = sizeof(sockaddr);
+	memset(&clientAddress, 0, clientAddressLength);
 
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
 	serverAddress.sin_port = htons(port);
 	cout << "before bind" << endl;
 	if (bind(socketFD, (struct sockaddr*)&serverAddress, serverAddressLength) < 0)
@@ -113,11 +115,11 @@ int main(int argc, char* argv[])
 			perror("TTFTP_ERROR: recvfrom fail");
 			exit(1);
 		}
-
+		cout << "buffer 1   " << buffer[1]<< buffer[2] << endl;
+		
 		struct WRQ wrq;
 		memcpy(&wrq, buffer, sizeof(WRQ)); //fix this
 		cout << "got WRQ" << endl;
-
 		if (wrq.opcode != OP_WRQ)
 		{
 			error.errorCode = 7;
@@ -128,10 +130,11 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
+			continue;
 		}
 		cout << "got WRQ 2" << endl;
 		ofstream outputFile(wrq.fileName, std::ios::out | std::ios::binary);
-		if (!outputFile)
+		if (!outputFile.is_open())
 		{
 			perror("TTFTP_ERROR: file open fail");
 			exit(1);
@@ -152,10 +155,13 @@ int main(int argc, char* argv[])
 		cout << "try to get data1" << endl;
 		//data1
 		struct sockaddr receivedAddress;
-		socklen_t receivedAddressLength = sizeof(sockaddr_in);
+		socklen_t receivedAddressLength = sizeof(sockaddr);
+		memset(&receivedAddress, 0, receivedAddressLength);
 		while (!success)
 		{
-			int result = select(1, &readfds, NULL, NULL, &tv); //this reads from server to client
+			cout << "sellect_0" << endl;
+			int result = select(socketFD+1, &readfds, NULL, NULL, &tv); //this reads from server to client
+			cout << "sellect_1 " << result<< endl;
 			if (result == 0)
 			{
 				errorCount++;
@@ -165,13 +171,16 @@ int main(int argc, char* argv[])
 					error.opcode = OP_ERROR;
 					error.errorCode = 0;
 					strcpy(error.message ,"Abandoning file transmission");
+					cout << "try to send error " << result << endl;
 					if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, &clientAddress, clientAddressLength) < 0)
 					{
 						perror("TTFTP_ERROR: sendto fail");
 						exit(1);
 					}
+					cout << "sent error " << result << endl;
 					break;
 				}
+				continue;
 			}
 
 			if (result < 0)
@@ -249,7 +258,7 @@ int main(int argc, char* argv[])
 		//data2
 		while (!success)
 		{
-			int result = select(1, &readfds, NULL, NULL, &tv); //this reads from server to client
+			int result = select(socketFD+1, &readfds, NULL, NULL, &tv); //this reads from server to client
 			if (result == 0)
 			{
 				errorCount++;
