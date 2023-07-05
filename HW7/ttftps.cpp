@@ -245,15 +245,14 @@ int main(int argc, char* argv[])
 
 		struct Data data1;
 		memcpy(&(data1.opcode), buffer, 2);
-		memcpy(&(data1.blockNumber), buffer + 2, 1);
-		memcpy(&(data1.data), buffer + 3, PACKET_SIZE - 4);
+		memcpy(&(data1.blockNumber), buffer + 2, 2);
+		memcpy(&(data1.data), buffer + 4, PACKET_SIZE - 4);
 		data1.opcode = ntohs(data1.opcode);
 		data1.blockNumber = ntohs(data1.blockNumber);
-		//data1.data = ntohs(data1.data); //FIXME
 		cout << "------------------------------" << data1.opcode <<"    " << OP_DATA << "    " << htons(OP_DATA) << "------------------------------" << endl;
 		cout << "------------------------------" << data1.blockNumber << "    " << ntohs(1) << "------------------------------" << endl;
-		cout << "---------------------" << buffer[0] << "  "  << buffer[1] << "  " << buffer[2] << "  " << buffer[3] << "  " << buffer[4] << "  " << "-------------------------" << endl;
-		cout << "---------------------" << ntohs(buffer[0]) << "  " << ntohs(buffer[1]) << "  " << ntohs(buffer[2]) << "  " << ntohs(buffer[3]) << "  " << ntohs(buffer[4]) << "  " << "-------------------------" << endl;
+		cout << "---------------------0" << buffer[0] << "  1"  << buffer[1] << " 2 " << buffer[2] << " 3 " << buffer[3] << " 4 " << buffer[4] << "  " << "-------------------------" << endl;
+		cout << "---------------------0" << ntohs(buffer[0]) << " 1 " << ntohs(buffer[1]) << " 2 " << ntohs(buffer[2]) << " 3 " << ntohs(buffer[3]) << " 4 " << ntohs(buffer[4]) << "  " << "-------------------------" << endl;
 		if (data1.opcode != OP_DATA)
 		{
 			error.errorCode = 4;
@@ -265,7 +264,7 @@ int main(int argc, char* argv[])
 			}
 			continue;
 		}
-		if (data1.blockNumber != htons(1))
+		if (data1.blockNumber !=1)
 		{
 			cout << "------------------------------" << data1.blockNumber  << "    " << ntohs(1) << "------------------------------" << endl;
 			error.errorCode = 0;
@@ -362,8 +361,8 @@ int main(int argc, char* argv[])
 
 		struct Data data2;
 		memcpy(&(data2.opcode), buffer, 2);
-		memcpy(&(data2.blockNumber), buffer + 2, 1);
-		memcpy(&(data2.data), buffer + 3, PACKET_SIZE - 4);
+		memcpy(&(data2.blockNumber), buffer + 2, 2);
+		memcpy(&(data2.data), buffer + 4, PACKET_SIZE - 4);
 		data2.opcode = ntohs(data2.opcode);
 		data2.blockNumber = ntohs(data2.blockNumber);
 		//data2.data = ntohs(data2.data); //FIXME
@@ -378,7 +377,7 @@ int main(int argc, char* argv[])
 			}
 			continue;
 		}
-		if (data2.blockNumber != ntohs(2))
+		if (data2.blockNumber != 2)
 		{
 			error.errorCode = 0;
 			strcpy(error.message , "Bad block number");
