@@ -278,9 +278,9 @@ int main(int argc, char* argv[])
 		//ack1
 		struct ACK ack1;
 		ack1.opcode = htons(OP_ACK);
-		ack1.blockNumber = htons(0);
-
-		if (sendto(socketFD, (void*)&ack1, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
+		ack1.blockNumber = htons(1);
+		int bytesSent = sendto(socketFD, &ack1, sizeof(ACK), 0, (struct sockaddr*)&clientAddress, sizeof(clientAddress));
+		if (bytesSent < 0)
 		{
 			perror("TTFTP_ERROR: sendto fail");
 			exit(1);
@@ -387,7 +387,7 @@ int main(int argc, char* argv[])
 		//ack2
 		struct ACK ack2;
 		ack2.opcode = htons(OP_ACK);
-		ack2.blockNumber = htons(0);
+		ack2.blockNumber = htons(2);
 
 		if (sendto(socketFD, (void*)&ack2, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 		{
