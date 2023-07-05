@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 	struct timeval tv;
 	tv.tv_sec = timeout;
 	tv.tv_usec = 0;
-	char buffer[PACKET_SIZE] ;
+	char buffer[PACKET_SIZE] = { 0 };
 
 	int socketFD = socket(AF_INET, SOCK_DGRAM, 0);
 	if(socketFD < 0)
@@ -91,6 +91,7 @@ int main(int argc, char* argv[])
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
 	serverAddress.sin_port = htons(port);
+
 	cout << "before bind" << endl;
 	if (bind(socketFD, (struct sockaddr*)&serverAddress, serverAddressLength) < 0)
 	{
@@ -102,11 +103,15 @@ int main(int argc, char* argv[])
 	{
 		unsigned short errorCount = 0;
 		struct ErrorMessage error;
+		error.opcode = OP_ERROR;
 		bool success = false;
 		int bytesRead = 0;
 		fd_set readfds;
+
 		FD_ZERO(&readfds);
 		FD_SET(socketFD, &readfds);
+		tv.tv_sec = timeout;
+		tv.tv_usec = 0;
 
 		memset(buffer, 0, sizeof(buffer));
 
@@ -140,7 +145,11 @@ int main(int argc, char* argv[])
 			continue;
 		}
 		cout << "got WRQ 2" << endl;
-		ofstream outputFile(wrq.fileName, std::ios::out | std::ios::binary);
+
+		//FIXME make sure file doesn't already exist
+		//ofstream outputFile(wrq.fileName, std::ios::out | std::ios::binary);
+		ofstream outputFile;
+		outputFile.open(wrq.fileName);
 		if (!outputFile.is_open())
 		{
 			perror("TTFTP_ERROR: file open fail");
@@ -148,10 +157,17 @@ int main(int argc, char* argv[])
 		}
 
 		cout << "try to send ack0" << endl;
+
+
+
+
+
+
+
 		//ack0
 		struct ACK ack0;
-		ack0.opcode = OP_ACK;
-		ack0.blockNumber = 0;
+		ack0.opcode = htons(OP_ACK);
+		ack0.blockNumber = htons(0); 
 
 		if (sendto(socketFD, (void*)&ack0, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 		{
@@ -161,22 +177,24 @@ int main(int argc, char* argv[])
 
 		cout << "try to get data1" << endl;
 		//data1
-		memset(buffer, 0, sizeof(buffer)); // clean buffer before reciving data to it
+		memset(buffer, '\0', sizeof(buffer)); // clean buffer before reciving data to it
 		struct sockaddr_in receivedAddress;
 		socklen_t receivedAddressLength = sizeof(sockaddr_in);
 		memset(&receivedAddress, 0, receivedAddressLength);
 		while (!success)
 		{
 			cout << "sellect_0" << endl;
-			int result = select(socketFD+1, &readfds, NULL, NULL, &tv); //this reads from server to client
+			FD_ZERO(&readfds);
+			FD_SET(socketFD, &readfds);
+			tv.tv_sec = timeout;
+			tv.tv_usec = 0;
+			int result = select(socketFD + 1, &readfds, NULL, NULL, &tv); //this reads from server to client
 			cout << "sellect_1 " << result<< endl;
 			if (result == 0)
 			{
 				errorCount++;
 				if (errorCount > maxErrorCount)
 				{
-					struct ErrorMessage error;
-					error.opcode = OP_ERROR;
 					error.errorCode = 0;
 					strcpy(error.message ,"Abandoning file transmission");
 					cout << "try to send error " << result << endl;
@@ -205,8 +223,8 @@ int main(int argc, char* argv[])
 			//if (strcmp(receivedAddress.sin_addr, clientAddress.sin_addr) !=0) //FIXME: check if compares the right fields fpr address
 			if (receivedAddress.sin_addr.s_addr != clientAddress.sin_addr.s_addr)
 			{
-				struct Data data1;
-				memcpy(&data1, buffer, sizeof(Data));  // FIXME why are we doing it?
+				//struct Data data1;
+				//memcpy(&data1, buffer, sizeof(Data));  // FIXME why are we doing it?
 				error.errorCode = 4;
 				strcpy(error.message , "Unexpected packet");
 				if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&receivedAddress, receivedAddressLength) < 0)
@@ -226,12 +244,12 @@ int main(int argc, char* argv[])
 		}
 
 		struct Data data1;
-		memcpy(&(data1.opcode, buffer, 2);
-		memcpy(&(data1.blockNumber, buffer + 2, 1);
-		memcpy(&(data1.data, buffer + 3, PACKET_SIZE - 4);
+		memcpy(&(data1.opcode), buffer, 2);
+		memcpy(&(data1.blockNumber), buffer + 2, 1);
+		memcpy(&(data1.data), buffer + 3, PACKET_SIZE - 4);
 		data1.opcode = ntohs(data1.opcode);
 		data1.blockNumber = ntohs(data1.blockNumber);
-		data1.data = ntohs(data1.data);
+		//data1.data = ntohs(data1.data); //FIXME
 		if (data1.opcode != OP_DATA)
 		{
 			error.errorCode = 4;
@@ -259,8 +277,8 @@ int main(int argc, char* argv[])
 		cout << "try to send ack1" << endl;
 		//ack1
 		struct ACK ack1;
-		ack1.opcode = OP_ACK;
-		ack1.blockNumber = 0;
+		ack1.opcode = htons(OP_ACK);
+		ack1.blockNumber = htons(0);
 
 		if (sendto(socketFD, (void*)&ack1, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 		{
@@ -270,17 +288,24 @@ int main(int argc, char* argv[])
 
 		cout << "try to get data2" << endl;
 		//data2
-		memset(buffer, 0, sizeof(buffer)); // clean buffer before reciving data to it
+		memset(buffer, '\0', sizeof(buffer)); // clean buffer before reciving data to it
+		memset(&receivedAddress, 0, receivedAddressLength);
 		while (!success)
 		{
-			int result = select(socketFD+1, &readfds, NULL, NULL, &tv); //this reads from server to client
-			if (result == 0)
+			cout << "select data 2" << endl;
+			FD_ZERO(&readfds);
+			FD_SET(socketFD, &readfds);
+			tv.tv_sec = timeout;
+			tv.tv_usec = 0;
+			cout << "before select" << endl;
+			int result2 = select(socketFD + 1, &readfds, NULL, NULL, &tv); //this reads from server to client
+			cout << "result2 of select " << result2 << endl;
+			if (result2 == 0)
 			{
 				errorCount++;
 				if (errorCount > maxErrorCount)
 				{
-					struct ErrorMessage error;
-					error.opcode = OP_ERROR;
+
 					error.errorCode = 0;
 					strcpy(error.message , "Abandoning file transmission");
 					if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
@@ -293,7 +318,7 @@ int main(int argc, char* argv[])
 				continue;
 			}
 
-			if (result < 0)
+			if (result2 < 0)
 			{
 				perror("TTFTP_ERROR: select fail");
 				exit(1);
@@ -307,8 +332,8 @@ int main(int argc, char* argv[])
 			//if (strcmp(receivedAddress.sin_addr, clientAddress.sin_addr) != 0)
 			if (receivedAddress.sin_addr.s_addr != clientAddress.sin_addr.s_addr)
 			{
-				struct Data data2;
-				memcpy(&data2, buffer, sizeof(Data));  // FIXME why are we doing it?
+				//struct Data data2;
+				//memcpy(&data2, buffer, sizeof(Data));  // FIXME why are we doing it?
 				error.errorCode = 4;
 				strcpy(error.message , "Unexpected packet");
 				if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&receivedAddress, receivedAddressLength) < 0)
@@ -328,12 +353,12 @@ int main(int argc, char* argv[])
 		}
 
 		struct Data data2;
-		memcpy(&(data2.opcode, buffer, 2);
-		memcpy(&(data2.blockNumber, buffer + 2, 1);
-		memcpy(&(data2.data, buffer + 3, PACKET_SIZE - 4);
+		memcpy(&(data2.opcode), buffer, 2);
+		memcpy(&(data2.blockNumber), buffer + 2, 1);
+		memcpy(&(data2.data), buffer + 3, PACKET_SIZE - 4);
 		data2.opcode = ntohs(data2.opcode);
 		data2.blockNumber = ntohs(data2.blockNumber);
-		data2.data = ntohs(data2.data);
+		//data2.data = ntohs(data2.data); //FIXME
 		if (data2.opcode != OP_DATA)
 		{
 			error.errorCode = 4;
@@ -355,11 +380,14 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		outputFile << data2.data; //FIXME check if this works
+		success = false;
+
 		cout << "try to send ack2" << endl;
 		//ack2
 		struct ACK ack2;
-		ack2.opcode = OP_ACK;
-		ack2.blockNumber = 0;
+		ack2.opcode = htons(OP_ACK);
+		ack2.blockNumber = htons(0);
 
 		if (sendto(socketFD, (void*)&ack2, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 		{
