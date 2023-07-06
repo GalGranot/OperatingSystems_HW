@@ -9,6 +9,9 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <cstdlib>
+#include <stdio.h>
+#include <fcntl.h>
+
 
 
 using std::string;
@@ -140,6 +143,20 @@ int main(int argc, char* argv[])
 
 		//FIXME make sure file doesn't already exist
 		//ofstream outputFile(wrq.fileName, std::ios::out | std::ios::binary);
+		char* tmpFileName = buffer + 2;
+		//FILE* tmpFilePtr = fopen(tmpFileName, "r");
+		//if (tmpFilePtr)
+		if(fopen(tmpFileName, "r"))
+		{
+			error.errorCode = htons(6);
+			strcpy(error.message, "File already exists");
+			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
+			{
+				perror("TTFTP_ERROR: sendto fail");
+				exit(1);
+			}
+			continue;
+		}
 		ofstream outputFile;
 		outputFile.open(wrq.fileName);
 		if (!outputFile.is_open())
@@ -148,22 +165,17 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 
-
-
-
-		// FIXME - add checker for file already exist & send error number 6 to client 
-
-
-
-
 		//ack0
 		struct ACK ack0;
 		ack0.opcode = htons(OP_ACK);
 		ack0.blockNumber = htons(0); 
 		if (sendto(socketFD, (void*)&ack0, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 		{
+			if (outputFile.is_open())
+				outputFile.close();
 			perror("TTFTP_ERROR: sendto fail");
 			exit(1);
+
 		}
 		//data1
 		memset(buffer, '\0', sizeof(buffer)); // clean buffer before reciving data to it
@@ -186,6 +198,8 @@ int main(int argc, char* argv[])
 					strcpy(error.message ,"Abandoning file transmission");
 					if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 					{
+						if (outputFile.is_open())
+							outputFile.close();
 						perror("TTFTP_ERROR: sendto fail");
 						exit(1);
 					}
@@ -196,12 +210,16 @@ int main(int argc, char* argv[])
 
 			if (result < 0)
 			{
+				if (outputFile.is_open())
+					outputFile.close();
 				perror("TTFTP_ERROR: select fail");
 				exit(1);
 			}
 			bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, (struct sockaddr*)&receivedAddress, &receivedAddressLength);
 			if (bytesRead < 0)
 			{
+				if (outputFile.is_open())
+					outputFile.close();
 				perror("TTFTP_ERROR: recvfrom fail");
 				exit(1);
 			}
@@ -214,6 +232,8 @@ int main(int argc, char* argv[])
 				strcpy(error.message , "Unexpected packet");
 				if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&receivedAddress, receivedAddressLength) < 0)
 				{
+					if (outputFile.is_open())
+						outputFile.close();
 					perror("TTFTP_ERROR: sendto fail");
 					exit(1);
 				}
@@ -224,7 +244,8 @@ int main(int argc, char* argv[])
 		}
 		if (!success)
 		{
-			//handle close files errors
+			if(outputFile.is_open())
+				outputFile.close();
 			continue;
 		}
 
@@ -240,6 +261,8 @@ int main(int argc, char* argv[])
 			strcpy(error.message , "Unexpected packet");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&receivedAddress, receivedAddressLength) < 0)
 			{
+				if (outputFile.is_open())
+					outputFile.close();
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
@@ -251,6 +274,8 @@ int main(int argc, char* argv[])
 			strcpy(error.message, "Bad block number");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&receivedAddress, receivedAddressLength) < 0)
 			{
+				if (outputFile.is_open())
+					outputFile.close();
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
@@ -263,9 +288,10 @@ int main(int argc, char* argv[])
 		ack1.opcode = htons(OP_ACK);
 		ack1.blockNumber = htons(1);
 		//int bytesSent = sendto(socketFD, (void*)&ack1, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength);				
-		usleep(1000000);
 		if (sendto(socketFD, (void*)&ack1, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 		{
+			if (outputFile.is_open())
+				outputFile.close();
 			perror("TTFTP_ERROR: sendto fail");
 			exit(1);
 		}
@@ -289,6 +315,8 @@ int main(int argc, char* argv[])
 					strcpy(error.message , "Abandoning file transmission");
 					if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 					{
+						if (outputFile.is_open())
+							outputFile.close();
 						perror("TTFTP_ERROR: sendto fail");
 						exit(1);
 					}
@@ -299,12 +327,16 @@ int main(int argc, char* argv[])
 
 			if (result2 < 0)
 			{
+				if (outputFile.is_open())
+					outputFile.close();
 				perror("TTFTP_ERROR: select fail");
 				exit(1);
 			}
 			bytesRead = recvfrom(socketFD, buffer, sizeof(buffer), 0, (struct sockaddr*)&receivedAddress, &receivedAddressLength);
 			if (bytesRead < 0)
 			{
+				if (outputFile.is_open())
+					outputFile.close();
 				perror("TTFTP_ERROR: recvfrom fail");
 				exit(1);
 			}
@@ -317,6 +349,8 @@ int main(int argc, char* argv[])
 				strcpy(error.message , "Unexpected packet");
 				if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&receivedAddress, receivedAddressLength) < 0)
 				{
+					if (outputFile.is_open())
+						outputFile.close();
 					perror("TTFTP_ERROR: sendto fail");
 					exit(1);
 				}
@@ -344,6 +378,8 @@ int main(int argc, char* argv[])
 			strcpy(error.message , "Unexpected packet");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&receivedAddress, receivedAddressLength) < 0)
 			{
+				if (outputFile.is_open())
+					outputFile.close();
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
@@ -355,6 +391,8 @@ int main(int argc, char* argv[])
 			strcpy(error.message , "Bad block number");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&receivedAddress, receivedAddressLength) < 0)
 			{
+				if (outputFile.is_open())
+					outputFile.close();
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
@@ -370,6 +408,8 @@ int main(int argc, char* argv[])
 
 		if (sendto(socketFD, (void*)&ack2, (size_t)sizeof(ACK), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
 		{
+			if (outputFile.is_open())
+				outputFile.close();
 			perror("TTFTP_ERROR: sendto fail");
 			exit(1);
 		}
