@@ -51,9 +51,10 @@ void* atmWrapper(void* arg)
 	while (1)
 	{
 		usleep(SECOND / 10);
-		if (atm.input.eof())
+		if (!std::getline(atm.input, line))
 			break;
-		std::getline(atm.input, line);
+		if (line.empty())
+			break;
 		Command command(line);
 		atm.handleAction(command);
 	}
