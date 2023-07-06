@@ -207,8 +207,6 @@ int main(int argc, char* argv[])
 					}
 					break;
 				}
-				if (outputFile.is_open())
-					outputFile.close();
 				continue;
 			}
 
@@ -241,8 +239,6 @@ int main(int argc, char* argv[])
 					perror("TTFTP_ERROR: sendto fail");
 					exit(1);
 				}
-				if (outputFile.is_open())
-					outputFile.close();
 				continue;
 			}
 
