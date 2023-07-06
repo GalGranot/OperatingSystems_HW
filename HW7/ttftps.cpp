@@ -146,8 +146,10 @@ int main(int argc, char* argv[])
 		char* tmpFileName = buffer + 2;
 		//FILE* tmpFilePtr = fopen(tmpFileName, "r");
 		//if (tmpFilePtr)
-		if(fopen(tmpFileName, "r"))
+		FILE* tmpFilePtr = fopen(tmpFileName, "r");
+		if(tmpFilePtr)
 		{
+			fclose(tmpFilePtr);
 			error.errorCode = htons(6);
 			strcpy(error.message, "File already exists");
 			if (sendto(socketFD, (void*)&error, (size_t)sizeof(ErrorMessage), 0, (struct sockaddr*)&clientAddress, clientAddressLength) < 0)
@@ -205,6 +207,8 @@ int main(int argc, char* argv[])
 					}
 					break;
 				}
+				if (outputFile.is_open())
+					outputFile.close();
 				continue;
 			}
 
@@ -237,6 +241,8 @@ int main(int argc, char* argv[])
 					perror("TTFTP_ERROR: sendto fail");
 					exit(1);
 				}
+				if (outputFile.is_open())
+					outputFile.close();
 				continue;
 			}
 
@@ -266,6 +272,8 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
+			if (outputFile.is_open())
+				outputFile.close();
 			continue;
 		}
 		if (data1.blockNumber !=1)
@@ -279,6 +287,8 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
+			if (outputFile.is_open())
+				outputFile.close();
 			continue;
 		}
 		outputFile << data1.data; //FIXME check if this works
@@ -322,6 +332,8 @@ int main(int argc, char* argv[])
 					}
 					break;
 				}
+				if (outputFile.is_open())
+					outputFile.close();
 				continue;
 			}
 
@@ -354,6 +366,8 @@ int main(int argc, char* argv[])
 					perror("TTFTP_ERROR: sendto fail");
 					exit(1);
 				}
+				if (outputFile.is_open())
+					outputFile.close();
 				continue;
 			}
 
@@ -362,6 +376,8 @@ int main(int argc, char* argv[])
 		if (!success)
 		{
 			//handle close files errors
+			if (outputFile.is_open())
+				outputFile.close();
 			continue;
 		}
 
@@ -383,6 +399,8 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
+			if (outputFile.is_open())
+				outputFile.close();
 			continue;
 		}
 		if (data2.blockNumber != 2)
@@ -396,6 +414,8 @@ int main(int argc, char* argv[])
 				perror("TTFTP_ERROR: sendto fail");
 				exit(1);
 			}
+			if (outputFile.is_open())
+				outputFile.close();
 			continue;
 		}
 
